@@ -1,0 +1,170 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: #acc4cf;
+}
+
+.page {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 確保內容從頂部開始 */
+    align-items: center;
+    background: #fff;
+    border-radius: 15px;
+    border: 1px solid #e6f0fa;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+}
+
+.form-group {
+    width: 100%;
+    margin: 10px 0; /* 上下間距設為 15px */
+    display: block;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.password-wrapper {
+    width: 100%;
+    position: relative;
+    display: block;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding: 10px 40px 10px 10px; /* 增加右側 padding 為 40px，預留圖標空間 */
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.password-wrapper .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #666;
+    cursor: pointer;
+    z-index: 1; /* 確保圖標在輸入框之上 */
+}
+
+/* 為圖標添加樣式 */
+.card i.fas {
+    font-size: 12px;
+    color: var(--primary);
+    margin-bottom: 15px;
+    /* 臨時移除 sticky，測試基本顯示 */
+    /* position: sticky;
+    top: 20px;
+    align-self: center;
+    z-index: 1; */
+}
+
+.password-toggle {
+    font-size: 16px;
+    color: #666;
+    cursor: pointer;
+}
+
+.form-group input::placeholder {
+    color: #999;
+    font-size: 14px;
+    opacity: 1;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #479AC7;
+    box-shadow: 0 0 5px rgba(71, 154, 199, 0.5);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #479AC7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.auth-button:hover {
+    background-color: #336699;
+}
+
+.terms {
+    margin-top: 15px;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+}
+
+.terms a {
+    color: #007BFF;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.terms a:hover {
+    text-decoration: underline;
+}
+
+/* 確保 .auth-switch 樣式正確 */
+.auth-switch {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.auth-switch a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
