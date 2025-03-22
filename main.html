@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>語聲聚來</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style_main.css">
+</head>
+<body>
+    <section id="main" class="page">
+        
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="images/LOGO.png" alt="語聲聚來" style="width: 75%; height: auto; display: block; margin: 0 auto;">
+            </div>
+            <a href="#" class="nav-link active" data-target="home">
+                <i class="fas fa-home"></i> 首頁
+            </a>
+            <a href="#" class="nav-link" data-target="progress">
+                <i class="fas fa-chart-line"></i> 進度追蹤
+            </a>
+            <a href="#" class="nav-link" data-target="practice">
+                <i class="fas fa-gamepad"></i> 情境練習
+            </a>
+            <a href="#" class="nav-link" data-target="daily-terms">
+                <i class="fas fa-comments"></i> 日常用語
+            </a>
+            <a href="#" class="nav-link" data-target="settings">
+                <i class="fas fa-cog"></i> 設定
+            </a>
+        </nav>
+
+        <div id="home-content" class="main-content-page active">
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1>歡迎回來，XXX！</h1>
+                    <p>今天是您語言治療的第 15 天，讓我們繼續努力吧！</p>
+                </div>
+            </section>
+
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">今日待完成</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">已完成練習</div>
+                </div>
+            </div>
+
+            <section class="practice-section">
+                <div class="card-header">
+                    <i class="fas fa-microphone"></i>
+                    <h3>開始練習</h3>
+                </div>
+                <div class="practice-grid">
+                    <div class="practice-card">
+                        <div class="practice-title">基礎發音練習</div>
+                        <div class="practice-description">練習基本聲母和韻母的發音</div>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">情境對話練習</div>
+                        <div class="practice-description">模擬日常對話，提升語感</div>
+                    </div>
+                </div>
+            </section>
+            <section class="motivation-quote">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <div class="quote-text">
+                    「持之以恆的練習是進步的關鍵，讓我們一起努力！」
+                </div>
+                <div class="quote-author">- 您的語言治療師</div>
+            </section>
+        </div>
+    </section>
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
