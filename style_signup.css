@@ -9,13 +9,13 @@ body {
     min-height: 100vh;
     margin: 0;
     justify-content: center;
-    align-items: center;
+    align-items: center; 
     background-color: #acc4cf;
 }
 
 .page {
     width: 100%;
-    min-height: 100%;
+    min-height: 100vh; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -24,16 +24,19 @@ body {
 .card {
     width: 100%;
     max-width: 400px;
+    max-height: 80vh; 
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* 確保內容從頂部開始 */
+    justify-content: flex-start;
     align-items: center;
     background: #fff;
     border-radius: 15px;
     border: 1px solid #e6f0fa;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-    padding: 20px;
+    padding: 40px 20px 20px 20px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow-y: auto; 
+    margin-top: 20px; 
 }
 
 .card:hover {
@@ -43,9 +46,24 @@ body {
 
 .form-group {
     width: 100%;
-    margin: 10px 0; /* 上下間距設為 15px */
+    margin: 10px 0;
     display: block;
 }
+
+.auth-logo {
+    text-align: center; 
+}
+
+.form-group.row {
+    display: flex;
+    gap: 10px; 
+}
+
+.gender-group,
+.age-group {
+    width: 50%; 
+}
+
 
 .form-group label {
     display: block;
@@ -55,13 +73,26 @@ body {
     text-align: left;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
     width: 100%;
-    padding: 10px;
+    padding: 11px 10px; 
     font-size: 14px;
+    line-height: 18px; 
+    height: 44px; 
     border: 1px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
+    background: #fff;
+}
+
+.form-group select {
+    padding-right: 30px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%23666" d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
 }
 
 .password-wrapper {
@@ -72,11 +103,14 @@ body {
 
 .password-wrapper input {
     width: 100%;
-    padding: 10px 40px 10px 10px; /* 增加右側 padding 為 40px，預留圖標空間 */
+    padding: 11px 40px 11px 10px; 
     font-size: 14px;
+    line-height: 18px;
+    height: 44px; 
     border: 1px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
+    background: #fff;
 }
 
 .password-wrapper .password-toggle {
@@ -87,19 +121,21 @@ body {
     font-size: 16px;
     color: #666;
     cursor: pointer;
-    z-index: 1; /* 確保圖標在輸入框之上 */
+    z-index: 1;
 }
 
-/* 為圖標添加樣式 */
-.card i.fas {
-    font-size: 12px;
-    color: var(--primary);
-    margin-bottom: 15px;
-    /* 臨時移除 sticky，測試基本顯示 */
-    /* position: sticky;
-    top: 20px;
-    align-self: center;
-    z-index: 1; */
+.card i.fas.fa-user-plus {
+    font-size: 48px;
+    margin-bottom: 20px;
+    display: block; 
+    margin-left: auto; 
+    margin-right: auto; 
+}
+
+.card h1,
+.card p {
+    text-align: center; 
+    margin: 5px 0; 
 }
 
 .password-toggle {
@@ -108,13 +144,15 @@ body {
     cursor: pointer;
 }
 
-.form-group input::placeholder {
+.form-group input::placeholder,
+.form-group select option[disabled] {
     color: #999;
     font-size: 14px;
     opacity: 1;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
     border-color: #479AC7;
     box-shadow: 0 0 5px rgba(71, 154, 199, 0.5);
@@ -154,7 +192,6 @@ body {
     text-decoration: underline;
 }
 
-/* 確保 .auth-switch 樣式正確 */
 .auth-switch {
     text-align: center;
     margin-top: 10px;
