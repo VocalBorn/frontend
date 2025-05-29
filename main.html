@@ -4,85 +4,381 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>語聲聚來</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link id="fa-link" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+    document.getElementById('fa-link').addEventListener('error', function() {
+        this.href = 'font-awesome.min.css';
+    });
+    </script>
     <link rel="stylesheet" href="style_main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="
+    var script = document.createElement('script');
+    script.src = 'chart.min.js';
+    document.head.appendChild(script);
+    "></script>
 </head>
 <body>
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
     <section id="main" class="page">
-        
+        <div class="hamburger">
+            <i class="fas fa-bars"></i>
+        </div>
+
         <nav class="sidebar">
             <div class="logo">
                 <img src="images/LOGO.png" alt="語聲聚來" style="width: 75%; height: auto; display: block; margin: 0 auto;">
             </div>
-            <a href="#" class="nav-link active" data-target="home">
-                <i class="fas fa-home"></i> 首頁
+            <a href="#" class="nav-link" data-target="home">
+                <i class="fas fa-home"></i>首頁
             </a>
             <a href="#" class="nav-link" data-target="progress">
-                <i class="fas fa-chart-line"></i> 進度追蹤
+                <i class="fas fa-chart-line"></i>進度追蹤
             </a>
             <a href="#" class="nav-link" data-target="practice">
-                <i class="fas fa-gamepad"></i> 情境練習
+                <i class="fas fa-gamepad"></i>情境練習
+            </a>
+            <a href="#" class="nav-link" data-target="location-terms">
+                <i class="fa-solid fa-location-dot"></i> 智慧定位
             </a>
             <a href="#" class="nav-link" data-target="daily-terms">
-                <i class="fas fa-comments"></i> 日常用語
+                <i class="fas fa-comments"></i>常用用語
             </a>
             <a href="#" class="nav-link" data-target="settings">
-                <i class="fas fa-cog"></i> 設定
+                <i class="fas fa-cog"></i>設定
             </a>
         </nav>
 
-        <div id="home-content" class="main-content-page active">
-            <section class="hero-section">
-                <div class="hero-content">
-                    <h1>歡迎回來，XXX！</h1>
-                    <p>今天是您語言治療的第 15 天，讓我們繼續努力吧！</p>
-                </div>
-            </section>
+        <div class="overlay"></div>
 
-            <div class="quick-stats">
-                <div class="stat-card">
-                    <div class="stat-number">3</div>
-                    <div class="stat-label">今日待完成</div>
+        <div class="main-content">
+            <div id="home-content" class="main-content-page active">
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>歡迎回來，XXX！</h1>
+                        <p>今天是您語言治療的第 15 天，讓我們繼續努力吧！</p>
+                    </div>
+                </section>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">今日待完成</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">已完成練習</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">12</div>
-                    <div class="stat-label">已完成練習</div>
+
+                <section class="practice-section">
+                    <div class="card-header">
+                        <i class="fas fa-microphone"></i>
+                        <h3>開始練習</h3>
+                    </div>
+                    <div class="practice-grid">
+                        <div class="practice-card">
+                            <div class="practice-title">基礎發音練習</div>
+                            <div class="practice-description">練習基本聲母和韻母的發音</div>
+                        </div>
+                        <div class="practice-card">
+                            <div class="practice-title">情境對話練習</div>
+                            <div class="practice-description">模擬日常對話，提升語感</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="motivation-quote">
+                    <i class="fas fa-quote-left quote-icon"></i>
+                    <div class="quote-text">
+                        「持之以恆的練習是進步的關鍵，讓我們一起努力！」
+                    </div>
+                    <div class="quote-author">- 您的語言治療師</div>
+                </section>
+            </div>
+
+            <div id="progress-content" class="main-content-page">
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>進度追蹤</h1>
+                        <p>查看您的學習進度和成就</p>
+                    </div>
+                </section>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">已完成練習</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">85%</div>
+                        <div class="stat-label">平均準確率</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">今日待完成</div>
+                    </div>
+                </div>
+
+                <section class="progress-section">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>學習進度</h3>
+                    </div>
+                    <div class="progress-chart">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="achievement-section">
+                    <div class="card-header">
+                        <i class="fas fa-trophy"></i>
+                        <h3>成就</h3>
+                    </div>
+                    <div class="achievement-grid">
+                        <div class="achievement-card">
+                            <div class="achievement-icon">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="achievement-title">完成 10 次練習</div>
+                            <div class="achievement-description">恭喜您完成了 10 次練習，繼續加油！</div>
+                        </div>
+                        <div class="achievement-card">
+                            <div class="achievement-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="achievement-title">達到 90% 準確率</div>
+                            <div class="achievement-description">您的平均準確率達到了 90%，保持這個好成績！</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="practice-content" class="main-content-page">
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>情境練習</h1>
+                        <p>選擇一個情境開始練習</p>
+                    </div>
+                </section>
+            
+                <div class="practice-container" id="practice-card-container"> 
+                    <div class="practice-card">
+                        <div class="practice-title">餐廳點餐</div>
+                        <div class="practice-description">學習如何在餐廳點餐</div>
+                        <button class="practice-button" data-video="order.mp4">開始練習</button>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">醫院就診</div>
+                        <div class="practice-description">學習如何在醫院就診</div>
+                        <button class="practice-button" data-video="hospital.mp4">開始練習</button>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">購物付款</div>
+                        <div class="practice-description">學習如何在商店付款</div>
+                        <button class="practice-button" data-video="shopping.mp4">開始練習</button>
+                    </div>
+                </div>
+
+                <div id="practice-video-section" class="practice-hidden">
+                    <button id="practice-back-button">← 返回選單</button>
+                    <video id="practice-scenario-video" controls>
+                        <source id="practice-video-source" src="" type="video/mp4">
+                        您的瀏覽器不支援影片播放。
+                    </video>
                 </div>
             </div>
 
-            <section class="practice-section">
-                <div class="card-header">
-                    <i class="fas fa-microphone"></i>
-                    <h3>開始練習</h3>
-                </div>
-                <div class="practice-grid">
-                    <div class="practice-card">
-                        <div class="practice-title">基礎發音練習</div>
-                        <div class="practice-description">練習基本聲母和韻母的發音</div>
+            <div id="location-terms-content" class="main-content-page">
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>智慧定位用語</h1>
+                        <p>根據您的位置推薦適合的常用語句</p>
                     </div>
-                    <div class="practice-card">
-                        <div class="practice-title">情境對話練習</div>
-                        <div class="practice-description">模擬日常對話，提升語感</div>
+                </section>
+        
+                <div class="location-terms-container">
+                    <div class="location-info">
+                        <p><i class="fa-solid fa-map-marker-alt"></i> 目前位置：
+                        <span id="currentLocation">獲取中...</span></p>
+                    </div>
+            
+                    <div id="map" class="map"></div>
+                
+            
+                    <div id="recommendedTermsList" class="terms-list">
+                        <p><i class="fa-solid fa-map-location-dot"></i> 附近地點</p>
+                    </div>
+            
+                    <div id="suggestedPhrases" class="phrases-list hidden">
+                        <p><i class="fa-solid fa-lightbulb"></i> 推薦語句</p>
+                        <div id="phraseButtons"></div>
+                        <button id="backButton" class="back-btn"> < 返回地點</button>
+                    </div> 
+                </div>
+            </div>
+
+            <div id="daily-terms-content" class="main-content-page">
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>常用用語</h1>
+                        <p>管理和使用您的常用語句</p>
+                    </div>
+                </section>
+        
+                <div class="daily-terms-container">
+                    <div class="input-group">
+                        <input type="text" id="dailyTermInput" placeholder="輸入常用語句">
+                    </div>
+        
+                    <div class="button-group">
+                        <button id="playDailyTermButton" class="button">播放</button>
+                        <button id="addDailyTermButton" class="button">新增</button>
+                    </div>
+        
+                    <div id="dailyTermsList" class="terms-list">
+                        <p><i class="fa-solid fa-heart" style="color: rgb(255, 128, 128); font-size: 24px;"></i> 您的最愛</p>
                     </div>
                 </div>
-            </section>
-            <section class="motivation-quote">
-                <i class="fas fa-quote-left quote-icon"></i>
-                <div class="quote-text">
-                    「持之以恆的練習是進步的關鍵，讓我們一起努力！」
+            </div>
+
+            <div id="settings-page" class="main-content-page">
+                <div class="setting">
+                  <img src="images/User.jpeg" alt="使用者照片" class="user-pic" />
+                  <div class="username">這裡是使用者的名字</div>
+            
+                  <div class="settings-container">
+                    <div class="settings-item" id="showProfile">
+                      <label class="auth-switch">個人檔案</label>
+                      <i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                    <div class="settings-item" id="showNotification">
+                      <label>通知設定</label><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                    <div class="settings-item" id="showHelp">
+                      <label>幫助</label><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                    <div class="settings-item" id="showAbout">
+                      <label>關於語聲俱來</label><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                  </div>
+            
+                  <button class="logout-btn" onclick="logout()">登出</button>
                 </div>
-                <div class="quote-author">- 您的語言治療師</div>
-            </section>
+            </div>
+
+            <!-- 個人檔案頁面 -->
+            <div id="profile-content" class="main-content-page">
+    <div class="profile">
+        <div class="profile-container">
+            <div class="profile-item" id="showSetting">
+                <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+            </div>
+            <hr/>
+            <div class="profile-item">
+                <label class="profile-option" id="edit-name" data-target="edit-name">姓名</label>
+            </div>
+            <hr/>
+            <div class="profile-item">
+                <label class="profile-option" data-target="edit-email">電子郵件</label>
+            </div>
+            <hr/>
+            <div class="profile-item">
+                <label class="profile-option" data-target="change-password">變更密碼</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- 姓名編輯頁面 -->
+            <div id="edit-name-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="edit-name-item" id="backToProfile">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label>編輯姓名</label>
+                            <input type="text" id="nameInput" placeholder="輸入新姓名">
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <button class="button" onclick="saveName()">儲存</button>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <button class="button" onclick="savechange()">儲存變更</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="notification-content" class="main-content-page">
+                <div class="notification">
+                    <div class="notification-container">
+                        <div class="notification-item" id="backToSettingfromNotify">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                        </div>
+                        <hr/>
+                        <div class="notification-item">
+                            <label>每日練習提醒</label>
+                            <div class="setting-toggle">
+                                <label class="switch">
+                                  <input type="checkbox" id="notifyToggle" checked>
+                                  <span class="slider round"></span>
+                                </label>
+                              </div>
+                              
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+
+            <div id="help-content" class="main-content-page">
+                <div class="help">
+                    <div class="help-container">
+                        <div class="help-item" id="backToSettingfromHelp">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                        </div>
+                        <hr/>
+                        <div class="help-item">
+                            <label>如何更改密碼？</label>
+                        </div>
+                        <hr/>
+                        <div class="help-item">
+                            <label>使用教學</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="about-content" class="main-content-page">
+                <div class="about">
+                    <div class="about-container">
+                        <div class="about-item" id="backToSettingfromAbout">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                        </div>
+                        <hr/>
+                        <div class="about-item">
+                            <a href="private.html">使用條款與隱私權政策</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
-    <script>
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    </script>
+
+    <script src="script.js"></script>
 </body>
 </html>
