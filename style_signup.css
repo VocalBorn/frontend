@@ -158,6 +158,22 @@ body {
     box-shadow: 0 0 5px rgba(71, 154, 199, 0.5);
 }
 
+.password-hints {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #666;
+}
+
+.hint {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+}
+
+.hint-icon, .confirm-hint-icon {
+    margin-left: 10px;
+}
+
 .auth-button {
     width: 100%;
     padding: 10px;
