@@ -37,21 +37,30 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>註冊帳號</label>
-                    <input type="text" placeholder="請輸入您的帳號">
+                    <label>電子郵件</label>
+                    <input type="text" placeholder="請輸入您的電子郵件">
                 </div>
                 <div class="form-group">
                     <label>設定密碼</label>
                     <div class="password-wrapper">
-                        <input type="password" placeholder="請設定您的密碼">
+                        <input type="password" id="password" placeholder="請設定您的密碼">
                         <i class="fas fa-eye password-toggle"></i>
+                    </div>
+                    <div class="password-hints">
+                        <div class="hint"><span>包含一個大寫字母</span><span class="hint-icon"></span></div>
+                        <div class="hint"><span>包含一個小寫字母</span><span class="hint-icon"></span></div>
+                        <div class="hint"><span>包含一個特殊符號</span><span class="hint-icon"></span></div>
+                        <div class="hint"><span>總長度至少八個字符</span><span class="hint-icon"></span></div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>確認密碼</label>
                     <div class="password-wrapper">
-                        <input type="password" placeholder="請再次輸入密碼">
+                        <input type="password" id="confirm-password" placeholder="請再次輸入密碼">
                         <i class="fas fa-eye password-toggle"></i>
+                    </div>
+                    <div class="password-hints">
+                        <div class="hint"><span>與設定密碼一致</span><span class="hint-icon confirm-hint-icon"></span></div>
                     </div>
                 </div>
                 <button type="submit" class="auth-button">註冊</button>
@@ -67,6 +76,10 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const toggleIcons = document.querySelectorAll('.password-toggle');
+            const passwordInput = document.querySelector('#password');
+            const confirmPasswordInput = document.querySelector('#confirm-password');
+            const hintIcons = document.querySelectorAll('.password-hints .hint-icon');
+            const confirmHintIcon = document.querySelector('.confirm-hint-icon');
 
             toggleIcons.forEach(toggle => {
                 toggle.addEventListener('click', function() {
@@ -77,6 +90,34 @@
                     this.classList.toggle('fa-eye-slash');
                 });
             });
+
+            function updatePasswordHints() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                const conditions = [
+                    /[A-Z]/.test(password), // 大寫字母
+                    /[a-z]/.test(password), // 小寫字母
+                    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]/.test(password), // 特殊符號
+                    password.length >= 8 // 長度至少8個字符
+                ];
+
+                hintIcons.forEach((icon, index) => {
+                    icon.textContent = conditions[index] ? '✅' : '❌';
+                    icon.style.color = conditions[index] ? 'green' : 'red';
+                });
+
+                if (confirmPassword) {
+                    const passwordsMatch = password === confirmPassword;
+                    confirmHintIcon.textContent = passwordsMatch ? '✅' : '❌';
+                    confirmHintIcon.style.color = passwordsMatch ? 'green' : 'red';
+                } else {
+                    confirmHintIcon.textContent = '';
+                }
+            }
+
+            passwordInput.addEventListener('input', updatePasswordHints);
+            confirmPasswordInput.addEventListener('input', updatePasswordHints);
         });
     </script>
 </body>
