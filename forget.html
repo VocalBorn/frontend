@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh_TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>忘記密碼</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="page">
+        <div class="card">
+            <img src="images/LOGO.png" alt="語聲俱來" class="logo">
+            <div class="form-group">
+                <label for="email">電子郵件</label>
+                <input type="email" id="email" name="email" placeholder="請輸入註冊時的電子郵件">
+            </div>
+            <button class="button" id="send-link-btn">發送重設密碼連結</button>
+            <button class="button" id="resend-link-btn" disabled style="margin-top: 10px; background-color: gray;">重新寄送連結</button>
+            <div class="register-container">
+                <a href="index.html" class="register-link">回到登入頁</a>
+            </div>
+            <div style="flex-grow: 1;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const resendBtn = document.getElementById('resend-link-btn');
+            const sendLinkBtn = document.getElementById('send-link-btn');
+            let countdown = 60;
+            let timer;
+
+            function startCountdown() {
+                resendBtn.disabled = true;
+                resendBtn.style.backgroundColor = 'gray';
+                resendBtn.textContent = `重新寄送連結 (${countdown})`;
+
+                timer = setInterval(function() {
+                    countdown--;
+                    resendBtn.textContent = `重新寄送連結 (${countdown})`;
+
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        resendBtn.disabled = false;
+                        resendBtn.textContent = '重新寄送連結';
+                        resendBtn.style.backgroundColor = '#479AC7'; // 恢復原本按鈕顏色
+                        countdown = 60; // 重設倒數
+                    }
+                }, 1000);
+            }
+
+            sendLinkBtn.addEventListener('click', function() {
+                startCountdown();
+            });
+
+            resendBtn.addEventListener('click', function() {
+                startCountdown();
+                // 這裡可以加上真正呼叫寄信API的程式，例如 fetch('寄信API')...
+            });
+        });
+    </script>
+</body>
+</html>
