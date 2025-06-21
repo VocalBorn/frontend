@@ -221,3 +221,30 @@ body {
 .auth-switch a:hover {
     text-decoration: underline;
 }
+
+.role-button-group {
+  display: flex;
+  gap: 1rem;
+  
+}
+
+.role-button {
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #479ac7;
+  border-radius: 12px;
+  background-color: white;
+  color: #479ac7;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  flex: 1;
+  text-align: center;
+}
+
+input[name="userRole"]:checked + .role-button {
+  background-color: #479ac7;
+  color: white;
+  box-shadow: 0 4px 12px rgba(110, 132, 255, 0.3);
+  transform: translateY(-2px);
+}

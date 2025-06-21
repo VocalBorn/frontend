@@ -16,6 +16,15 @@
                 <p>開始您的語音治療之旅</p>
             </div>
             <form class="auth-form" id="registerForm">
+                <div class="form-group user-role-group">
+                <div class="role-button-group">
+                    <input type="radio" name="userRole" id="role-patient" value="patient" checked hidden>
+                    <label for="role-patient" class="role-button">我是患者</label>
+
+                    <input type="radio" name="userRole" id="role-therapist" value="therapist" hidden>
+                    <label for="role-therapist" class="role-button">我是治療師</label>
+                </div>
+                </div>
                 <div class="form-group">
                     <label for="registerName">使用者名稱</label>
                     <input type="text" id="registerName" required placeholder="請輸入您的姓名">
