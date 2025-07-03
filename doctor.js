@@ -84,3 +84,5 @@ async function checkPairingStatus(token) {
     qrContainer.classList.remove("qr-hidden");
   });
 });
+
+
