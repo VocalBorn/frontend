@@ -39,6 +39,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nameInput) {
         nameInput.value = currentUsername;
     }
+    // 初始化今日學習進度條（例如：60% 完成）
+    const progressFill = document.querySelector('.progress-fill');
+    if (progressFill) {
+    // ✅ 這裡可根據實際數據換算百分比，例如：
+    const completed = 3; // 假設今天已完成 3 次
+    const target = 5;    // 今日目標 5 次
+    const percent = Math.min((completed / target) * 100, 100);
+    progressFill.style.width = percent + '%';
+    log(`已設定進度條寬度為 ${percent.toFixed(1)}%`);
+}
+
+    // === 初始化性別顯示（放在這裡） ===
+    const gender = localStorage.getItem('userGender');
+    const select = document.getElementById('genderSelect');
+    if (gender && select) {
+        select.value = gender;
+    }
 
     // === 登入/註冊處理 ===
     const loginPage = document.getElementById('login');
@@ -154,6 +171,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 log('註冊成功');
             });
         }
+        // 切換「我是患者 / 我是治療師」角色按鈕功能
+         const tabButtons = document.querySelectorAll('.tab-btn');
+            const roleInput = document.getElementById('userRole');
+
+            if (!tabButtons.length || !roleInput) {
+                console.warn("按鈕或隱藏欄位抓不到！");
+                return;
+            }
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                roleInput.value = this.dataset.role;
+                console.log("已選擇身份為：" + roleInput.value);
+                });
+            });
 
         // 密碼顯示/隱藏切換
         document.querySelectorAll('.password-toggle').forEach(toggle => {
@@ -176,9 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('密碼重置功能即將推出');
             });
         }
-    } else {
-        log('未找到登入/註冊頁面，跳過相關邏輯', 'warn');
-    }
+        } else {
+            log('未找到登入/註冊頁面，跳過相關邏輯', 'warn');
+        }
+});
 
     // === 導航 ===
     let chartInstance = null;
@@ -187,18 +222,99 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (navLinks.length === 0) {
         log('未找到任何 .nav-link 元素，請檢查 HTML 結構', 'error');
-        return;
-    }
-
+    }else {
     const switchPage = (target) => {
         log(`切換到頁面: ${target}`);
 
-        // 更新活躍導航連結
         navLinks.forEach(l => l.classList.remove('active'));
         const activeLink = document.querySelector(`.nav-link[data-target="${target}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
         }
+
+        document.querySelectorAll('.main-content-page').forEach(page => {
+            page.classList.remove('active');
+            page.classList.add('hidden');
+        });
+
+        const targetId = target === 'settings' ? 'settings-page' : `${target}-content`;
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            targetContent.classList.remove('hidden');
+        } else {
+            log(`找不到 ID 為 ${targetId} 的元素`, 'error');
+        }
+
+        location.hash = `#${target}`;
+
+        if (target === 'progress' && typeof Chart !== 'undefined') {
+            const ctx = document.getElementById('progressChart')?.getContext('2d');
+            if (ctx) {
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['第1天', '第5天', '第10天', '第15天'],
+                        datasets: [{
+                            label: '練習完成次數',
+                            data: [2, 5, 8, 12],
+                            borderColor: '#479ac7',
+                            backgroundColor: 'rgba(71, 154, 199, 0.2)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: '完成次數' } },
+                            x: { title: { display: true, text: '日期' } }
+                        }
+                    }
+                });
+            } else {
+                log('找不到 progressChart 元素', 'error');
+            }
+        }
+
+        if (target === 'location-terms') {
+            getLocation();
+        }
+
+        if (target === 'edit-name') {
+            const nameInput = document.getElementById('nameInput');
+            if (nameInput) {
+                const currentUsername = usernameElements['profile-username']?.textContent || '這裡是使用者的名字';
+                nameInput.value = currentUsername;
+                nameInput.focus();
+            }
+        }
+
+        if (target === 'change-password') {
+            const current = document.getElementById('currentPassword');
+            if (current) current.focus();
+        }
+    };
+
+    // 將這些事件綁定放進這裡
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const target = link.getAttribute('data-target');
+            log(`點擊了側邊欄選項: ${target}`);
+            switchPage(target);
+        });
+    });
+}
+
+    const switchPage = (target) => {
+        log(`切換到頁面: ${target}`);
+
+
 
         // 更新活躍頁面
         document.querySelectorAll('.main-content-page').forEach(page => {
@@ -216,19 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 更新瀏覽器歷史記錄
-        history.pushState({ target }, '', `/${target}`);
-
-        // 處理行動端側邊欄
-        if (window.innerWidth <= 768) {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const overlay = document.querySelector('.overlay');
-            if (sidebar && mainContent && overlay) {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('expanded');
-                overlay.classList.remove('active');
-            }
-        }
+        location.hash = `#${target}`;
 
         // 渲染進度圖表
         if (target === 'progress' && typeof Chart !== 'undefined') {
@@ -277,6 +381,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 nameInput.focus();
             }
         }
+        if (target === 'change-password') {
+        const current = document.getElementById('currentPassword');
+        if (current) current.focus();
+}
     };
 
     // 綁定導航事件
@@ -308,7 +416,42 @@ document.addEventListener('DOMContentLoaded', () => {
             log('返回個人檔案頁面');
         });
     }
+    const backToProfileFromPassword = document.getElementById('backToProfileFromPassword');
+    if (backToProfileFromPassword) {
+        backToProfileFromPassword.addEventListener('click', () => {
+            switchPage('profile');
+        });
+    }
+    const helpHowToItem = document.getElementById('how-to-change-password-item');
+    if (helpHowToItem) {
+    helpHowToItem.addEventListener('click', () => {
+        switchPage('how-to-change-password');
+    });
+    }
 
+    const backToHelpFromHowTo = document.getElementById('backToHelpFromHowTo');
+    if (backToHelpFromHowTo) {
+    backToHelpFromHowTo.addEventListener('click', () => {
+        switchPage('help');
+    });
+    }
+
+    const tutorialItem = document.getElementById('tutorial-item');
+    if (tutorialItem) {
+    tutorialItem.addEventListener('click', () => {
+        switchPage('tutorial');
+    });
+    }
+
+    const backToHelpFromTutorial = document.getElementById('backToHelpFromTutorial');
+    if (backToHelpFromTutorial) {
+    backToHelpFromTutorial.addEventListener('click', () => {
+        switchPage('help');
+    });
+    }
+
+
+ 
     // === 側邊欄切換 ===
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('.main-content');
@@ -379,9 +522,16 @@ document.addEventListener('DOMContentLoaded', () => {
         log('找不到漢堡選單、側邊欄、主內容或遮罩層元素', 'error');
     }
 
+    // 移除 loading 動畫
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+    }
+
     // === 初始頁面載入 ===
-    const validPaths = ['home', 'progress', 'practice', 'location-terms', 'daily-terms', 'settings', 'profile', 'notification', 'help', 'about', 'edit-name', 'edit-email', 'change-password'];
-    const path = window.location.pathname.replace('/', '') || 'home';
+   // === 初始頁面載入（使用 hash 模式） ===
+    const validPaths = ['home', 'progress', 'practice', 'location-terms', 'daily-terms','instant-messaging-terms', 'settings', 'profile', 'notification', 'help', 'about', 'edit-name', 'edit-gender', 'change-password', 'how-to-change-password', 'tutorial'];
+    const path = location.hash.replace('#', '') || 'home';  // ✅ 使用 hash
     if (validPaths.includes(path)) {
         log(`初始頁面: ${path}`);
         switchPage(path);
@@ -390,16 +540,19 @@ document.addEventListener('DOMContentLoaded', () => {
         switchPage('404');
     }
 
-    window.addEventListener('popstate', (event) => {
-        const target = event.state?.target || 'home';
-        log(`瀏覽器後退/前進到頁面: ${target}`);
-        if (validPaths.includes(target)) {
-            switchPage(target);
+    // === hash 變化時切換頁面 ===
+    window.addEventListener('hashchange', () => {
+        const validPaths = ['home', 'progress', 'practice', 'location-terms', 'daily-terms','instant-messaging-terms', 'settings', 'profile', 'notification', 'help', 'about', 'edit-name', 'edit-gender', 'change-password', 'how-to-change-password', 'tutorial'];
+        const path = location.hash.replace('#', '') || 'home';
+        if (validPaths.includes(path)) {
+            log(`偵測到 hash 改變: ${path}`);
+            switchPage(path);
         } else {
-            log(`無效的路徑: ${target}，顯示 404 頁面`, 'warn');
+            log(`無效的 hash: ${path}，顯示 404 頁面`, 'warn');
             switchPage('404');
         }
     });
+
 
     // === 每日詞彙 ===
     const inputField = document.getElementById('dailyTermInput');
@@ -757,18 +910,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 即時溝通頁面功能
+document.addEventListener("DOMContentLoaded", function() {
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const chatMessages = document.getElementById("chatMessages");
+
+    // 發送訊息的函數
+    function sendMessage(message) {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "user-message");
+
+        // 設置訊息內容
+        const messageText = document.createElement("span");
+        messageText.textContent = message;
+        messageElement.appendChild(messageText);
+
+        // 設置時間
+        const timeElement = document.createElement("span");
+        timeElement.classList.add("message-time");
+        const now = new Date();
+        timeElement.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        messageElement.appendChild(timeElement);
+
+        // 將訊息添加到訊息區域
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // 滾動至訊息區底部
+    }
+
+    // 監聽發送按鈕
+    sendButton.addEventListener("click", function() {
+        const userMessage = chatInput.value.trim();
+
+        if (userMessage) {
+            sendMessage(userMessage);
+            chatInput.value = ""; // 清空輸入框
+        }
+    });
+
+    // 監聽回車鍵發送訊息
+    chatInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter" && chatInput.value.trim() !== "") {
+            sendButton.click();
+        }
+    });
+
     // === 設定頁面 ===
     const settingsButtons = {
-        showProfile: 'profile',
-        showSetting: 'settings',
-        showNotification: 'notification',
-        backToSettingfromNotify: 'settings',
-        showHelp: 'help',
-        backToSettingfromHelp: 'settings',
-        showAbout: 'about',
-        backToSettingfromAbout: 'settings',
-        editName: 'edit-name',           // 新增：切換到編輯姓名頁面
-        backToProfile: 'profile'         // 新增：從編輯姓名頁面返回個人檔案頁面
+    showProfile: 'profile',
+    showSetting: 'settings',
+    showNotification: 'notification',
+    backToSettingfromNotify: 'settings',
+    showHelp: 'help',
+    backToSettingfromHelp: 'settings',
+    showAbout: 'about',
+    backToSettingfromAbout: 'settings',
+    editName: 'edit-name',                  // 切換到編輯姓名
+    backToProfile: 'profile',               // 編輯頁返回
+    changePassword: 'change-password' ,
+    backToProfileFromPassword: 'profile',      // ✅ 新增：切換到變更密碼
+    editGender: 'edit-gender', // ← 修正這行，對應性別頁
+    backToProfileFromGender: 'profile' // ← 新增這行
     };
     
     Object.entries(settingsButtons).forEach(([id, target]) => {
@@ -826,7 +1028,24 @@ document.addEventListener('DOMContentLoaded', () => {
         log(`姓名已更新為: ${newName}`);
         switchPage('profile'); // 儲存後返回個人檔案頁面
     }
+    function saveGender() {
+    const selectedGender = document.getElementById('genderSelect').value;
+    localStorage.setItem('userGender', selectedGender);
+    alert('性別已儲存：' + selectedGender);
+    switchPage('profile');
+    }
+    function signInToday() {
+    const today = new Date().toLocaleDateString();
+    const signedIn = localStorage.getItem('signedInDate');
 
+    if (signedIn === today) {
+        alert("您今天已經簽到過囉！");
+    } else {
+        localStorage.setItem('signedInDate', today);
+        alert("✅ 簽到成功，太棒了！");
+        // 可選：執行畫面更新或動畫
+    }
+}
     // 通知切換
     const notifyToggle = document.getElementById('notifyToggle');
     if (notifyToggle) {
@@ -878,4 +1097,48 @@ function logout() {
 function savechange() {
     saveName();
     showMessage('已儲存變更');
+}
+
+function submitPasswordChange() {
+    const currentPassword = document.getElementById('currentPassword')?.value.trim();
+    const newPassword = document.getElementById('newPassword')?.value.trim();
+    const confirmPassword = document.getElementById('confirmPassword')?.value.trim();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showMessage('請完整填寫所有欄位');
+        return;
+    }
+
+    const stored = localStorage.getItem('registeredUser');
+    if (!stored) {
+        showMessage('請先登入');
+        return;
+    }
+
+    try {
+        const user = JSON.parse(stored);
+        if (user.password !== currentPassword) {
+            showMessage('目前密碼不正確');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            showMessage('新密碼長度需至少 6 字元');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showMessage('新密碼與確認密碼不一致');
+            return;
+        }
+
+        user.password = newPassword;
+        localStorage.setItem('registeredUser', JSON.stringify(user));
+        showMessage('密碼已成功更新');
+        log('密碼變更成功');
+        switchPage('profile');
+    } catch (error) {
+        log('密碼變更錯誤：' + error, 'error');
+        showMessage('更新失敗，請重試');
+    }
 }
