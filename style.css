@@ -22,12 +22,14 @@ body {
 }
 
 .card {
+    position: relative; /* 加這行 */
+  padding-top: 100px;  /* 預留 LOGO 的空間 */
     margin-top: 50px;
     width: 100%;
     max-width: 400px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     background: #fff;
     border-radius: 15px;
@@ -35,13 +37,41 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
     padding: 20px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    min-height: 600px;
+    height: 600px;
     max-height: 800px;
+}
+.logo {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: auto;
+}
+
+.logo-static {
+ display: block;
+  margin: 40px auto 30px auto;   /* 上下留白 + 水平置中 */
+  width: min(50%, 200px);        /* ✅ 在小螢幕最大寬200px，大螢幕維持50% */
+  height: auto;
+}
+
+.centered-content {
+    flex: 1; /* ✅ 占據剩餘空間，使上下分散有意義 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;  /* ✅ 垂直置中 */
+    align-items: center;
+    text-align: center;
 }
 
 .card:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-3px);
+}
+
+.card h2 {
+  text-align: center;
 }
 
 .logo {
@@ -56,10 +86,18 @@ body {
     color: #666;
     margin-bottom: 15px;
 }
-
+.form-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;       /* 可選：讓 h2 和 p 都置中 */
+    text-align: center;        /* 可選：讓文字內容置中 */
+    gap: 0.5rem;
+    padding: 20px 0;           /* ✅ 加點上下距離讓排版自然 */
+}
 .form-group {
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     display: block;
 }
 
@@ -112,6 +150,26 @@ body {
     border-color: #479AC7;
     box-shadow: 0 0 5px rgba(71, 154, 199, 0.5);
 }
+.form-actions {
+    margin-top: auto; /* ✅ 把整個按鈕區塊推到底 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.button1 {
+    background-color: #479AC7;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none; /* ✅ 移除底線 */
+    margin-top: 20px;
+}
 
 .button {
     width: 100%;
@@ -124,11 +182,27 @@ body {
     cursor: pointer;
     transition: background-color 0.3s;
     margin-bottom: 10px;
+    margin-top: auto;
 }
-
 .button:hover {
     background-color: #336699;
 }
+.button-secondary {
+    width: 100%; /* ✅ 補上這行就會一樣寬 */
+    background-color: #777;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+.button-secondary:hover {
+    background-color: #555;
+}
+
 .register-container span {
     font-size: 14px;
     color: #000;
@@ -163,6 +237,14 @@ body {
 
 .terms a:hover {
     text-decoration: underline;
+}
+.content-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* ✅ 垂直置中 */
+  align-items: center;      /* ✅ 水平置中 */
+  text-align: center;
 }
 
 .role-button-group {
