@@ -12,7 +12,13 @@
         this.href = 'font-awesome.min.css';
     });
     </script>
-    <link rel="stylesheet" href="style_main.css">
+    <link rel="stylesheet" href="style_sidebar.css">
+    <link rel="stylesheet" href="style_home.css">
+    <link rel="stylesheet" href="style_pritice.css">
+    <link rel="stylesheet" href="style_location.css">
+    <link rel="stylesheet" href="style_dailyterms.css">
+    <link rel="stylesheet" href="style_setting.css">
+    <link rel="stylesheet" href="style_chat.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" onerror="
     var script = document.createElement('script');
@@ -49,6 +55,9 @@
             <a href="#" class="nav-link" data-target="daily-terms">
                 <i class="fas fa-comments"></i>常用用語
             </a>
+            <a href="#" class="nav-link" data-target="instant-messaging-terms">
+                <i class="fas fa-user-alt"></i>即時溝通
+            </a>  
             <a href="#" class="nav-link" data-target="settings">
                 <i class="fas fa-cog"></i>設定
             </a>
@@ -64,35 +73,34 @@
                         <p>今天是您語言治療的第 15 天，讓我們繼續努力吧！</p>
                     </div>
                 </section>
-
-                <div class="quick-stats">
-                    <div class="stat-card">
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">今日待完成</div>
+                <section class="task-section">
+                    <div class="task-title">
+                        <i class="fa-solid fa-bolt"></i>
+                        今日任務
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number">12</div>
-                        <div class="stat-label">已完成練習</div>
-                    </div>
-                </div>
-
-                <section class="practice-section">
-                    <div class="card-header">
-                        <i class="fas fa-microphone"></i>
-                        <h3>開始練習</h3>
-                    </div>
-                    <div class="practice-grid">
-                        <div class="practice-card">
-                            <div class="practice-title">基礎發音練習</div>
-                            <div class="practice-description">練習基本聲母和韻母的發音</div>
+                    <div class="task-cards">
+                        <!-- 今日學習卡片 -->
+                        
+                        <div class="task-card">
+                            <h4>📅 每日簽到</h4>
+                            <p>完成今日簽到，保持學習習慣</p>
+                            <button class="task-btn" onclick="signInToday()">立即簽到</button>
                         </div>
-                        <div class="practice-card">
-                            <div class="practice-title">情境對話練習</div>
-                            <div class="practice-description">模擬日常對話，提升語感</div>
+
+                        <!-- 定位挑戰卡片 -->
+                        <div class="task-card">
+                            <h4>📘 情境練習</h4>
+                            <p>完成 1 次醫院情境練習</p>
+                            <button class="task-btn" onclick="switchPage('practice')">前往</button>
+                            <div class="progress-wrapper">
+                            <div class="progress-label">今日學習進度</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </section>
-
                 <section class="motivation-quote">
                     <i class="fas fa-quote-left quote-icon"></i>
                     <div class="quote-text">
@@ -183,6 +191,31 @@
                         <div class="practice-description">學習如何在商店付款</div>
                         <button class="practice-button" data-video="shopping.mp4">開始練習</button>
                     </div>
+                    <div class="practice-card">
+                        <div class="practice-title">銀行</div>
+                        <div class="practice-description">學習如何開戶、存錢、提款、換匯</div>
+                        <button class="practice-button" data-video="order.mp4">開始練習</button>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">郵局</div>
+                        <div class="practice-description">學習如何寄送郵件或包裹</div>
+                        <button class="practice-button" data-video="order.mp4">開始練習</button>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">旅遊</div>
+                        <div class="practice-description">學習如何訂房與問景點</div>
+                        <button class="practice-button" data-video="order.mp4">開始練習</button>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">緊急狀況</div>
+                        <div class="practice-description">學習在緊急時如何求助和應對</div>
+                        <button class="practice-button" data-video="order.mp4">開始練習</button>
+                    </div>
+                    <div class="practice-card">
+                        <div class="practice-title">日常用語</div>
+                        <div class="practice-description">常見日常用語</div>
+                        <button class="practice-button" data-video="order.mp4">開始練習</button>
+                    </div>
                 </div>
 
                 <div id="practice-video-section" class="practice-hidden">
@@ -246,6 +279,24 @@
                     </div>
                 </div>
             </div>
+            <!-- 即時溝通頁面 -->
+            <div id="instant-messaging-terms-content" class="main-content-page">
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>即時溝通</h1>
+                        <p>與您的主治醫生即時溝通</p>
+                    </div>
+                </section>
+                <div class="chat-container">
+                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" placeholder="輸入訊息...">
+                        <button id="sendButton" class="chat-send-button">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div id="settings-page" class="main-content-page">
                 <div class="setting">
@@ -278,26 +329,26 @@
 
             <!-- 個人檔案頁面 -->
             <div id="profile-content" class="main-content-page">
-    <div class="profile">
-        <div class="profile-container">
-            <div class="profile-item" id="showSetting">
-                <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
-            </div>
-            <hr/>
-            <div class="profile-item">
-                <label class="profile-option" id="edit-name" data-target="edit-name">姓名</label>
-            </div>
-            <hr/>
-            <div class="profile-item">
-                <label class="profile-option" data-target="edit-email">電子郵件</label>
-            </div>
-            <hr/>
-            <div class="profile-item">
-                <label class="profile-option" data-target="change-password">變更密碼</label>
+            <div class="profile">
+                <div class="profile-container">
+                    <div class="profile-item" id="showSetting">
+                        <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                    </div>
+                    <hr/>
+                    <div class="profile-item">
+                        <label class="profile-option" id="edit-name" data-target="edit-name">姓名</label>
+                    </div>
+                    <hr/>
+                    <div class="profile-item">
+                        <label class="profile-option" id="editGender" data-target="edit-gender">性別</label>
+                    </div>
+                    <hr/>
+                    <div class="profile-item">
+                        <label id="changePassword" class="profile-option" data-target="change-password">變更密碼</label>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
             <!-- 姓名編輯頁面 -->
             <div id="edit-name-content" class="main-content-page hidden">
@@ -317,12 +368,64 @@
                             <button class="button" onclick="saveName()">儲存</button>
                         </div>
                         <hr />
-                        <div class="form-group">
-                            <button class="button" onclick="savechange()">儲存變更</button>
-                        </div>
                     </div>
                 </div>
             </div>
+            <div id="edit-gender-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                    <div class="edit-gender-item" id="backToProfileFromGender">
+                        <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
+                    </div>
+                    </div>
+                    <div class="card-content">
+                    <div class="form-group">
+                        <label for="genderSelect">選擇性別</label>
+                        <select id="genderSelect">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                        <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <button class="button" onclick="saveGender()">儲存</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div id="change-password-content" class="main-content-page">
+                <div class="card">
+                    <div class="card-header">
+                    <div class="edit-name-item" id="backToProfileFromPassword">
+                        <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
+                    </div>
+                    </div>
+                    <div class="card-content">
+                    <div class="form-group">
+                        <label for="currentPassword">目前密碼</label>
+                        <input type="password" id="currentPassword" placeholder="請輸入目前密碼" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label for="newPassword">新密碼</label>
+                        <input type="password" id="newPassword" placeholder="請輸入新密碼" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label for="confirmPassword">確認新密碼</label>
+                        <input type="password" id="confirmPassword" placeholder="再次輸入新密碼" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <button class="button" onclick="submitPasswordChange()">儲存變更</button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+            
+            
             <div id="notification-content" class="main-content-page">
                 <div class="notification">
                     <div class="notification-container">
@@ -352,13 +455,54 @@
                             <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
                         </div>
                         <hr/>
-                        <div class="help-item">
+                        <div class="help-item" id="how-to-change-password-item">
                             <label>如何更改密碼？</label>
                         </div>
                         <hr/>
-                        <div class="help-item">
+                        <div class="help-item" id="tutorial-item">
                             <label>使用教學</label>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div id="how-to-change-password-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                    <label class="auth-switch" id="backToHelpFromHowTo"><i class="fas fa-chevron-left"></i> 返回</label>
+                    </div>
+                    <div class="card-content">
+                    <h2>如何更改密碼</h2>
+                    <ol class="instruction-list">
+                        <li>在主畫面點選右側選單「設定」。</li>
+                        <li>點選「個人檔案」。</li>
+                        <li>在選單中點選「變更密碼」。</li>
+                        <li>輸入目前密碼、新密碼與確認密碼，然後按下「儲存」。</li>
+                        <li>密碼變更成功後，會自動返回個人檔案頁面。</li>
+                    </ol>
+                    <p class="tip">⚠️ 新密碼需至少 6 個字元，且兩次輸入必須一致。</p>
+                    </div>
+                </div>
+            </div>
+            <div id="tutorial-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                    <label class="auth-switch" id="backToHelpFromTutorial">
+                        <i class="fas fa-chevron-left"></i> 返回
+                    </label>
+                    </div>
+                    <div class="card-content">
+                    <h2>使用教學</h2>
+                    <ol class="instruction-list">
+                        <li>開啟網站後，請先註冊或登入帳號。</li>
+                        <li>登入成功後，進入主畫面，選擇「每日詞彙」可新增語句並播放發音。</li>
+                        <li>使用「練習模式」觀看影片並跟讀對話，提升口語能力。</li>
+                        <li>進入「智慧定位」，系統會推薦附近場所對應的語句。</li>
+                        <li>透過右上角的個人選單可進行「姓名編輯」、「變更密碼」、「性別設定」等個人化設定。</li>
+                        <li>點選「進度」頁面可查看學習曲線。</li>
+                    </ol>
+                    <div class="tip">
+                        小提醒：請開啟瀏覽器的麥克風與定位權限，以獲得最佳體驗！
+                    </div>
                     </div>
                 </div>
             </div>
