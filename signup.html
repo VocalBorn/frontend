@@ -17,12 +17,10 @@
             </div>
             <form class="auth-form" id="registerForm">
                 <div class="form-group user-role-group">
-                <div class="role-button-group">
-                    <input type="radio" name="userRole" id="role-patient" value="patient" checked hidden>
-                    <label for="role-patient" class="role-button">我是患者</label>
-
-                    <input type="radio" name="userRole" id="role-therapist" value="therapist" hidden>
-                    <label for="role-therapist" class="role-button">我是治療師</label>
+                <div class="role-tabs">
+                    <button type="button" class="tab-btn active" data-role="patient">我是患者</button>
+                    <button type="button" class="tab-btn" data-role="therapist">我是治療師</button>
+                    <input type="hidden" name="userRole" id="userRole" value="patient">
                 </div>
                 </div>
                 <div class="form-group">
