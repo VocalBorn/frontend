@@ -159,14 +159,14 @@ body {
     gap: 10px;
 }
 
-.button1 {
+.button1, .resend-button{
     background-color: #479AC7;
     color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     text-decoration: none; /* ✅ 移除底線 */
     margin-top: 20px;
 }
@@ -245,6 +245,14 @@ body {
   justify-content: center;  /* ✅ 垂直置中 */
   align-items: center;      /* ✅ 水平置中 */
   text-align: center;
+}
+
+.content-wrapper p {
+  font-size: 18px;        /* 原本 16px，這裡加大一點 */
+  color: #444;            /* 稍微深一點的灰，和標題區分 */
+  margin-top: 10px;       /* 和標題之間空一點 */
+  line-height: 1.6;       /* 行距舒服一點 */
+  text-align: center;     /* 確保置中 */
 }
 
 .role-button-group {
