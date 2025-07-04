@@ -1,0 +1,349 @@
+/* 基本設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #479ac7; /* 主題藍色 */
+    --secondary: #666; /* 次要文字顏色 */
+    --white: #fff; /* 白色 */
+    --accent: #2c3e50; /* 懸停或強調色 */
+    --background: #f4f7fa; /* 頁面背景色 */
+}
+
+body {
+    font-family: 'Nunito', 'Poppins', 'Noto Sans TC', Arial, sans-serif; /* 支援新字體 */
+    background-color: var(--background);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* 漢堡選單按鈕樣式 */
+.hamburger {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: var(--primary);
+    cursor: pointer;
+    z-index: 1000;
+    transition: color 0.3s ease;
+}
+
+.hamburger:hover {
+    color: var(--accent);
+}
+
+/* 側邊欄樣式 */
+.sidebar {
+    width: 250px;
+    background: rgba(255, 255, 255, 0.95); /* 玻璃效果 */
+    padding: 30px 30px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    position: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4a90e2;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--secondary);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.nav-link i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: var(--primary);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(132, 193, 255, 0.3);
+}
+
+.nav-link:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* 遮罩層樣式 */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* 主內容區域樣式 */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 40px;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.main-content.expanded {
+    margin-left: 0;
+    width: 100%;
+}
+
+.main-content-page {
+    display: none;
+}
+
+.main-content-page.active {
+    display: block;
+}
+
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .widget-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+
+  /* 讓內容上下分佈 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /* 統一高度 */
+  min-height: 240px;
+}
+
+  .widget-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(132, 193, 255, 0.3);
+  }
+
+  .widget-card h3 {
+    color: #4a90e2;
+    margin-bottom: 0.5rem;
+    position: center;
+  }
+
+  .widget-card p {
+    font-size: 1rem;
+    color: #555;
+  }
+
+  .view-pat-btn,.view-log-btn,.view-sch-btn,#back-to-home,#back-to-list,#open-token-section,#generate-token-btn {
+  margin-top: auto;           /* 讓它往下貼底部 */
+  align-self: center;         /* 水平置中 */
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+
+  .view-log-btn:hover,
+  #open-token-section:hover,
+  #generate-token-btn:hover{
+    background-color: #357dc4;
+  }
+
+  .qr-hidden {
+    display: none;
+    margin-top: 2rem;
+  }
+
+  #qr-container img {
+    margin-top: 1rem;
+    max-width: 200px;
+    height: auto;
+  }
+
+  #token-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 2rem auto;
+  background-color: #f9fbff;
+  border: 2px solid #cfe9fd;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(132, 193, 255, 0.1);
+}
+
+/* 卡片內標題與說明 */
+.generate-token-card h3,
+.pair-status h3 {
+  font-size: 1.4rem;
+  color: #336699;
+  margin-bottom: 0.5rem;
+}
+
+.generate-token-card p,
+.pair-status p {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+/* 產生按鈕 */
+#generate-token-btn ,#patient-back-btn {
+  display: block;
+  margin: 0 auto 1.5rem auto;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#generate-token-btn:hover {
+  background-color: #357ac9;
+}
+#qr-container {
+  background-color: #ffffff;
+  border: 2px dashed #a6d5fa;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(132, 193, 255, 0.08);
+  width: 100%;
+  animation: fadeIn 0.4s ease;
+}
+
+#qr-container p {
+  font-size: 1rem;
+  color: #336699;
+  margin-bottom: 1rem;
+}
+
+#qr-image {
+  width: 180px;
+  height: 180px;
+  border: 6px solid #e1f0fc;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+#qr-link {
+  font-size: 0.9rem;
+  color: #4a90e2;
+  word-break: break-word;
+  margin-top: 0.8rem;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 隱藏 QR 區 */
+.qr-hidden {
+  display: none;
+}
+
+/* Modal 背景遮罩 */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* 預設隱藏 */
+.hidden {
+  display: none;
+}
+
+/* Modal 內容盒子 */
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+/* 關閉按鈕 (X) */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #444;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+

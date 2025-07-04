@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh_TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>醫生主畫面</title>
+    <link rel="stylesheet" href="doctor.css">
+    <link rel="stylesheet" href="doctor_onlinecommunicate.css">
+    <link rel="stylesheet" href="patient-list.css">
+   <link rel="stylesheet" href="../style_main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* 簡單的樣式：預設隱藏非 active 區塊 */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <section id="main" class="page">
+    <div class="hamburger">
+        <i class="fas fa-bars"></i>
+    </div>
+
+        <nav class="sidebar">
+        <div class="logo">
+            <img src="../images/LOGO.png" alt="語聲聚來" style="width: 75%; height: auto; display: block; margin: 0 auto;">
+        </div>
+        <a href="#" class="nav-link" data-target="home"><i class="fas fa-home"></i>首頁</a>
+        <a href="#" class="nav-link" data-target="instant-messaging"><i class="fas fa-user-alt"></i>線上溝通</a>
+        <a href="#" class="nav-link" data-target="settings"><i class="fas fa-cog"></i>設定</a>
+        </nav>
+
+        <div class="overlay"></div>
+
+        <div class="main-content">
+        <!-- 首頁 -->
+        <section id="home" class="page-section active">
+            <div class="therapist-dashboard">
+            <div class="dashboard-widgets">
+                <div class="widget-card">
+                <h3>👥 已配對病患</h3>
+                <p id="paired-count">目前配對：位</p>
+                <button class="view-pat-btn" id="view-pat-btn">查看病患</button>
+                </div>
+                
+                <div class="widget-card">
+                <h3>📝 今日紀錄</h3>
+                <p>點擊查看今日病患練習進度與回饋</p>
+                <button class="view-log-btn">查看紀錄</button>
+                </div>
+
+                <div class="widget-card">
+                <h3>📅 預約排程</h3>
+                <p>查看即將到來的語療時段</p>
+                <button class="view-sch-btn">查看排程</button>
+                </div>
+
+                <div class="widget-card">
+                <h3>🔗 建立配對</h3>
+                <p>與新病患配對以開始互動</p>
+                <button id="open-token-section">產生 QR Code</button>
+                </div>
+            </div>
+            </div>
+        </section>
+        <!-- Modal：產生 QR Code -->
+        <div id="token-modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="close-token" class="close-btn">&times;</span>
+            <h3>配對 QR Code</h3>
+            <div id="qr-container" style="text-align:center; margin-top: 1rem;">
+            <img id="qr-image" src="" alt="QR Code 將顯示在此處" 
+                style="width:180px; height:180px; border:6px solid #e1f0fc; border-radius:12px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.05);"/>
+            <p id="qr-link" style="margin-top: 0.8rem; font-size:0.9rem; color:#4a90e2; word-break:break-word;"></p>
+            </div>
+            
+        </div>
+        </div>
+
+    <!-- 👥 病人列表 -->
+    <section id="patient-list" class="page-section">
+    <div class="widget-card">
+        <h3 class="center-title">病患列表</h3>
+            <div class="patient-card" data-patient="A">病患 A</div>
+            <div class="patient-card" data-patient="B">病患 B</div>
+            <div class="patient-card" data-patient="C">病患 C</div>
+        <button id="back-to-home">返回</button>
+    </div>
+    </section>
+
+    <!-- 詳細資料畫面 -->
+    <section id="patient-detail" class="page-section">
+    <div class="widget-card">
+    <h3 id="patient-name" class="center-title">病人資料</h3>
+    <form id="patient-form">
+      <div class="form-group">
+        <label for="patient-id">病人編號</label>
+        <input type="text" id="patient-id" name="patient-id" readonly />
+      </div>
+      <div class="form-group">
+        <label for="patient-name-field">姓名</label>
+        <input type="text" id="patient-name-field" name="patient-name" readonly />
+      </div>
+      <div class="form-group">
+        <label for="patient-age">年齡</label>
+        <input type="number" id="patient-age" name="patient-age" readonly />
+      </div>
+      <div class="form-group">
+        <label for="patient-gender">性別</label>
+        <input type="text" id="patient-gender" name="patient-gender" readonly />
+      </div>
+      <div class="form-group">
+        <label for="patient-diagnosis">診斷結果</label>
+        <textarea id="patient-diagnosis" name="patient-diagnosis" rows="4" readonly></textarea>
+      </div>
+      <div class="form-group">
+        <label for="patient-notes">備註</label>
+        <textarea id="patient-notes" name="patient-notes" rows="3" readonly></textarea>
+      </div>
+    </form>
+    <button id="back-to-list">返回列表</button>
+  </div>
+    </section>
+
+    
+    <!-- 線上溝通 -->
+  <section id="instant-messaging" class="page-section">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>線上溝通</h1>
+      <p>與您的主治醫生即時溝通</p>
+    </div>
+  </div>
+
+  <div class="messaging-area">
+    <!-- 左邊：病患列表 -->
+    <div class="patient-list">
+      <div class="patient">
+        <img src="../images/User.jpeg" alt="病患1">
+        <p>病患1</p>
+      </div>
+      <div class="patient">
+        <img src="../images/User.jpeg" alt="病患2">
+        <p>病患2</p>
+      </div>
+      <div class="patient">
+        <img src="../images/User.jpeg" alt="病患3">
+        <p>病患3</p>
+      </div>
+    </div>
+
+    <div class="chat-container">
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input-container">
+        <input type="text" id="chatInput" placeholder="輸入訊息...">
+        <button id="sendButton" class="chat-send-button">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+    </div>
+  </section>
+    
+    <!-- 設定 -->
+        <section id="settings" class="page-section">
+            <div class="setting">
+                  <img src="../images/User.jpeg" alt="使用者照片" class="user-pic" />
+                  <div class="username">名字</div>
+            
+                  <div class="settings-container">
+                    <div class="settings-item" id="showProfile">
+                      <label class="auth-switch">個人檔案</label>
+                      <i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                    <div class="settings-item" id="showNotification">
+                      <label>通知設定</label><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                    <div class="settings-item" id="showHelp">
+                      <label>幫助</label><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                    <div class="settings-item" id="showAbout">
+                      <label>關於語聲俱來</label><i class="fas fa-chevron-right"></i>
+                    </div>
+                    <hr />
+                  </div>
+            
+                  <button class="logout-btn" onclick="logout()">登出</button>
+            </div>
+            </div>
+
+            <!-- 個人檔案頁面 -->
+            <div id="profile-content" class="main-content-page">
+            <div class="profile">
+                <div class="profile-container">
+                    <div class="profile-item" id="showSetting">
+                        <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                    </div>
+                    <hr/>
+                    <div class="profile-item">
+                        <label class="profile-option" id="edit-name" data-target="edit-name">姓名</label>
+                    </div>
+                    <hr/>
+                    <div class="profile-item">
+                        <label class="profile-option" data-target="edit-email">電子郵件</label>
+                    </div>
+                    <hr/>
+                    <div class="profile-item">
+                        <label class="profile-option" data-target="change-password">變更密碼</label>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 姓名編輯頁面 -->
+            <div id="edit-name-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="edit-name-item" id="backToProfile">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label>編輯姓名</label>
+                            <input type="text" id="nameInput" placeholder="輸入新姓名">
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <button class="button" onclick="saveName()">儲存</button>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <button class="button" onclick="savechange()">儲存變更</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="notification-content" class="main-content-page">
+                <div class="notification">
+                    <div class="notification-container">
+                        <div class="notification-item" id="backToSettingfromNotify">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                        </div>
+                        <hr/>
+                        <div class="notification-item">
+                            <label>每日練習提醒</label>
+                            <div class="setting-toggle">
+                                <label class="switch">
+                                  <input type="checkbox" id="notifyToggle" checked>
+                                  <span class="slider round"></span>
+                                </label>
+                              </div>
+                              
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="help-content" class="main-content-page">
+                <div class="help">
+                    <div class="help-container">
+                        <div class="help-item" id="backToSettingfromHelp">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                        </div>
+                        <hr/>
+                        <div class="help-item">
+                            <label>如何更改密碼？</label>
+                        </div>
+                        <hr/>
+                        <div class="help-item">
+                            <label>使用教學</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="about-content" class="main-content-page">
+                <div class="about">
+                    <div class="about-container">
+                        <div class="about-item" id="backToSettingfromAbout">
+                            <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
+                        </div>
+                        <hr/>
+                        <div class="about-item">
+                            <a href="private.html">使用條款與隱私權政策</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+</div>
+</div>
+
+</section>
+
+    <script>
+        
+    </script>
+    <script src="doctor.js"></script>
+    <script src="doctor_onlinecommunicate.js"></script>
+    <script src="patient-list.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

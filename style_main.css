@@ -64,10 +64,11 @@ body {
 }
 
 .logo {
-    text-align: center;
-    margin-bottom: 40px;
-    padding: 20px;
-    border-bottom: 1px solid var(--secondary);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4a90e2;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .nav-link {
@@ -78,6 +79,7 @@ body {
     text-decoration: none;
     border-radius: 12px;
     transition: all 0.3s ease;
+    margin-bottom: 10px;
 }
 
 .nav-link i {

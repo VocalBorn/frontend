@@ -69,6 +69,15 @@
                     <div class="password-hints">
                         <div class="hint"><span>與設定密碼一致</span><span class="hint-icon confirm-hint-icon"></span></div>
                     </div>
+                    <div class="form-group therapist-license-group" style="display:none;">
+                        <label for="therapistLicense">治療師語言證照</label>
+                        <input type="text" id="therapistLicense" placeholder="請輸入您的證照號碼">
+                    </div>
+                    <div class="form-group therapist-photo-group" style="display:none;">
+                        <label for="therapistPhoto">上傳證照照片</label>
+                        <input type="file" id="therapistPhoto" accept="image/*">
+                    </div>
+
                 </div>
                 <button type="submit" class="auth-button">註冊</button>
                 <div class="terms">
@@ -87,6 +96,12 @@
             const confirmPasswordInput = document.querySelector('#confirm-password');
             const hintIcons = document.querySelectorAll('.password-hints .hint-icon');
             const confirmHintIcon = document.querySelector('.confirm-hint-icon');
+
+            const rolePatient = document.querySelector('#role-patient');
+            const roleTherapist = document.querySelector('#role-therapist');
+            const therapistLicenseGroup = document.querySelector('.therapist-license-group');
+            const therapistPhotoGroup = document.querySelector('.therapist-photo-group');
+
 
             toggleIcons.forEach(toggle => {
                 toggle.addEventListener('click', function() {
@@ -125,6 +140,20 @@
 
             passwordInput.addEventListener('input', updatePasswordHints);
             confirmPasswordInput.addEventListener('input', updatePasswordHints);
+
+            // 監聽角色選擇
+    rolePatient.addEventListener('change', () => {
+        if (rolePatient.checked) {
+            therapistLicenseGroup.style.display = 'none';
+            therapistPhotoGroup.style.display = 'none';
+        }
+    });
+    roleTherapist.addEventListener('change', () => {
+        if (roleTherapist.checked) {
+            therapistLicenseGroup.style.display = 'block';
+            therapistPhotoGroup.style.display = 'block';
+        }
+    });
         });
     </script>
 </body>
