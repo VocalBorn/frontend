@@ -1,0 +1,77 @@
+.page-section {
+  display: none;
+  opacity: 0;
+  transform: translateX(30px);
+  position: absolute;
+  width: calc(100% - 250px); /* 預留 sidebar */
+  top: 0;
+  left: 250px;
+  padding: 40px;
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+.page-section.active {
+  display: block;
+  opacity: 1;
+  transform: translateX(0);
+  z-index: 1;
+}
+
+.center-title {
+  text-align: center;
+}
+
+.patient-card {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.patient-card:hover {
+  background-color: #f0f8ff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.page-section {
+  display: none;
+}
+
+.page-section.active {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #336699;
+  margin-bottom: 0.3rem;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #a6d5fa;
+  border-radius: 8px;
+  background-color: #f9fbff;
+  font-size: 1rem;
+  color: #333;
+  resize: none; /* 不可調整 textarea 大小 */
+}
+
+.form-group input[readonly],
+.form-group textarea[readonly] {
+  background-color: #e6f0fc;
+  cursor: default;
+}
+
+

@@ -168,6 +168,7 @@ body {
   .widget-card h3 {
     color: #4a90e2;
     margin-bottom: 0.5rem;
+    position: center;
   }
 
   .widget-card p {
@@ -175,9 +176,7 @@ body {
     color: #555;
   }
 
-  .view-pat-btn,.view-log-btn,.view-sch-btn,
-#open-token-section,
-#generate-token-btn {
+  .view-pat-btn,.view-log-btn,.view-sch-btn,#back-to-home,#back-to-list,#open-token-section,#generate-token-btn {
   margin-top: auto;           /* 讓它往下貼底部 */
   align-self: center;         /* 水平置中 */
   padding: 0.5rem 1.2rem;
@@ -193,7 +192,7 @@ body {
 
   .view-log-btn:hover,
   #open-token-section:hover,
-  #generate-token-btn:hover {
+  #generate-token-btn:hover{
     background-color: #357dc4;
   }
 
@@ -239,7 +238,7 @@ body {
 }
 
 /* 產生按鈕 */
-#generate-token-btn {
+#generate-token-btn ,#patient-back-btn {
   display: block;
   margin: 0 auto 1.5rem auto;
   padding: 0.6rem 1.4rem;
@@ -303,3 +302,48 @@ body {
 .qr-hidden {
   display: none;
 }
+
+/* Modal 背景遮罩 */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* 預設隱藏 */
+.hidden {
+  display: none;
+}
+
+/* Modal 內容盒子 */
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+/* 關閉按鈕 (X) */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #444;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+
