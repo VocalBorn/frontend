@@ -83,8 +83,10 @@
                         console.log("API 回傳：", result);
             
                         if (response.ok) {
-                            localStorage.setItem("loggedInUser", JSON.stringify(result));
-                            //alert("登入成功！");
+                            localStorage.setItem("token", result.access_token); // 儲存 token 給 main.html 用
+                            //alert(result.access_token);
+                            console.log(result);
+                            localStorage.setItem("loggedInUser", JSON.stringify(result)); // 如果你還要用整包資料
                             window.location.href = "main.html"; 
                         } else {
                             alert("登入失敗：" + (result.message || "帳號或密碼錯誤"));
