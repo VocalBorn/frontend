@@ -524,5 +524,341 @@
     </section>
 
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async() => {
+            // const backButton = document.getElementById('practice-back-button');
+            //         if (backButton) {
+            //             backButton.addEventListener('click', () => {
+            //                 document.getElementById('practice-video-section').style.display = 'none';
+            //                 document.getElementById('practice-content').style.display = 'block';
+            //             });
+            //         }
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("尚未登入，請重新登入");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // 用 token 呼叫需要授權的 API
+            fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                method: "PATCH",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("使用者資料：", data);
+                // 在畫面上顯示資料
+            })
+            .catch(err => {
+                console.error("取得資料失敗", err);
+                alert("驗證失敗，請重新登入");
+                window.location.href = "index.html";
+            });
+
+            //變更密碼
+            window.submitPasswordChange = async function () {
+                const currentPassword = document.getElementById('currentPassword').value.trim();
+                const newPassword = document.getElementById('newPassword').value.trim();
+                const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+                // 簡單驗證
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    alert('請填寫所有欄位');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    alert('新密碼與確認密碼不一致');
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert("請先登入");
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                try {
+                    console.log("送出的 token：", token);
+                    const response = await fetch('https://api-vocalborn.r0930514.work/user/password', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({
+                            old_password: currentPassword,
+                            new_password: newPassword
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('密碼變更成功');
+                        // 清空輸入欄位
+                        document.getElementById('currentPassword').value = '';
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                        window.location.href = '#settings';
+                    } else {
+                        alert(result.message || '密碼變更失敗');
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('發生錯誤，請稍後再試');
+                }
+            };
+
+
+            //取得情境列表
+                const container = document.getElementById('practice-card-container');
+                const content=document.getElementById('practice-content');
+                const videoSection = document.getElementById('practice-video-section');
+                // document.getElementById('practice-back-button').onclick = () => {
+                //             document.getElementById('practice-video-section').style.display = 'none';
+                //             document.getElementById('practice-content').style.display = 'block';
+                //             };
+                if (!container) {
+                    console.error('找不到 #practice-card-container 容器元素！');
+                    return;
+                }
+
+                fetch('https://api-vocalborn.r0930514.work/situations/list?skip=0&limit=10', {
+                    headers: {
+                    'Authorization': 'Bearer '+token,
+                    'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => {
+                    console.log('HTTP 回傳狀態碼：', res.status);
+                    return res.json().then(data => {
+                        console.log('API 原始資料（不論錯誤與否）：', data);
+
+                    if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+
+                    return data;
+                    });
+                })
+
+                .then(data => {
+                console.log('API 回傳資料：', data);
+
+                const situations = Array.isArray(data.situations) ? data.situations : data;
+                if (!Array.isArray(situations)) {
+                    throw new Error('API 回傳格式錯誤，不是陣列');
+                }
+
+                //container.innerHTML = '';
+
+                situations.forEach(situation => {
+                    console.log(situation);
+
+                    const card = document.createElement('div');
+                    card.className = 'practice-card';
+                    card.innerHTML = `
+                    <div class="practice-title">${situation.situation_name}</div>
+                    <div class="practice-description">${situation.description}</div>
+                    <button class="practice-button" data-id="${situation.situation_id}">開始練習</button>
+                    `;
+
+                    //點「開始練習」後進入該情境練習畫面
+                    const button = card.querySelector('.practice-button');
+                    button.addEventListener('click', () => {
+                        const situationId = button.getAttribute('data-id'); // 這裡修正為取 data-id
+                        const contentSection = document.getElementById('practice-content');
+                        const backButton = document.getElementById('practice-back-button');
+
+                        document.getElementById('practice-content').classList.add('practice-hidden');
+                        document.getElementById('practice-video-section').classList.remove('practice-hidden');
+                        container.style.display = 'none';
+
+                        const detailContainer = document.getElementById('practice-detail-content');
+                        if (detailContainer) {
+                            detailContainer.innerHTML = `
+                                <div class="loader"></div>
+                                <p style="text-align:center;">載入中，請稍候...</p>
+                            `;
+                        }
+
+                        fetch(`https://api-vocalborn.r0930514.work/situations/${situationId}`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error(`HTTP 錯誤！狀態碼：${res.status}`);
+                            }
+                            return res.json();
+                        })
+                        .then(detailData => {
+                            const detailContainer = document.getElementById('practice-detail-content');
+                            if (detailContainer) {
+                                detailContainer.innerHTML = `
+                                    <h2>${detailData.situation_name}</h2>
+                                    <p><strong>地點：</strong>${detailData.location}</p>
+                                    <p><strong>情境描述：</strong>${detailData.description}</p>
+                                    <video id="practice-scenario-video" controls width="640">
+                                        <source id="practice-video-source" src="" type="video/mp4">
+                                        您的瀏覽器不支援影片播放。
+                                    </video>
+                                    <p id="video-message" style="color: red; text-align: center;"></p>
+                                `;
+
+                                // ✨這兩個操作等資料準備好後再做
+                                container.classList.add('practice-hidden');
+                                videoSection.classList.remove('practice-hidden');
+                            }
+
+                            //videoSection.classList.remove('practice-hidden');
+                            //videoSection.classList.add('show');
+
+                            if (backButton) {
+                                backButton.addEventListener('click', () => {
+                                    videoSection.classList.add('practice-hidden'); // 隱藏影片區
+                                    content.classList.remove('practice-hidden'); // 顯示情境卡片區
+                                    // 確保卡片容器顯示
+                                    const container = document.getElementById('practice-card-container');
+                                    if (container) {
+                                        container.style.display = 'flex'; // 或 'grid'，根據你的 CSS 設計
+                                    }
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            alert('載入練習資料失敗！' + error.message);
+                        });
+                    });
+                    
+                    console.log(situation);
+                    container.appendChild(card);
+                });
+            })
+                .catch(err => {
+                console.error('載入情境失敗：', err);
+                container.innerHTML = '<p style="color: red;">載入情境失敗，請稍後再試。</p>';
+                });
+
+                // 🔹 載入使用者個人資料（姓名、性別）
+                try {
+                    const res = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
+                    });
+
+                    const data = await res.json();
+                    console.log("使用者資料：", data);
+
+                    // 顯示使用者名稱
+                    const usernameDiv = document.querySelector('.username');
+                    if (usernameDiv && data.name) {
+                        usernameDiv.textContent = data.name;
+                    }
+
+                    // 顯示姓名與性別到表單
+                    if (data.name) {
+                        const nameInput = document.getElementById("nameInput");
+                        if (nameInput) nameInput.value = data.name;
+                    }
+
+                    if (data.gender) {
+                        const genderSelect = document.getElementById("genderSelect");
+                        if (genderSelect) {
+                            const genderMap = {
+                                male: "male", //後者(綠色)是html的value（第364行）
+                                female: "female", 
+                                other: "other"
+                            };
+                            const mappedGender = genderMap[data.gender.toLowerCase()];
+                            if (mappedGender) {
+                                genderSelect.value = mappedGender;
+                            } else {
+                                console.warn("未知的性別值：", data.gender);
+                            }
+                        }
+                    }
+
+                } catch (error) {
+                    console.error("載入使用者資料失敗", error);
+                    alert("取得個人資料失敗，請重新登入");
+                    window.location.href = "index.html";
+                }
+            
+            //更改個人資料內容
+            // 設定儲存姓名功能
+            window.saveName = async function () {
+                const newName = document.getElementById("nameInput").value.trim();
+                if (!newName) {
+                    alert("請輸入新姓名");
+                    return;
+                }
+
+                try {
+                    const res = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({ name: newName })
+                    });
+
+                    const result = await res.json();
+                    if (res.ok) {
+                        alert("姓名已更新");
+                        // 同步更新畫面上的名稱
+                        const usernameDiv = document.querySelector(".username");
+                        if (usernameDiv) usernameDiv.textContent = newName;
+                        window.location.href = '#settings';
+                    } else {
+                        alert(result.message || "更新失敗");
+                    }
+                } catch (err) {
+                    console.error("更新姓名失敗：", err);
+                    alert("發生錯誤，請稍後再試");
+                }
+            };
+
+            // 設定儲存性別功能
+            window.saveGender = async function () {
+                const newGender = document.getElementById("genderSelect").value;
+
+                try {
+                    const res = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({ gender: newGender })
+                    });
+
+                    const result = await res.json();
+                    if (res.ok) {
+                        alert("性別已更新");
+                        window.location.href = '#settings';
+                    } else {
+                        alert(result.message || "更新失敗");
+                    }
+                } catch (err) {
+                    console.error("更新性別失敗：", err);
+                    alert("發生錯誤，請稍後再試");
+                }
+            };
+
+        });
+    </script>
 </body>
 </html>
