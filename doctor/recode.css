@@ -1,0 +1,210 @@
+.patient-card {
+  background: #f9fafb;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.03);
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  border-bottom: 1px solid #ddd;
+}
+
+.patient-card:last-child {
+  border-bottom: none;
+}
+
+.patient-name {
+  flex: 1 1 150px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.patient-progress,
+.patient-chapter,
+.patient-status {
+  flex: 1 1 150px;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 0 12px;
+  border-left: 1px solid #ccc;
+}
+
+.patient-status {
+  flex: 1 1 150px;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  padding-left: 12px;
+}
+
+.patient-status.completed {
+  color: #16a34a;
+}
+.patient-status.in-progress {
+  color: #f59e0b;
+}
+.patient-status.not-started {
+  color: #ef4444;
+}
+
+#back-btn {
+  margin-top: auto;
+  align-self: center;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.patient-detail-item {
+  background: #f9fafb;
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 4px solid #4a90e2;
+  color: #1f2937;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 音量按鈕 */
+.play-audio-btn {
+  background-color: #e0f2fe;
+  border: 1px solid #38bdf8;
+  color: #0284c7;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.play-audio-btn:hover {
+  background-color: #bae6fd;
+  box-shadow: 0 0 5px #7dd3fc;
+}
+
+.patient-detail-play.playing {
+  background-color: #dbeafe;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 0 8px #60a5fa;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  padding: 4px;
+}
+
+/* ✅ ❌ 按鈕 */
+.toggle-qualified-btn {
+  background-color: #f0fdf4;
+  border: 1px solid #4ade80;
+  color: #16a34a;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-qualified-btn:hover {
+  background-color: #dcfce7;
+  box-shadow: 0 0 5px #86efac;
+}
+
+/* ❌ 狀態時 */
+.toggle-qualified-btn.rejected {
+  background-color: #fef2f2;
+  border-color: #f87171;
+  color: #dc2626;
+}
+
+.toggle-qualified-btn.rejected:hover {
+  background-color: #fee2e2;
+  box-shadow: 0 0 5px #fca5a5;
+}
+
+/* 輸入框 */
+.suggestion-input,
+.patient-detail-suggestion {
+  flex: 2;
+  color: #374151;
+  font-size: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 8px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.suggestion-input:hover,
+.patient-detail-suggestion:hover {
+  border-color: #60a5fa;
+}
+
+.suggestion-input:focus,
+.patient-detail-suggestion:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 4px #93c5fd;
+}
+
+.patient-detail-status {
+  flex: 0 0 40px;
+  text-align: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.patient-detail-status.qualified {
+  color: #16a34a;
+}
+.patient-detail-status.not-qualified {
+  color: #ef4444;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: center; /* 置中 */
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.detail-actions button {
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.detail-actions .submit-btn {
+  background-color: #16a34a;
+  color: #fff;
+}
+
+.detail-actions .submit-btn:hover {
+  background-color: #15803d;
+}
+
+.detail-actions .submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.detail-actions .back-btn {
+  background-color: #4a90e2;
+  color: #fff;
+}
+
+.detail-actions .back-btn:hover {
+  background-color: #2563eb;
+}

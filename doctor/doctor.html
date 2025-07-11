@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="doctor.css">
     <link rel="stylesheet" href="doctor_onlinecommunicate.css">
     <link rel="stylesheet" href="patient-list.css">
+    <link rel="stylesheet" href="recode.css">
+    <link rel="stylesheet" href="resever.css">
    <link rel="stylesheet" href="../style_main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
@@ -46,8 +48,8 @@
                 <div class="widget-card">
                 <h3>📝 今日紀錄</h3>
                 <p>點擊查看今日病患練習進度與回饋</p>
-                <button class="view-log-btn">查看紀錄</button>
-                </div>
+                <button class="view-log-btn" id="view-log-btn">查看紀錄</button>
+                </div> 
 
                 <div class="widget-card">
                 <h3>📅 預約排程</h3>
@@ -73,11 +75,10 @@
                 style="width:180px; height:180px; border:6px solid #e1f0fc; border-radius:12px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.05);"/>
             <p id="qr-link" style="margin-top: 0.8rem; font-size:0.9rem; color:#4a90e2; word-break:break-word;"></p>
             </div>
-            
         </div>
         </div>
 
-    <!-- 👥 病人列表 -->
+    <!-- 👥 病患列表 -->
     <section id="patient-list" class="page-section">
     <div class="widget-card">
         <h3 class="center-title">病患列表</h3>
@@ -91,10 +92,10 @@
     <!-- 詳細資料畫面 -->
     <section id="patient-detail" class="page-section">
     <div class="widget-card">
-    <h3 id="patient-name" class="center-title">病人資料</h3>
+    <h3 id="patient-name" class="center-title">病患資料</h3>
     <form id="patient-form">
       <div class="form-group">
-        <label for="patient-id">病人編號</label>
+        <label for="patient-id">病患編號</label>
         <input type="text" id="patient-id" name="patient-id" readonly />
       </div>
       <div class="form-group">
@@ -122,16 +123,31 @@
   </div>
     </section>
 
+    <!-- 紀錄顯示區 -->
+    <section id="log-detail" class="page-section">
+    <div class="widget-card">
+        <h3>今日病患練習進度</h3>
+        <div id="patients-container"></div>
+        <button id="back-btn">返回</button>
+    </div>
+    </section>
+
+    <!-- 紀錄詳細區 -->
+    <section id="log-detail-detail" class="page-section">
+    <div class="widget-card">
+        <h3 id="detail-patient-name"></h3>
+
+        <div id="detail-container"></div>
+
+        <div class="detail-actions">
+        <button id="back-to-log" class="back-btn">返回紀錄</button>
+        <button id="submit-details" class="submit-btn">提交</button>
+        </div>
+    </div>
+    </section>
     
     <!-- 線上溝通 -->
   <section id="instant-messaging" class="page-section">
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1>線上溝通</h1>
-      <p>與您的主治醫生即時溝通</p>
-    </div>
-  </div>
-
   <div class="messaging-area">
     <!-- 左邊：病患列表 -->
     <div class="patient-list">
@@ -304,6 +320,8 @@
     <script src="doctor.js"></script>
     <script src="doctor_onlinecommunicate.js"></script>
     <script src="patient-list.js"></script>
+    <script src="recode.js"></script>
+    <script src="resever.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
