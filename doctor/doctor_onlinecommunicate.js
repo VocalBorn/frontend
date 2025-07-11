@@ -50,118 +50,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  const patientList = document.getElementById("patientList");
+document.addEventListener("DOMContentLoaded", () => {
+  const patients = document.querySelectorAll(".patient");
   const chatMessages = document.getElementById("chatMessages");
-  const chatInput = document.getElementById("chatInput");
-  const sendButton = document.getElementById("sendButton");
 
-  const chats = {
-    patient1: [],
-    patient2: [],
-    patient3: []
-  };
-
-  let currentPatient = "patient1";
-
-  function renderMessages() {
-    chatMessages.innerHTML = "";
-    chats[currentPatient].forEach(({ text, time, sender }) => {
-      const msg = document.createElement("div");
-      msg.className = "message " + (sender === "user" ? "user-message" : "bot");
-      msg.setAttribute("data-time", time);
-      msg.textContent = text;
-      chatMessages.appendChild(msg);
+  function renderChat(patientName) {
+    chatMessages.innerHTML = ""; // 清空舊訊息
+    const msgs = chats[patientName] || [];
+    msgs.forEach(({ from, text, time }) => {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      if (from === "me") {
+        div.classList.add("from-me");
+      } else {
+        div.classList.add("bot");
+      }
+      div.setAttribute("data-time", time);
+      div.textContent = text;
+      chatMessages.appendChild(div);
     });
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessages.scrollTop = chatMessages.scrollHeight; // 滾到最底
   }
 
-  function sendMessage(text) {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    chats[currentPatient].push({ text, time: timeString, sender: "user" });
-    renderMessages();
+  patients.forEach(patient => {
+    patient.addEventListener("click", () => {
+      // 取消所有病患的 active
+      patients.forEach(p => p.classList.remove("active-patient"));
+      // 點擊的加上 active
+      patient.classList.add("active-patient");
 
-    setTimeout(() => {
-      chats[currentPatient].push({ text: "收到您的訊息:「" + text + "」", time: getTime(), sender: "bot" });
-      renderMessages();
-    }, 1000);
-  }
-
-  function getTime() {
-    const now = new Date();
-    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  sendButton.addEventListener("click", () => {
-    const msg = chatInput.value.trim();
-    if (msg) {
-      sendMessage(msg);
-      chatInput.value = "";
-    }
+      // 讀病患名稱並顯示對話
+      const name = patient.querySelector("p").textContent.trim();
+      renderChat(name);
+    });
   });
+});x  
 
-  chatInput.addEventListener("keypress", e => {
-    if (e.key === "Enter" && chatInput.value.trim()) {
-      sendButton.click();
-    }
-  });
-
-  patientList.addEventListener("click", e => {
-    const li = e.target.closest("li");
-    if (!li) return;
-
-    document.querySelectorAll("#patientList li").forEach(el => el.classList.remove("active"));
-    li.classList.add("active");
-    currentPatient = li.getAttribute("data-patient");
-    renderMessages();
-  });
-
-  renderMessages();
-});
-
-const chatPatientNameEl = document.getElementById("chatPatientName");
-
-// 選擇患者並載入對話訊息
-async function selectPatient(patientId) {
-  if (activePatientId === patientId) return;
-
-  activePatientId = patientId;
-  highlightActivePatient();
-
-  // 找到患者物件，顯示名字
-  const patient = patients.find(p => p.id == patientId);
-  chatPatientNameEl.textContent = patient ? patient.name : "患者";
-
-  chatMessagesEl.innerHTML = '<p style="color:#999; text-align:center;">載入中...</p>';
-
-  // 從後端拉取該患者對話訊息
-  const res = await fetch(`/api/chat?patientId=${patientId}`);
-  const chatData = await res.json();
-
-  renderChatMessages(chatData);
-}
-
-// 渲染訊息，記得帶 .from-me 或 .from-them 類別
-function renderChatMessages(messages) {
-  chatMessagesEl.innerHTML = '';
-
-  messages.forEach(msg => {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message');
-    msgDiv.classList.add(msg.from === 'me' ? 'from-me' : 'from-them');
-    msgDiv.textContent = msg.content;
-
-    // 可加時間
-    const timeSpan = document.createElement('span');
-    timeSpan.textContent = msg.time;
-    timeSpan.style.fontSize = '0.75rem';
-    timeSpan.style.color = '#999';
-    timeSpan.style.marginLeft = '8px';
-
-    msgDiv.appendChild(timeSpan);
-    chatMessagesEl.appendChild(msgDiv);
-  });
-
-  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-}
