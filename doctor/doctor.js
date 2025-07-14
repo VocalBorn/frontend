@@ -29,35 +29,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 🔗 建立配對 - 產生 Token
-  function generateToken() {
-    return Math.random().toString(36).substring(2, 10);
-  }
+  // 📡 從後端產生 token
+  async function fetchTokenAndShowQR() {
+    const token = localStorage.getItem("token"); // 登入時存下來的token
 
-  // 📄 顯示 QRCode
-  function showQRCode(token) {
-    const url = `https://example.com/pair?token=${token}`; // ⬅ 改成你後端的配對URL
-    const qrSrc = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(url)}`;
+    if (!token) {
+      alert("請先登入");
+      return;
+    }
 
-    qrImage.src = qrSrc;
-    qrLink.textContent = url;
-    qrLink.href = url;
-    qrLink.target = "_blank";
+    try {
+      const res = await fetch("https://api-vocalborn.r0930514.work/pairing/generate-token", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})  // 加上這行，傳空的 JSON 物件
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert(errorText);
+        console.error("❌ 後端錯誤訊息:", errorText);
+        throw new Error("後端產生 token 失敗");
+      }
+      
+
+      const data = await res.json();
+
+      // ⬇⬇⬇ 使用 qr_data 作為 QRCode 的內容
+      const url = data.qr_data;
+
+      const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      qrImage.src = qrSrc;
+      qrLink.textContent = url;
+      qrLink.href = url;
+      qrLink.target = "_blank";
+
+      modal.classList.remove("hidden");
+    } catch (err) {
+      alert("無法產生配對 QR Code，請稍後再試");
+    }
   }
 
   // ✨ 點【建立配對】 => 打開 modal 並生成 QR
-  openBtn.addEventListener("click", () => {
-    const token = generateToken();
-    showQRCode(token);
-    modal.classList.remove("hidden");
-  });
+  openBtn.addEventListener("click", fetchTokenAndShowQR);
 
   // ✨ 關閉 modal 的幾種方式
   [closeBtn, backBtn].forEach(btn => {
-    btn.addEventListener("click", () => {
-      modal.classList.add("hidden");
-      clearQRCode();
-    });
+    if (btn) {
+      btn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        clearQRCode();
+      });
+    }
   });
 
   modal.addEventListener("click", (e) => {
@@ -73,5 +99,4 @@ document.addEventListener("DOMContentLoaded", () => {
     qrLink.textContent = "";
     qrLink.href = "";
   }
-
 });
