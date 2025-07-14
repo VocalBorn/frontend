@@ -50,7 +50,7 @@
                 <div class="form-group">
                     <label>設定密碼</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="請設定您的密碼" id="registerPassword">
+                        <input type="password" placeholder="請設定您的密碼" id="registerPassword">
                         <i class="fas fa-eye password-toggle"></i>
                     </div>
                     <div class="password-hints">
@@ -63,7 +63,7 @@
                 <div class="form-group">
                     <label>確認密碼</label>
                     <div class="password-wrapper">
-                        <input type="password" id="confirm-password" placeholder="請再次輸入密碼">
+                        <input type="password" id="confirmPassword" placeholder="請再次輸入密碼">
                         <i class="fas fa-eye password-toggle"></i>
                     </div>
                     <div class="password-hints">
@@ -92,13 +92,16 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const toggleIcons = document.querySelectorAll('.password-toggle');
-            const passwordInput = document.querySelector('#password');
-            const confirmPasswordInput = document.querySelector('#confirm-password');
+            const passwordInput = document.querySelector('#registerPassword');
+            const confirmPasswordInput = document.querySelector('#confirmPassword');
             const hintIcons = document.querySelectorAll('.password-hints .hint-icon');
             const confirmHintIcon = document.querySelector('.confirm-hint-icon');
 
-            const rolePatient = document.querySelector('#role-patient');
-            const roleTherapist = document.querySelector('#role-therapist');
+            //const rolePatient = document.querySelector('#role-patient');
+            //const roleTherapist = document.querySelector('#role-therapist');
+            // 找到角色切換按鈕與隱藏欄位
+            const roleButtons = document.querySelectorAll('.tab-btn');
+            const userRoleInput = document.querySelector('#userRole');
             const therapistLicenseGroup = document.querySelector('.therapist-license-group');
             const therapistPhotoGroup = document.querySelector('.therapist-photo-group');
 
@@ -142,21 +145,43 @@
             confirmPasswordInput.addEventListener('input', updatePasswordHints);
 
             // 監聽角色選擇
-    rolePatient.addEventListener('change', () => {
-        if (rolePatient.checked) {
-            therapistLicenseGroup.style.display = 'none';
-            therapistPhotoGroup.style.display = 'none';
-        }
-    });
-    roleTherapist.addEventListener('change', () => {
-        if (roleTherapist.checked) {
-            therapistLicenseGroup.style.display = 'block';
-            therapistPhotoGroup.style.display = 'block';
-        }
-    });
+            // rolePatient.addEventListener('change', () => {
+            //     if (rolePatient.checked) {
+            //         therapistLicenseGroup.style.display = 'none';
+            //         therapistPhotoGroup.style.display = 'none';
+            //     }
+            // });
+            // roleTherapist.addEventListener('change', () => {
+            //     if (roleTherapist.checked) {
+            //         therapistLicenseGroup.style.display = 'block';
+            //         therapistPhotoGroup.style.display = 'block';
+            //     }
+            // });
 
-    //輸入註冊表單內容
-    const registerForm = document.querySelector("#registerForm");
+            // 為每個角色按鈕加上事件監聽
+            roleButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 切換 active 類別
+                    roleButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // 更新隱藏欄位
+                    const selectedRole = button.dataset.role;
+                    userRoleInput.value = selectedRole;
+
+                    // 顯示或隱藏治療師專用欄位
+                    if (selectedRole === 'therapist') {
+                        therapistLicenseGroup.style.display = 'block';
+                        therapistPhotoGroup.style.display = 'block';
+                    } else {
+                        therapistLicenseGroup.style.display = 'none';
+                        therapistPhotoGroup.style.display = 'none';
+                    }
+                });
+            });
+
+            //輸入註冊表單內容
+            const registerForm = document.querySelector("#registerForm");
         
             registerForm.addEventListener("submit", async function(event) {
                 event.preventDefault(); // 阻止表單預設提交行為
@@ -168,6 +193,8 @@
                 const email = document.getElementById("registerAccount").value.trim();
                 const password = document.getElementById("registerPassword").value;
                 const confirmPassword = document.getElementById("confirmPassword").value;
+                const role = document.getElementById("userRole").value;
+
         
                 // 驗證空值
                 if (!name || !age || !gender || !email || !password || !confirmPassword) {
@@ -180,41 +207,132 @@
                     alert("兩次輸入的密碼不一致！");
                     return;
                 }
-        
-                // 組裝資料
-                const userData = {
-                    name,
-                    age,
-                    gender,
-                    email: email,
-                    password
-                };
-        
-                try {
-                    const response = await fetch("https://api-vocalborn.r0930514.work/user/register", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(userData)
+                    // ✅ 若為治療師，額外驗證證照號碼與照片
+                    if (role === "therapist") {
+                        const license = document.getElementById("therapistLicense").value.trim();
+                        const photoFile = document.getElementById("therapistPhoto").files[0];
+                        const specialization = "語言治療";
+                        const years_experience = 3;
+                        const education = "台灣語言治療學系";
+                        const bio = "這是一位專業語言治療師";
+
+                        // 驗證
+                        if (!license || !specialization || isNaN(years_experience) || !education || !bio) {
+                            alert("請完整填寫所有治療師資訊！");
+                            return;
+                        }
+
+                        const therapistData = {
+                            name,
+                            age: Number(age),
+                            gender,
+                            email: email,
+                            password,
+                            license_number: license,
+                            photoFile,
+                            specialization: "語言治療",
+                            bio: "這是一位專業語言治療師",
+                            years_experience: 3,
+                            education: "台灣語言治療學系"
+                        };
+
+                        //治療師註冊
+                        try {
+                            const response = await fetch("https://api-vocalborn.r0930514.work/therapist/register", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(therapistData)
+                            });
+
+                            const result = await response.json();
+                            console.log("註冊回應：", result);
+
+                            if (response.ok) {
+
+                                // 抓 application_id
+                                const applicationId = result.verification_application_id;
+                                if (!applicationId) {
+                                    alert("未收到應用程式 ID，無法上傳證照資料！");
+                                    return;
+                                }
+
+                                // 取得證照檔案
+                                const photoFile = document.getElementById("therapistPhoto").files[0];
+                                if (!photoFile) {
+                                    alert("未選擇要上傳的證照圖片！");
+                                    return;
+                                }
+
+                                // 建立 FormData 上傳檔案
+                                const formData = new FormData();
+                                formData.append("file", photoFile); // 後端欄位可能是 document 或 file，請確認
+                                formData.append("document_type", "therapist_certificate");
+
+                                // 第二個 API：上傳證照
+                                const uploadRes = await fetch(`https://api-vocalborn.r0930514.work/verification/therapist-applications/${applicationId}/documents/`, {
+                                    method: "POST",
+                                    body: formData
+                                });
+
+                                if (uploadRes.ok) {
+                                    console.log("證照上傳成功");
+                                    localStorage.setItem("pendingVerifyAccount", email);
+                                    alert("已提交您的申請，請耐心等候審核！");
+                                    window.location.href = "index.html";
+                                } else {
+                                    const uploadErr = await uploadRes.json();
+                                    alert("證照上傳失敗：" + (uploadErr.message || "請檢查圖片格式"));
+                                }
+
+                            } else {
+                                alert("註冊失敗：" + (result.message || "請確認輸入資料"));
+                            }
+
+                                } catch (error) {
+                                    console.error("註冊錯誤：", error);
+                                    alert("註冊失敗，請稍後再試！");
+                                }
+                                return;
+                        }
+
+                        // 組裝資料
+                        const userData = {
+                            name,
+                            age,
+                            gender,
+                            email: email,
+                            password,
+                            role
+                        };
+
+                        //患者註冊
+                        try {
+                            const response = await fetch("https://api-vocalborn.r0930514.work/user/register", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(userData)
+                            });
+                
+                            const result = await response.json();
+                            console.log("註冊回應：", result);
+                
+                            if (response.ok) {
+                                console.log(response);
+                                localStorage.setItem("pendingVerifyAccount", email); // 存入帳號
+                                window.location.href = "verify_email.html";
+                            } else {
+                                alert("註冊失敗：" + (result.message || "請確認輸入資料"));
+                            }
+                
+                        } catch (error) {
+                            console.error("註冊錯誤：", error);
+                            alert("註冊失敗，請稍後再試！");
+                        }
                     });
-        
-                    const result = await response.json();
-                    console.log("註冊回應：", result);
-        
-                    if (response.ok) {
-                        console.log(response);
-                        localStorage.setItem("pendingVerifyAccount", email); // 存入帳號
-                        window.location.href = "verify_email.html";
-                    } else {
-                        alert("註冊失敗：" + (result.message || "請確認輸入資料"));
-                    }
-        
-                } catch (error) {
-                    console.error("註冊錯誤：", error);
-                    alert("註冊失敗，請稍後再試！");
-                }
-            });
 
         });
     </script>
