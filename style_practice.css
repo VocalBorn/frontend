@@ -28,7 +28,7 @@
     opacity: 0.9;
 }
 
-/* ===== 練習卡片區域 ===== */
+/* ===== 情境卡片區域 ===== */
 .practice-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -98,24 +98,56 @@
     box-shadow: 0 8px 16px rgba(132, 193, 255, 0.3);
 }
 
-/* ===== 返回按鈕 ===== */
+/* ===== 影片頁面返回按鈕 ===== */
 #practice-back-button {
-    position: absolute;
-    top: -2.5rem;
-    left: 0;
-    background-color: var(--primary);
-    color: var(--white);
+    margin: 20px auto 10px auto;
+    display: block;
+    padding: 10px 16px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
     border: none;
-    padding: 0.7rem 1.2rem;
-    border-radius: 12px;
-    font-size: 1.1rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s;
 }
 
 #practice-back-button:hover {
-    background-color: var(--accent);
+    background-color: #0056b3;
 }
+
+/* ===== 秒數按鈕 ===== */
+#video-script-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 12px 16px;
+    background-color: #f7fbff;  /* 極淺藍背景（幾乎白） */
+    border-radius: 10px;
+    border: 2px solid #d0e7ff;  /* 淺藍邊框 */
+}
+
+/* 柔和藍色按鈕 */
+.script-jump-button {
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #e6f2ff;  /* 柔和淺藍 */
+    color: #004080;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.script-jump-button:hover {
+    background-color: #d6ebff;  /* hover 更淺藍 */
+}
+
 
 /* ===== 顯示/隱藏影片區塊 ===== */
 .practice-hidden {
