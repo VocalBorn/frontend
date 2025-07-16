@@ -38,6 +38,8 @@ function bindPracticeVideoButtons() {
     document.querySelectorAll('.practice-button').forEach(button => {
         button.addEventListener('click', () => {
             const youtubeId = button.getAttribute('data-youtube');
+            const scenarioId = button.getAttribute('data-scenario'); // 讀取 data-scenario
+            setupScriptButtons(scenarioId); // 顯示腳本按鈕
             if (youtubeId) {
                 cardContainer.classList.add('practice-hidden');
                 document.querySelectorAll('.scenario-list').forEach(s => s.classList.add('hidden'));
@@ -80,6 +82,44 @@ function bindPracticeBackButton() {
 
         log('🔙 返回章節選單');
     });
+}
+
+function setupScriptButtons(scenarioId) {
+    const scriptData = {
+        '1-1': [
+            { time: 5, text: '請問2位內用有位置嗎？' },
+            { time: 10, text: '有菜單嗎？' },
+            { time: 15, text: '有什麼推薦的嗎？' },
+            { time: 20, text: '好的謝謝你那我想一下' },
+            { time: 25, text: '不好意思可以幫我點餐嗎？' },
+        ],
+        // 你可以繼續加 1-2, 2-1 等等
+    };
+
+    const container = document.getElementById('video-script-buttons');
+    container.innerHTML = ''; // 清空舊的
+
+    if (!scriptData[scenarioId]) {
+        container.innerHTML = '<p>此影片沒有腳本內容。</p>';
+        return;
+    }
+
+    scriptData[scenarioId].forEach(item => {
+        const btn = document.createElement('button');
+        btn.classList.add('script-jump-button');
+        btn.textContent = `${formatTime(item.time)} - ${item.text}`;
+        btn.addEventListener('click', () => {
+            const player = document.getElementById('youtube-player');
+            player.src = `https://www.youtube.com/embed/${player.src.split('/embed/')[1].split('?')[0]}?start=${item.time}&autoplay=1`;
+        });
+        container.appendChild(btn);
+    });
+}
+
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const sec = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${min}:${sec}`;
 }
 
 // === 初始化情境練習模組 ===
