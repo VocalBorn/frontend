@@ -249,11 +249,12 @@
                         allow="autoplay; encrypted-media"
                         allowfullscreen>
                     </iframe>
+                    <div id="video-script-buttons" class="script-button-group"></div>
                     <button id="practice-back-button">返回</button>
                 </div>
             </div>
             <div id="scenario-restaurant" class="scenario-list hidden">
-                <div style="text-align: center; margin-top: 20px;">
+                <div style="margin: 20px 0 10px 20px;">
                     <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
                 </div>
                 <h2>🍽 餐廳練習情境</h2>
@@ -263,7 +264,7 @@
                             <div class="practice-title">1-1 內用</div>
                             <div class="practice-description">點選內用流程</div>
                             <!-- 使用 YouTube ID（例如 dQw4w9WgXcQ） -->
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw">開始練習</button>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="1-1">開始練習</button>
                         </div>
                     </div>
 
@@ -271,7 +272,7 @@
                         <div class="practice-card-info">
                             <div class="practice-title">1-2 外帶</div>
                             <div class="practice-description">模擬點外帶流程</div>
-                            <button class="practice-button" data-youtube="kXYiU_JCYtU">開始練習</button>
+                            <button class="practice-button" data-youtube="kXYiU_JCYtU" data-scenario="1-2">開始練習</button>
                         </div>
                     </div>
                 </div>
@@ -286,7 +287,7 @@
                         <div class="practice-card-info">
                             <div class="practice-title">2-1 看診</div>
                             <div class="practice-description">模擬與醫生對話看病流程</div>
-                            <button class="practice-button" data-video="clinic.mp4">開始練習</button>
+                            <button class="practice-button" data-video="clinic.mp4" data-scenario="2-1">開始練習</button>
                         </div>
                     </div>
 
@@ -294,7 +295,7 @@
                         <div class="practice-card-info">
                             <div class="practice-title">2-2 拿藥</div>
                             <div class="practice-description">模擬到藥局領藥流程</div>
-                            <button class="practice-button" data-video="pharmacy.mp4">開始練習</button>
+                            <button class="practice-button" data-video="pharmacy.mp4" data-scenario="2-2">開始練習</button>
                         </div>
                     </div>
                 </div>
