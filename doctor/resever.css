@@ -158,3 +158,105 @@
   color: #374151;
   margin-left: 5px;
 }
+
+#cancel-approval-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+#cancel-approval-modal .modal-content {
+  background: #fff;
+  margin: 12% auto;
+  padding: 20px 24px;
+  border-radius: 8px;
+  width: 400px;
+  box-sizing: border-box;
+  position: relative;
+  font-family: "Microsoft JhengHei", sans-serif;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
+
+#cancel-approval-modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 1.4em;
+  color: #1f2937;
+  text-align: center;
+}
+
+#cancel-approval-modal #cancel-reason {
+  width: 100%;
+  height: 90px;
+  padding: 8px 10px;
+  font-size: 1em;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  resize: vertical;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  font-family: "Microsoft JhengHei", sans-serif;
+  color: #334155;
+}
+
+#cancel-approval-modal .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+#cancel-approval-modal button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  font-weight: 600;
+}
+
+#cancel-approval-modal button:hover {
+  background-color: #357abd;
+}
+
+#cancel-approval-modal button.cancel-btn {
+  background-color: #6b7280;
+}
+
+#cancel-approval-modal button.cancel-btn:hover {
+  background-color: #4b5563;
+}
+
+/* 取消同意 Modal 內顯示的病患時間 */
+#cancel-approval-modal .patient-info {
+  margin-bottom: 14px;
+  font-weight: 600;
+  color: #1e40af;
+  font-size: 1em;
+  text-align: center;
+  user-select: none;
+}
+
+/* 取消提交按鈕紅色樣式 */
+button.cancel-submit-btn {
+  background-color: #dc2626; /* 紅色 */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;      /* 比較小的上下內距和左右內距 */
+  font-size: 12px;        /* 字體調小 */
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  font-weight: 600;
+}
+
+button.cancel-submit-btn:hover {
+  background-color: #b91c1c;
+}

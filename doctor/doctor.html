@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>醫生主畫面</title>
+    <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="doctor.css">
     <link rel="stylesheet" href="doctor_onlinecommunicate.css">
     <link rel="stylesheet" href="patient-list.css">
@@ -165,7 +166,17 @@
         <div id="timeline" class="timeline"></div>
         <button id="close-modal-btn">關閉</button>
     </div>
+
     </div>
+    <div id="cancel-approval-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3 id="cancel-modal-title">取消同意原因</h3>
+    <p id="cancel-patient-info"></p>
+    <textarea id="cancel-reason" rows="4" placeholder="請輸入取消同意的原因..."></textarea>
+    <button id="confirm-cancel-btn">確認取消</button>
+    <button id="cancel-cancel-btn">放棄取消</button>
+  </div>
+</div>
 
     
     <!-- 線上溝通 -->

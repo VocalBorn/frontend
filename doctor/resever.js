@@ -7,21 +7,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("schedule-modal");
   const modalTitle = document.getElementById("modal-title");
   const timeline = document.getElementById("timeline");
-  const closeModalBtn = document.getElementById("close-modal-btn"); // 新增的關閉按鈕
+  const closeModalBtn = document.getElementById("close-modal-btn");
 
-  const events = [
-    { date: "2025-07-05", title: "語療 A" },
-    { date: "2025-07-12", title: "語療 B" },
-    { date: "2025-07-21", title: "語療 C" },
-  ];
+  // 取消同意 Modal 元素
+  const cancelModal = document.getElementById("cancel-approval-modal");
+  const cancelModalTitle = document.getElementById("cancel-modal-title");
+  const cancelPatientInfo = document.getElementById("cancel-patient-info");
+  const cancelReasonInput = document.getElementById("cancel-reason");
+  const confirmCancelBtn = document.getElementById("confirm-cancel-btn");
+  const cancelCancelBtn = document.getElementById("cancel-cancel-btn");
 
   const todos = [
-    "病患 X 請求 2025-07-10 下午 3:00",
-    "病患 Y 請求 2025-07-11 上午 9:00",
-    "病患 Z 請求 2025-07-12 下午 2:30",
+    "病患 X 請求 2025-07-28 下午 3:00",
+    "病患 Y 請求 2025-07-29 上午 9:00",
+    "病患 Z 請求 2025-07-30 下午 2:30",
   ];
 
   let currentYear, currentMonth;
+
+  // 已同意日期和取消原因，從 localStorage 拿
+  let approvedDates = JSON.parse(localStorage.getItem("approvedDates") || "[]");
+  let cancelReasons = JSON.parse(localStorage.getItem("cancelReasons") || "{}");
 
   btnViewSch.addEventListener("click", () => {
     const now = new Date();
@@ -40,6 +46,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   closeModalBtn.addEventListener("click", () => {
     modal.style.display = "none";
+  });
+
+  cancelCancelBtn.addEventListener("click", () => {
+    cancelModal.style.display = "none";
+    cancelReasonInput.value = "";
+  });
+
+  // 儲存當前取消的日期（全域）
+  let cancelDate = "";
+  let cancelTodoText = "";
+
+  confirmCancelBtn.addEventListener("click", () => {
+    const reason = cancelReasonInput.value.trim();
+    if (!reason) {
+      alert("請輸入取消同意的原因");
+      return;
+    }
+
+    // 存取消原因
+    cancelReasons[cancelDate] = reason;
+    localStorage.setItem("cancelReasons", JSON.stringify(cancelReasons));
+
+    // 從已同意日期移除
+    approvedDates = approvedDates.filter(date => date !== cancelDate);
+    localStorage.setItem("approvedDates", JSON.stringify(approvedDates));
+
+    // 代辦請求直接移除該日期的項目
+    const todoContainer = document.getElementById("todo-list");
+    const items = todoContainer.querySelectorAll(".todo-item");
+    items.forEach(item => {
+      if (item.textContent.includes(cancelDate)) {
+        todoContainer.removeChild(item);
+      }
+    });
+
+    // 重畫日曆和待辦，確保狀態正確
+    renderCalendar(currentYear, currentMonth);
+    renderTodo();
+
+    // 關閉取消同意 Modal 並清空輸入
+    cancelModal.style.display = "none";
+    cancelReasonInput.value = "";
   });
 
   function renderCalendar(year, month) {
@@ -104,10 +152,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (dateStr === todayStr) div.classList.add("today");
 
-      const event = events.find(e => e.date === fullDateStr);
-      if (event) {
-        div.classList.add("has-event");
-        div.title = event.title;
+      // 只有同意的日期才有特效
+      if (approvedDates.includes(fullDateStr)) {
+        div.classList.add("approved");
+        div.style.backgroundColor = "#bfdbfe";
       }
 
       div.addEventListener("click", () => {
@@ -127,6 +175,16 @@ document.addEventListener("DOMContentLoaded", () => {
     todoContainer.innerHTML = "";
 
     todos.forEach((t, idx) => {
+      // 如果該日期已被取消同意且已被移除，不要再顯示
+      const dateMatch = t.match(/\d{4}-\d{2}-\d{2}/);
+      if (dateMatch) {
+        const dateStr = dateMatch[0];
+        if (!approvedDates.includes(dateStr) && cancelReasons[dateStr]) {
+          // 已取消同意並有原因，不顯示這筆待辦
+          return;
+        }
+      }
+
       const div = document.createElement("div");
       div.className = "todo-item";
 
@@ -145,78 +203,99 @@ document.addEventListener("DOMContentLoaded", () => {
 
       todoContainer.appendChild(div);
 
-      div.querySelector(`#submit-${idx}`).addEventListener("click", () => {
-        const decision = div.querySelector(`#decision-${idx}`).value;
-        const reason = div.querySelector(`#reason-${idx}`).value.trim();
-
-        if (!decision) {
-          alert("請先選擇同意或拒絕");
-          return;
-        }
-
-        alert(`已提交\n請求：${t}\n決定：${decision}\n原因：${reason}`);
-
+      // 如果該日期已同意，設定成已提交狀態並顯示取消提交按鈕
+      if (dateMatch && approvedDates.includes(dateMatch[0])) {
+        div.querySelector(`#decision-${idx}`).value = "accept";
         div.querySelector(`#decision-${idx}`).disabled = true;
         div.querySelector(`#reason-${idx}`).disabled = true;
         div.querySelector(`#submit-${idx}`).disabled = true;
         div.style.opacity = "0.6";
 
-        if (decision === "accept") {
-          const dateMatch = t.match(/\d{4}-\d{2}-\d{2}/);
-          if (dateMatch) {
-            const approvedDate = dateMatch[0];
-            const cells = document.querySelectorAll(".calendar-day");
-            cells.forEach(cell => {
-              const cellDate = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(cell.textContent).padStart(2, "0")}`;
-              if (cellDate === approvedDate) {
-                cell.classList.add("approved");
-                cell.style.backgroundColor = "#bfdbfe";
+        // 取消同意按鈕
+        const cancelBtn = document.createElement("button");
+        cancelBtn.textContent = "取消同意";
+        cancelBtn.className = "cancel-submit-btn";
+        cancelBtn.style.marginLeft = "8px";
+        div.querySelector(".todo-actions").appendChild(cancelBtn);
 
-              }
-            });
+        cancelBtn.addEventListener("click", () => {
+          cancelDate = dateMatch[0];
+          cancelTodoText = t;
+          cancelModalTitle.textContent = `取消同意原因 - ${cancelDate}`;
+          cancelPatientInfo.textContent = cancelTodoText;
+          cancelReasonInput.value = "";
+          cancelModal.style.display = "block";
+        });
+
+      } else {
+        // 新增提交按鈕事件
+        div.querySelector(`#submit-${idx}`).addEventListener("click", () => {
+          const decision = div.querySelector(`#decision-${idx}`).value;
+          const reason = div.querySelector(`#reason-${idx}`).value.trim();
+
+          if (!decision) {
+            alert("請先選擇同意或拒絕");
+            return;
           }
-        }
-      });
+
+          alert(`已提交\n請求：${t}\n決定：${decision}\n原因：${reason}`);
+
+          div.querySelector(`#decision-${idx}`).disabled = true;
+          div.querySelector(`#reason-${idx}`).disabled = true;
+          div.querySelector(`#submit-${idx}`).disabled = true;
+          div.style.opacity = "0.6";
+
+          if (decision === "accept") {
+            const dateMatch = t.match(/\d{4}-\d{2}-\d{2}/);
+            if (dateMatch) {
+              const approvedDate = dateMatch[0];
+              if (!approvedDates.includes(approvedDate)) {
+                approvedDates.push(approvedDate);
+                localStorage.setItem("approvedDates", JSON.stringify(approvedDates));
+              }
+              renderCalendar(currentYear, currentMonth);
+              renderTodo();
+            }
+          }
+        });
+      }
     });
   }
 
   function renderTimeline(dateStr) {
-  timeline.innerHTML = "";
-  const matchedTodos = todos.filter(t => t.includes(dateStr));
+    timeline.innerHTML = "";
+    const matchedTodos = todos.filter(t => t.includes(dateStr));
 
-  if (matchedTodos.length === 0) {
-    timeline.innerHTML = "<p style='text-align:center; color:#888;'>尚無安排</p>";
-    return;
-  }
-
-  matchedTodos.forEach(t => {
-    // 抓出原本字串裡的時間和病患
-    const timeMatch = t.match(/(\d{4}-\d{2}-\d{2})\s+(上午|下午)\s+(\d{1,2}):(\d{2})/);
-    let timeStr = "未知";
-
-    if (timeMatch) {
-      const period = timeMatch[2];
-      let hour = parseInt(timeMatch[3], 10);
-      const minute = timeMatch[4];
-
-      // 如果是下午且小於12，加12
-      if (period === "下午" && hour < 12) hour += 12;
-      if (period === "上午" && hour === 12) hour = 0;
-
-      timeStr = `${String(hour).padStart(2, "0")}:${minute}`;
+    if (matchedTodos.length === 0) {
+      timeline.innerHTML = "<p style='text-align:center; color:#888;'>尚無安排</p>";
+      return;
     }
 
-    const nameMatch = t.match(/病患\s(\S)/);
-    const name = nameMatch ? nameMatch[1] : "未知";
+    matchedTodos.forEach(t => {
+      const timeMatch = t.match(/(\d{4}-\d{2}-\d{2})\s+(上午|下午)\s+(\d{1,2}):(\d{2})/);
+      let timeStr = "未知";
 
-    const item = document.createElement("div");
-    item.className = "timeline-item";
-    item.innerHTML = `
-      <div class="timeline-time">${timeStr}</div>
-      <div class="timeline-text">病患 ${name}</div>
-    `;
-    timeline.appendChild(item);
-  });
-}
+      if (timeMatch) {
+        const period = timeMatch[2];
+        let hour = parseInt(timeMatch[3], 10);
+        const minute = timeMatch[4];
 
+        if (period === "下午" && hour < 12) hour += 12;
+        if (period === "上午" && hour === 12) hour = 0;
+
+        timeStr = `${String(hour).padStart(2, "0")}:${minute}`;
+      }
+
+      const nameMatch = t.match(/病患\s(\S)/);
+      const name = nameMatch ? nameMatch[1] : "未知";
+
+      const item = document.createElement("div");
+      item.className = "timeline-item";
+      item.innerHTML = `
+        <div class="timeline-time">${timeStr}</div>
+        <div class="timeline-text">病患 ${name}</div>
+      `;
+      timeline.appendChild(item);
+    });
+  }
 });
