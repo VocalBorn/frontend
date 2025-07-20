@@ -85,17 +85,27 @@
                             <p>完成今日簽到，保持學習習慣</p>
                             <button class="task-btn" onclick="signInToday()">立即簽到</button>
                         </div>
-                        <div class="task-card">
-                            <h4>📘 情境練習</h4>
-                            <p>完成 1 次醫院情境練習</p>
-                            <button class="task-btn" onclick="switchPage('practice')">前往</button>
-                            <div class="progress-wrapper">
-                            <div class="progress-label">今日學習進度</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 60%;"></div>
-                            </div>
-                            </div>
                         </div>
+                        <!-- Modal -->
+<div id="reserve-modal" class="modal">
+  <div class="modal-content">
+    <h2>預約語言治療時段</h2>
+    <label for="time-slot">選擇時段：</label>
+    <select id="time-slot">
+      <option value="">請選擇</option>
+      <option>09:00 - 10:00</option>
+      <option>10:00 - 11:00</option>
+      <option>11:00 - 12:00</option>
+      <option>14:00 - 15:00</option>
+      <option>15:00 - 16:00</option>
+      <option>16:00 - 17:00</option>
+    </select>
+    <div class="modal-actions">
+      <button id="submit-reservation">送出</button>
+      <button id="close-reservation">取消</button>
+    </div>
+  </div>
+</div>
                     </div>
                 </section>
                 <section class="motivation-quote">

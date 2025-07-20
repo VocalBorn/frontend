@@ -176,7 +176,8 @@ body {
     color: #555;
   }
 
-  .view-pat-btn,.view-log-btn,.view-sch-btn,#back-to-home,#back-to-list,#open-token-section,#generate-token-btn,#back-to-log ,#back-to-home-from-sch{
+  .view-pat-btn,.view-log-btn,.view-sch-btn,#back-to-home,#back-to-list,#open-token-section,#generate-token-btn,#back-to-log ,#back-to-home-from-sch
+  ,#close-modal-btn{
   margin-top: auto;           /* 讓它往下貼底部 */
   align-self: center;         /* 水平置中 */
   padding: 0.5rem 1.2rem;
