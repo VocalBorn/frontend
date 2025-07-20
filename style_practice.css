@@ -1,0 +1,290 @@
+/* ===== 主內容頁面控制 ===== */
+.main-content-page {
+    display: none;
+}
+
+.main-content-page.active {
+    display: block;
+}
+
+/* ===== 英雄區塊樣式（共用） ===== */
+.hero-section {
+    text-align: center;
+    padding: 50px 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: var(--white);
+    border-radius: 15px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 32px rgba(132, 193, 255, 0.1);
+}
+
+.hero-content h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* ===== 情境卡片區域 ===== */
+.practice-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    justify-items: center;
+}
+
+.practice-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 6px 12px rgba(132, 193, 255, 0.2);
+    width: 260px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.practice-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(132, 193, 255, 0.3);
+}
+
+.practice-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 0.8rem;
+}
+
+.practice-description {
+    font-size: 1.1rem;
+    color: var(--secondary);
+    margin-bottom: 1.8rem;
+}
+
+.practice-button {
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    
+}
+
+.practice-button:hover {
+    background-color: var(--accent);
+}
+
+/* ===== 影片播放區塊 ===== */
+#practice-video-section {
+    margin-top: 2rem;
+    text-align: center;
+    position: relative;
+}
+
+#practice-scenario-video {
+    width: 85%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(132, 193, 255, 0.3);
+}
+
+/* ===== 影片頁面返回按鈕 ===== */
+#practice-back-button {
+    margin: 20px auto 10px auto;
+    display: block;
+    padding: 10px 16px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#practice-back-button:hover {
+    background-color: #0056b3;
+}
+
+/* ===== 秒數按鈕 ===== */
+#video-script-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+    padding: 12px 16px;
+    background-color: #f7fbff;  /* 極淺藍背景（幾乎白） */
+    border-radius: 10px;
+    border: 2px solid #d0e7ff;  /* 淺藍邊框 */
+}
+
+/* 柔和藍色按鈕 */
+.script-jump-button {
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #e6f2ff;  /* 柔和淺藍 */
+    color: #004080;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.script-jump-button:hover {
+    background-color: #d6ebff;  /* hover 更淺藍 */
+}
+
+
+/* ===== 顯示/隱藏影片區塊 ===== */
+.practice-hidden {
+    display: none;
+}
+
+@media screen and (max-width: 992px) {
+    .practice-container {
+        grid-template-columns: repeat(2, 1fr); /* 平板變兩欄 */
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .practice-container {
+        grid-template-columns: 1fr; /* 手機單欄 */
+    }
+}
+
+/* ===== 載入中動畫 ===== */
+.loader {
+  border: 8px solid #f3f3f3;       /* 外圈灰色 */
+  border-top: 8px solid #3498db;   /* 上方藍色 */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;                  /* 置中 */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.hidden {
+    display: none;
+}
+
+.practice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.practice-card-list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(132, 193, 255, 0.2);
+  padding: 20px 30px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.practice-card-list:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(132, 193, 255, 0.3);
+}
+
+.practice-card-list {
+  position: relative;
+  overflow: hidden;
+}
+
+.practice-card-list::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.7) 30%,
+    rgba(255, 255, 255, 0.3) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  z-index: 0;
+}
+.practice-card-info,
+.practice-button-list {
+  position: relative;
+  z-index: 1;
+}
+
+.practice-card-info {
+  max-width: 75%;
+}
+
+.practice-card-list .practice-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.practice-card-list .practice-description {
+  font-size: 1rem;
+  color: var(--secondary);
+  opacity: 0.85;
+}
+
+.practice-button-list {
+  background-color: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.practice-button-list:hover {
+  background-color: var(--accent);
+}
+
+.scenario-list.hidden {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .practice-card-list {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .practice-card-info {
+    max-width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .practice-button-list {
+    align-self: flex-end;
+  }
+}

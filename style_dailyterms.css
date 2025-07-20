@@ -1,0 +1,144 @@
+/* ===== 主內容頁面切換控制 ===== */
+.main-content-page {
+    display: none;
+}
+
+.main-content-page.active {
+    display: block;
+}
+
+/* ===== 英雄區（共用） ===== */
+.hero-section {
+    text-align: center;
+    padding: 50px 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: var(--white);
+    border-radius: 15px;
+    margin-bottom: 40px;
+    box-shadow: 0 8px 32px rgba(132, 193, 255, 0.1);
+}
+
+.hero-content h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* ===== 常用語區塊容器 ===== */
+.daily-terms-container {
+    padding: 20px;
+}
+
+/* ===== 輸入欄位樣式 ===== */
+.input-group {
+    margin-bottom: 10px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* ===== 按鈕群組樣式 ===== */
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.button-group .button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-group .button:hover {
+    background-color: var(--accent);
+}
+
+/* ===== 常用語清單容器 ===== */
+.terms-list {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.terms-list p {
+    font-size: 18px;
+    color: var(--secondary);
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* ===== 用語項目（動態加入） ===== */
+.term-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.term-item:hover {
+    background-color: rgba(132, 193, 255, 0.1);
+}
+
+/* ===== 用語文字與圖示容器 ===== */
+.term-item .term-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== 播放與刪除圖示（hover 顯示） ===== */
+.term-item .play-icon,
+.term-item .delete-term-button {
+    display: none;
+    cursor: pointer;
+}
+
+.term-item:hover .play-icon,
+.term-item:hover .delete-term-button {
+    display: inline;
+}
+
+.term-item .play-icon {
+    color: var(--primary);
+}
+
+.term-item .delete-term-button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 18px;
+}
+
+.term-item .delete-term-button:hover {
+    color: #c82333;
+}

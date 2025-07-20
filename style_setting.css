@@ -1,0 +1,425 @@
+/* ===== 主內容頁切換控制 ===== */
+.main-content-page {
+    display: none;
+}
+
+.main-content-page.active {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+/* ===== 頁面包裝容器，使卡片固定置中不跳動 ===== */
+.page-wrapper {
+    min-height: calc(100vh - 60px); /* 預留上方 navbar 等 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+    box-sizing: border-box;
+}
+/* ===== 使用者區塊 ===== */
+.setting,
+.profile,
+.notification,
+.help,
+.about {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-height: 100%;
+}
+
+/* ===== 使用者照片與名稱 ===== */
+.user-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}
+
+.username {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* ===== 外框卡片樣式 ===== */
+.settings-container,
+.profile-container,
+.notification-container,
+.help-container,
+.about-container {
+    width: 60%;
+    max-width: 800px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== 個別選項項目樣式 ===== */
+.settings-item,
+.profile-item,
+.notification-item,
+.help-item,
+.about-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* 最後一項不顯示邊框 */
+.settings-item:nth-last-child(2),
+.profile-item:nth-last-child(2),
+.notification-item:nth-last-child(2),
+.help-item:nth-last-child(2),
+.about-item:nth-last-child(2) {
+    border-bottom: none;
+}
+
+/* Hover 效果 */
+.settings-item:hover,
+.profile-item:hover,
+.notification-item:hover,
+.help-item:hover,
+.about-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+/* ===== 登出與儲存變更按鈕 ===== */
+.logout-btn,
+.savechange-btn {
+    background-color: #ffffff;
+    color: #96cbff;
+    width: 20%;
+    padding: 8px 0;
+    border: 2px solid #96cbff;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover,
+.savechange-btn:hover {
+    background-color: #96cbff;
+    color: #ffffff;
+}
+
+/* ===== profile-option 文字樣式與滑鼠效果 ===== */
+.profile-option {
+    cursor: pointer;
+    transition: color 0.2s;
+    display: block;
+    padding: 10px 0;
+}
+
+.profile-option:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+/* ===== 編輯姓名卡片 ===== */
+.card {
+    width: 60%;
+    max-width: 800px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    margin-bottom: 1rem;
+}
+
+.card-content .form-group {
+    margin-bottom: 1rem;
+}
+
+#nameInput {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+/* === 性別設定卡片 === */
+#edit-gender-content .card-content {
+  padding: 24px;
+}
+
+#edit-gender-content .form-group {
+  margin-bottom: 20px;
+}
+#edit-gender-content select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fafafa;
+  font-size: 16px;
+  transition: border 0.3s;
+}
+
+#edit-gender-content select:focus {
+  border-color: #479ac7;
+  outline: none;
+  background-color: #fff;
+}
+
+#edit-gender-content .button {
+  background-color: #479ac7;
+  color: white;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#edit-gender-content .button:hover {
+  background-color: #3a7fa3;
+}
+
+/* 儲存按鈕通用樣式 */
+.button {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+}
+
+.button:hover {
+    background-color: #2563eb;
+}
+
+/* ===== 開關切換設定 ===== */
+.setting-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4cd964;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* ===== 分隔線樣式 ===== */
+hr {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin: 10px 0;
+}
+
+.settings-container hr:last-of-type {
+    display: none;
+}
+
+/* ===== 返回箭頭樣式統一 ===== */
+.auth-switch {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.auth-switch i {
+    color: var(--primary);
+    font-size: 16px;
+}
+#change-password-content {
+  display: none;
+}
+
+#change-password-content.active {
+  display: block;
+}
+
+.card {
+  width: 60%;
+  max-width: 800px;
+  padding: 20px;
+  text-align: center;
+  margin: 20px auto;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  margin-bottom: 1rem;
+}
+
+.card-content .form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.card-content .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--secondary);
+}
+
+.card-content .form-group input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+}
+
+.card-content .form-group input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.button {
+  background-color: var(--primary);
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: var(--accent);
+}
+
+.auth-switch {
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.auth-switch i {
+  color: var(--primary);
+}
+
+
+/* === 如何更改密碼卡片 === */
+#how-to-change-password .card-content {
+  padding: 24px;
+  font-size: 16px;
+  color: #333;
+}
+
+#how-to-change-password h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #479ac7;
+}
+
+#how-to-change-password .instruction-list {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+#how-to-change-password .tip {
+  margin-top: 20px;
+  color: #e67e22;
+  font-weight: bold;
+}
+
+#how-to-change-password .auth-switch {
+  color: #479ac7;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* === 使用教學卡片 === */
+#tutorial-content h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #479ac7;
+}
+
+.instruction-list {
+  padding-left: 20px;
+  line-height: 1.8;
+  color: #333;
+  font-size: 16px;
+}
+
+.tip {
+  margin-top: 20px;
+  color: #e67e22;
+  font-weight: bold;
+}

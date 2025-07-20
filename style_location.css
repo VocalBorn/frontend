@@ -1,0 +1,138 @@
+/* ===== 容器改善 ===== */
+.location-terms-container {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+}
+
+/* ===== 英雄區 ===== */
+.hero-section {
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #5fa8d3, #60c2af);
+    color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.hero-content h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.hero-content p {
+    font-size: 16px;
+    opacity: 0.95;
+}
+
+/* ===== 地圖樣式 ===== */
+.map {
+    height: 320px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+/* ===== 地點資訊 ===== */
+.location-info {
+    font-size: 16px;
+    color: #555;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ===== 地點列表區塊 ===== */
+.terms-list,
+.phrases-list {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    margin-top: 20px;
+}
+
+.terms-list p,
+.phrases-list p {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+/* ===== 地點按鈕 ===== */
+.place-button {
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 15px;
+    color: #333;
+    width: 100%;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.place-button:hover {
+    background: #e2ecf4;
+    transform: translateY(-1px);
+}
+
+/* ===== 分類區塊 ===== */
+.place-category {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+/* ===== 推薦語句按鈕 ===== */
+.phrase-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #e9f5ff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: #333;
+    width: 100%;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.phrase-button:hover {
+    background: #d2e9fc;
+}
+
+/* ===== 返回按鈕 ===== */
+.back-btn {
+    margin-top: 15px;
+    padding: 10px 18px;
+    background: #479ac7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: #347ba2;
+}
