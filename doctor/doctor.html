@@ -73,7 +73,7 @@
             <div id="qr-container" style="text-align:center; margin-top: 1rem;">
             <img id="qr-image" src="" alt="QR Code 將顯示在此處" 
                 style="width:180px; height:180px; border:6px solid #e1f0fc; border-radius:12px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.05);"/>
-            <p id="qr-link" style="margin-top: 0.8rem; font-size:0.9rem; color:#4a90e2; word-break:break-word;"></p>
+            <a id="qr-link" style="margin-top: 0.8rem; font-size:0.9rem; color:#4a90e2; word-break:break-word;"></a>
             </div>
         </div>
         </div>
@@ -145,6 +145,28 @@
         </div>
     </div>
     </section>
+
+    <!-- 預約區 -->
+    <section id="schedule-section" class="page-section">
+    <div class="widget-card">
+        <h3>📅 預約排程</h3>
+
+        <div id="calendar" class="calendar"></div>
+
+        <h4 style="margin-top:20px;">📋 代辦請求</h4>
+        <div id="todo-list" class="todo-list"></div>
+
+        <button id="back-to-home-from-sch">返回</button>
+    </div>
+    </section>
+    <div id="schedule-modal" class="modal">
+    <div class="modal-content">
+        <h3 id="modal-title">當日行程</h3>
+        <div id="timeline" class="timeline"></div>
+        <button id="close-modal-btn">關閉</button>
+    </div>
+    </div>
+
     
     <!-- 線上溝通 -->
   <section id="instant-messaging" class="page-section">

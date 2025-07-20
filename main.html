@@ -95,12 +95,32 @@
                         <div class="practice-title">掃描 QR Code</div>
                         <div class="practice-description">快速掃描並加入語言治療排程</div>
                         </div>
-
+                        
                         <!-- 新增功能卡: 預約語言治療 -->
                         <div class="practice-card" style="cursor: pointer;">
                         <div class="practice-title">預約語言治療</div>
                         <div class="practice-description">立即預約專屬語言治療時段</div>
                         </div>
+                        <!-- Modal -->
+<div id="reserve-modal" class="modal">
+  <div class="modal-content">
+    <h2>預約語言治療時段</h2>
+    <label for="time-slot">選擇時段：</label>
+    <select id="time-slot">
+      <option value="">請選擇</option>
+      <option>09:00 - 10:00</option>
+      <option>10:00 - 11:00</option>
+      <option>11:00 - 12:00</option>
+      <option>14:00 - 15:00</option>
+      <option>15:00 - 16:00</option>
+      <option>16:00 - 17:00</option>
+    </select>
+    <div class="modal-actions">
+      <button id="submit-reservation">送出</button>
+      <button id="close-reservation">取消</button>
+    </div>
+  </div>
+</div>
                     </div>
                 </section>
 
