@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Authorization": "Bearer " + token,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({})  // 加上這行，傳空的 JSON 物件
+        body: JSON.stringify({})  // 傳空的 JSON 物件
       });
 
       if (!res.ok) {
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ✅ 點擊首頁的「查看紀錄」→ 進入紀錄顯示頁面
     viewLogBtn.addEventListener("click", () => {
         showSection(logDetailSection);
-        renderLogPatients(); // <-- 這是你要顯示「今日病患練習進度」的函數（下面會給）
+        renderLogPatients(); // 今日病患練習進度的函數
     });
 
     // ✅ 從 API 抓取病患資料
@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //目前已配對幾位病患
     pairedCountElement.textContent = "目前配對："+(patients.length)+"位";
 
-    // ✅ 渲染病患列表
+    // 渲染病患列表
     function renderPatientList(patients) {
         // 先清掉舊的卡片（保留返回按鈕）
         patientListContainer.querySelectorAll(".patient-card").forEach(card => card.remove());
@@ -210,13 +210,13 @@ document.addEventListener("DOMContentLoaded", function () {
             card.classList.add("patient-card");
             card.textContent = client.name || `病患 (${item.client_id})`;
 
-            // ✅ 點擊卡片 → 顯示詳細資料
+            // 點擊卡片 → 顯示詳細資料
             card.addEventListener("click", () => showPatientDetail(item));
             patientListContainer.insertBefore(card, backToHomeBtn);
         });
     }
 
-    // ✅ 顯示詳細資料
+    // 顯示詳細資料
     function showPatientDetail(item) {
         const client = item.client_info || {};
         patientIdField.value = item.client_id || "未提供";
@@ -229,12 +229,12 @@ document.addEventListener("DOMContentLoaded", function () {
         showSection(patientDetailSection);
     }
 
-    // ✅ 返回按鈕
+    // 返回按鈕
     backToHomeBtn.addEventListener("click", () => {
         showSection(document.getElementById("home"));
     });
 
-    //病患練習進度的返回按鈕
+    //病患練習進度的返回按鈕（暫時的，之後會修改）
     backToHomeBtnn.addEventListener("click", () => {
         showSection(document.getElementById("home"));
     });
