@@ -69,9 +69,27 @@
                     <div class="password-hints">
                         <div class="hint"><span>與設定密碼一致</span><span class="hint-icon confirm-hint-icon"></span></div>
                     </div>
-                    <div class="form-group therapist-license-group" style="display:none;">
-                        <label for="therapistLicense">治療師語言證照</label>
-                        <input type="text" id="therapistLicense" placeholder="請輸入您的證照號碼">
+                    <div class="form-group row">
+                        <div class="form-group therapist-license-group" style="display:none;">
+                            <label for="therapistLicense">治療師語言證照</label>
+                            <input type="text" id="therapistLicense" placeholder="請輸入您的證照號碼">
+                        </div>
+                        <div class="form-group therapist-experience-group" style="display:none;">
+                            <label for="therapistExperience">年資</label>
+                            <input type="text" id="therapistExperience">
+                        </div>
+                    </div>
+                    <div class="form-group therapist-specialty-group" style="display:none;">
+                        <label for="therapistSpecialty">專業領域</label>
+                        <input type="text" id="therapistSpecialty">
+                    </div>
+                    <div class="form-group therapist-education-group" style="display:none;">
+                        <label for="therapistEducation">學歷</label>
+                        <input type="text" id="therapistEducation">
+                    </div>
+                    <div class="form-group therapist-intro-group" style="display:none;">
+                        <label for="therapistIntro">個人簡介</label>
+                        <input type="text" id="therapistIntro" placeholder="請簡單介紹你自己">
                     </div>
                     <div class="form-group therapist-photo-group" style="display:none;">
                         <label for="therapistPhoto">上傳證照照片</label>
@@ -104,6 +122,10 @@
             const userRoleInput = document.querySelector('#userRole');
             const therapistLicenseGroup = document.querySelector('.therapist-license-group');
             const therapistPhotoGroup = document.querySelector('.therapist-photo-group');
+            const therapistExperienceGroup=document.querySelector('.therapist-experience-group');
+            const therapistSpecialtyGroup=document.querySelector('.therapist-specialty-group');
+            const therapistEducationGroup=document.querySelector('.therapist-education-group');
+            const therapistIntroGroup=document.querySelector('.therapist-intro-group');
 
 
             toggleIcons.forEach(toggle => {
@@ -173,9 +195,17 @@
                     if (selectedRole === 'therapist') {
                         therapistLicenseGroup.style.display = 'block';
                         therapistPhotoGroup.style.display = 'block';
+                        therapistExperienceGroup.style.display = 'block';
+                        therapistSpecialtyGroup.style.display = 'block';
+                        therapistEducationGroup.style.display = 'block';
+                        therapistIntroGroup.style.display = 'block';
                     } else {
                         therapistLicenseGroup.style.display = 'none';
                         therapistPhotoGroup.style.display = 'none';
+                        therapistExperienceGroup.style.display = 'none';
+                        therapistSpecialtyGroup.style.display = 'none';
+                        therapistEducationGroup.style.display = 'none';
+                        therapistIntroGroup.style.display = 'none';
                     }
                 });
             });
@@ -211,13 +241,13 @@
                     if (role === "therapist") {
                         const license = document.getElementById("therapistLicense").value.trim();
                         const photoFile = document.getElementById("therapistPhoto").files[0];
-                        const specialization = "語言治療";
-                        const years_experience = 3;
-                        const education = "台灣語言治療學系";
-                        const bio = "這是一位專業語言治療師";
+                        const specialization = document.getElementById("therapistSpecialty").value.trim();;
+                        const years_experience = document.getElementById("therapistExperience").value.trim();;
+                        const education = document.getElementById("therapistEducation").value.trim();;
+                        const bio = document.getElementById("therapistIntro").value.trim();;
 
                         // 驗證
-                        if (!license || !specialization || isNaN(years_experience) || !education || !bio) {
+                        if (!license || !specialization || isNaN(years_experience) || !education || !bio || !photoFile) {
                             alert("請完整填寫所有治療師資訊！");
                             return;
                         }
@@ -230,10 +260,10 @@
                             password,
                             license_number: license,
                             photoFile,
-                            specialization: "語言治療",
-                            bio: "這是一位專業語言治療師",
-                            years_experience: 3,
-                            education: "台灣語言治療學系"
+                            specialization: specialization,
+                            bio: bio,
+                            years_experience: years_experience,
+                            education: education
                         };
 
                         //治療師註冊

@@ -1,39 +1,3 @@
-#schedule-list {
-  margin-top: 24px;
-}
-
-.schedule-item {
-  background: #f9fafb;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.03);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-left: 4px solid #4a90e2;
-}
-
-.schedule-time {
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.schedule-status {
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: #fff;
-}
-
-.schedule-status.upcoming {
-  background-color: #16a34a;
-}
-
-.schedule-status.completed {
-  background-color: #6b7280;
-}
-
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -59,41 +23,41 @@
 }
 
 .calendar-day.has-event {
-  border: 2px solid #16a34a;
-  background: #e6f7e9;
+  background: #d7e9ff;          
+  border: 2px solid #0059d5;   
+  color: #1e40af;
 }
 
-.todo-list {
-  margin-top: 36px;
+.calendar-day.approved {
+  background: #d7e9ff;        
+  border: 2px solid #0059d5;  
+  color: #1e40af;
+  cursor: pointer;
 }
 
-.todo-item {
-  background: #fef9c3;
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  border-left: 4px solid #aad9ff;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #000000;
-}
-
-.todo-actions {
-  margin-top: 4px;
+.calendar-header {
   display: flex;
-  gap: 8px;
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  grid-column: span 7;
+  gap: 16px;
 }
 
-.todo-actions select,
-.todo-actions input {
-  font-size: 12px;
-  padding: 2px 4px;
+.calendar-header button {
+  background-color: #a6cfff;
+  color: white;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.todo-actions input {
-  flex: 1;
-  min-width: 100px;
+.calendar-header button:hover {
+  background-color: #357ABD;
 }
 
 .todo-list {
@@ -145,27 +109,154 @@
   background-color: #357ABD;
 }
 
-.calendar-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 8px;
-  font-weight: bold;
-  font-size: 16px;
-  grid-column: span 7;
-  gap: 16px;
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
 }
 
-.calendar-header button {
-  background-color: #a6cfff;
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  position: relative;
+}
+
+.timeline {
+  margin-top: 20px;
+  border-left: 3px solid #3b82f6;
+  padding-left: 15px;
+}
+
+.timeline-item {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+}
+
+.timeline-time {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.timeline-text {
+  color: #374151;
+  margin-left: 5px;
+}
+
+#cancel-approval-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+#cancel-approval-modal .modal-content {
+  background: #fff;
+  margin: 12% auto;
+  padding: 20px 24px;
+  border-radius: 8px;
+  width: 400px;
+  box-sizing: border-box;
+  position: relative;
+  font-family: "Microsoft JhengHei", sans-serif;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
+
+#cancel-approval-modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 1.4em;
+  color: #1f2937;
+  text-align: center;
+}
+
+#cancel-approval-modal #cancel-reason {
+  width: 100%;
+  height: 90px;
+  padding: 8px 10px;
+  font-size: 1em;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  resize: vertical;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  font-family: "Microsoft JhengHei", sans-serif;
+  color: #334155;
+}
+
+#cancel-approval-modal .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+#cancel-approval-modal button {
+  background-color: #4a90e2;
   color: white;
   border: none;
-  padding: 2px 6px;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 6px;
+  padding: 8px 16px;
   font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  font-weight: 600;
 }
 
-.calendar-header button:hover {
-  background-color: #357ABD;
+#cancel-approval-modal button:hover {
+  background-color: #357abd;
+}
+
+#cancel-approval-modal button.cancel-btn {
+  background-color: #6b7280;
+}
+
+#cancel-approval-modal button.cancel-btn:hover {
+  background-color: #4b5563;
+}
+
+/* 取消同意 Modal 內顯示的病患時間 */
+#cancel-approval-modal .patient-info {
+  margin-bottom: 14px;
+  font-weight: 600;
+  color: #1e40af;
+  font-size: 1em;
+  text-align: center;
+  user-select: none;
+}
+
+/* 取消提交按鈕紅色樣式 */
+button.cancel-submit-btn {
+  background-color: #dc2626; /* 紅色 */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;      /* 比較小的上下內距和左右內距 */
+  font-size: 12px;        /* 字體調小 */
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  font-weight: 600;
+}
+
+button.cancel-submit-btn:hover {
+  background-color: #b91c1c;
 }
