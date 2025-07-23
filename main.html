@@ -85,8 +85,17 @@
                             <p>完成今日簽到，保持學習習慣</p>
                             <button class="task-btn" onclick="signInToday()">立即簽到</button>
                         </div>
+                        <div class="task-card">
+                            <h4>📘 情境練習</h4>
+                            <p>完成 1 次醫院情境練習</p>
+                            <button class="task-btn" onclick="switchPage('practice')">前往</button>
+                            <div class="progress-wrapper">
+                            <div class="progress-label">今日學習進度</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                            </div>
                         </div>
-                        <!-- Modal -->
                     </div>
                 </section>
                 <section class="motivation-quote">
@@ -186,7 +195,7 @@
                             <div class="practice-title">第三章  購物付款</div>
                             <div class="practice-description">學習如何在商店付款</div>
                         </div>
-                        <button class="practice-button-list" data-video="shopping.mp4">開始練習</button>
+                        <button class="practice-button-list" onclick="showScenario('shopping')">查看情境</button>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('images/bank.jpg');">
@@ -194,7 +203,7 @@
                             <div class="practice-title">第四章  銀行</div>
                             <div class="practice-description">學習如何開戶、存錢、提款、換匯</div>
                         </div>
-                        <button class="practice-button-list" data-video="bank.mp4">開始練習</button>
+                        <button class="practice-button-list" onclick="showScenario('bank')">查看情境</button>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('images/post.jpg');">
@@ -202,7 +211,7 @@
                             <div class="practice-title">第五章  郵局</div>
                             <div class="practice-description">學習如何寄送郵件或包裹</div>
                         </div>
-                        <button class="practice-button-list" data-video="post.mp4">開始練習</button>
+                        <button class="practice-button-list" onclick="showScenario('post')">查看情境</button>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('images/travel.jpg');">
@@ -210,7 +219,7 @@
                             <div class="practice-title">第六章  旅遊</div>
                             <div class="practice-description">學習如何訂房與問景點</div>
                         </div>
-                        <button class="practice-button-list" data-video="travel.mp4">開始練習</button>
+                        <button class="practice-button-list" onclick="showScenario('travel')">查看情境</button>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('images/emergency.jpg');">
@@ -218,7 +227,7 @@
                             <div class="practice-title">第七章  緊急狀況</div>
                             <div class="practice-description">學習在緊急時如何求助和應對</div>
                         </div>
-                        <button class="practice-button-list" data-video="emergency.mp4">開始練習</button>
+                        <button class="practice-button-list" onclick="showScenario('emergency')">查看情境</button>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('images/daily.jpg');">
@@ -226,7 +235,7 @@
                             <div class="practice-title">第八章  日常用語</div>
                             <div class="practice-description">常見日常用語</div>
                         </div>
-                        <button class="practice-button-list" data-video="daily.mp4">開始練習</button>
+                        <button class="practice-button-list" onclick="showScenario('daily')">查看情境</button>
                     </div>
                 </div>
                 
@@ -263,13 +272,13 @@
                         <div class="practice-card-info">
                             <div class="practice-title">1-2 外帶</div>
                             <div class="practice-description">模擬點外帶流程</div>
-                            <button class="practice-button" data-youtube="kXYiU_JCYtU" data-scenario="1-2">開始練習</button>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="1-2">開始練習</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-hospital" class="scenario-list hidden">
-                <div style="text-align: center; margin-top: 20px;">
+                <div style="margin: 20px 0 10px 20px;">
                     <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
                 </div>
                 <h2>🏥 醫院練習情境</h2>
@@ -278,7 +287,7 @@
                         <div class="practice-card-info">
                             <div class="practice-title">2-1 看診</div>
                             <div class="practice-description">模擬與醫生對話看病流程</div>
-                            <button class="practice-button" data-video="clinic.mp4" data-scenario="2-1">開始練習</button>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="2-1">開始練習</button>
                         </div>
                     </div>
 
@@ -286,7 +295,129 @@
                         <div class="practice-card-info">
                             <div class="practice-title">2-2 拿藥</div>
                             <div class="practice-description">模擬到藥局領藥流程</div>
-                            <button class="practice-button" data-video="pharmacy.mp4" data-scenario="2-2">開始練習</button>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="2-2">開始練習</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scenario-shopping" class="scenario-list hidden">
+                <div style="margin: 20px 0 10px 20px;">
+                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                </div>
+                <h2>🛍 購物付款練習情境</h2>
+                <div class="practice-card-container">
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">3-1 結帳</div>
+                            <div class="practice-description">模擬在商店結帳付款流程</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="3-1">開始練習</button>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">3-2 詢問價格</div>
+                            <div class="practice-description">練習詢問商品價格與優惠</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="3-2">開始練習</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scenario-bank" class="scenario-list hidden">
+                <div style="margin: 20px 0 10px 20px;">
+                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                </div>
+                <h2>🏦 銀行練習情境</h2>
+                <div class="practice-card-container">
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">4-1 開戶</div>
+                            <div class="practice-description">模擬到銀行開戶流程</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="4-1">開始練習</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scenario-post" class="scenario-list hidden">
+                <div style="margin: 20px 0 10px 20px;">
+                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                </div>
+                <h2>📮 郵局練習情境</h2>
+                <div class="practice-card-container">
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">5-1 郵寄</div>
+                            <div class="practice-description">模擬寄信或包裹流程</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="5-1">開始練習</button>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">5-2 取件</div>
+                            <div class="practice-description">模擬到郵局領取包裹流程</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="5-2">開始練習</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scenario-travel" class="scenario-list hidden">
+                <div style="margin: 20px 0 10px 20px;">
+                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                </div>
+                <h2>✈️ 旅遊練習情境</h2>
+                <div class="practice-card-container">
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">6-1 問路</div>
+                            <div class="practice-description">模擬旅途中向人問路</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="6-1">開始練習</button>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">6-2 買票</div>
+                            <div class="practice-description">模擬在旅途中購買門票或車票</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="6-2">開始練習</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scenario-emergency" class="scenario-list hidden">
+                <div style="margin: 20px 0 10px 20px;">
+                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                </div>
+                <h2>🚨 緊急狀況練習情境</h2>
+                <div class="practice-card-container">
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">7-1 打電話求助</div>
+                            <div class="practice-description">模擬緊急情況打電話求救</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="7-1">開始練習</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scenario-daily" class="scenario-list hidden">
+                <div style="margin: 20px 0 10px 20px;">
+                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                </div>
+                <h2>🗣 日常用語練習情境</h2>
+                <div class="practice-card-container">
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">8-1 基本禮貌用語</div>
+                            <div class="practice-description">請、謝謝、對不起、沒關係等基本日常表達</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="8-1">開始練習</button>
+                        </div>
+                    </div>
+
+                    <div class="practice-card-list" style="background-image: url('');">
+                        <div class="practice-card-info">
+                            <div class="practice-title">8-2 打招呼與回應</div>
+                            <div class="practice-description">你好、早安、晚安、再見等常用問候語</div>
+                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="8-2">開始練習</button>
                         </div>
                     </div>
                 </div>

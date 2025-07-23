@@ -93,9 +93,77 @@ function setupScriptButtons(scenarioId) {
             { time: 5, text: '請問2位內用有位置嗎？' },
             { time: 10, text: '有菜單嗎？' },
             { time: 15, text: '有什麼推薦的嗎？' },
-            { time: 20, text: '好的謝謝你那我想一下' },
-            { time: 25, text: '不好意思可以幫我點餐嗎？' },
+            { time: 20, text: '好的謝謝你，那我想一下' },
+            { time: 25, text: '不好意思　可以幫我點餐嗎？' },
         ],
+        '1-2': [
+            { time: 5, text: '請問可以外帶嗎？' },
+            { time: 10, text: '我要一份漢堡，謝謝。' },
+            { time: 15, text: '請問要等多久？' },
+            { time: 20, text: '有餐具嗎？' },
+            { time: 25, text: '可以給我一個袋子嗎？' }
+        ],
+        '3-1': [
+            { time: 5, text: '請問可以刷卡嗎？' },
+            { time: 10, text: '這個有折扣嗎？' },
+            { time: 15, text: '我想用行動支付。' },
+            { time: 20, text: '我需要明細，謝謝。' }
+        ],
+        '3-2': [
+            { time: 5, text: '這個多少錢？' },
+            { time: 10, text: '第二件有優惠嗎？' },
+            { time: 15, text: '有我的尺寸嗎？' },
+            { time: 20, text: '有其他款式可以選嗎？' },
+            { time: 25, text: '這裡有賣漢堡嗎？' }
+        ],
+        '4-1': [
+            { time: 5, text: '你好，我想開一個帳戶。' },
+            { time: 10, text: '請問要準備哪些資料？' },
+            { time: 15, text: '我要開的是儲蓄帳戶。' },
+            { time: 20, text: '我可以申請提款卡嗎？' }
+        ],
+        '5-1': [
+            { time: 5, text: '我想寄這個包裹。' },
+            { time: 10, text: '請問有快遞服務嗎？' },
+            { time: 15, text: '最快可以多久送達？' },
+            { time: 20, text: '這個寄到台北要多少錢？' }
+        ],
+        '5-2': [
+            { time: 5, text: '我來領包裹，這是通知單。' },
+            { time: 10, text: '需要出示身分證嗎？' },
+            { time: 15, text: '請問可以幫我拆開確認嗎？' },
+        ],
+        '6-1': [
+            { time: 5, text: '不好意思，請問車站怎麼走？' },
+            { time: 10, text: '走路大概要多久？' },
+            { time: 15, text: '請問這附近有廁所嗎？' }
+        ],
+        '6-2': [
+            { time: 5, text: '我要一張到高雄的車票。' },
+            { time: 10, text: '請問有學生票嗎？' },
+            { time: 15, text: '我要買今天下午三點的票。' },
+            { time: 20, text: '請問有沒有對號座？' }
+        ],
+        '7-1': [
+            { time: 5, text: '可以幫助我嗎？我遇到了一些狀況' },
+            { time: 10, text: '我在大安森林公園，腳扭到了。' },
+            { time: 15, text: '可以派救護車嗎？' },
+            { time: 20, text: '我大概二十歲，穿著藍色外套。' }
+        ],
+        '8-1': [
+            { time: 5, text: '請幫我一下，謝謝！' },
+            { time: 10, text: '不好意思，請問洗手間在哪？' },
+            { time: 15, text: '對不起，我不是故意的。' },
+            { time: 20, text: '沒關係，謝謝你的理解。' },
+            { time: 25, text: '真的非常感謝你。' }
+        ],
+        '8-2': [
+            { time: 5, text: '你好！今天過得怎麼樣？' },
+            { time: 10, text: '早安，祝你有美好的一天！' },
+            { time: 15, text: '晚安，明天見～' },
+            { time: 20, text: '再見，路上小心。' },
+            { time: 25, text: '嗨！好久不見！' }
+        ]
     };
 
     const container = document.getElementById('video-script-buttons');
@@ -167,7 +235,6 @@ function setupScriptButtons(scenarioId) {
             const audio = new Audio(url);
             audio.play();
         });
-        
         const uploadBtn = document.createElement('button');
         uploadBtn.innerHTML = '⇧';
         uploadBtn.title = '上傳錄音';
@@ -202,6 +269,7 @@ function setupScriptButtons(scenarioId) {
         sentenceBlock.appendChild(stopBtn);
         sentenceBlock.appendChild(playBtn);
         sentenceBlock.appendChild(uploadBtn);
+
 
         container.appendChild(sentenceBlock);
     });
