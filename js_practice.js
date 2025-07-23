@@ -84,6 +84,9 @@ function bindPracticeBackButton() {
     });
 }
 
+const audioChunks = new Map(); // 每句話對應一段錄音
+let mediaRecorder = null;
+
 function setupScriptButtons(scenarioId) {
     const scriptData = {
         '1-1': [
@@ -93,26 +96,114 @@ function setupScriptButtons(scenarioId) {
             { time: 20, text: '好的謝謝你那我想一下' },
             { time: 25, text: '不好意思可以幫我點餐嗎？' },
         ],
-        // 你可以繼續加 1-2, 2-1 等等
     };
 
     const container = document.getElementById('video-script-buttons');
-    container.innerHTML = ''; // 清空舊的
+    container.innerHTML = '';
 
-    if (!scriptData[scenarioId]) {
-        container.innerHTML = '<p>此影片沒有腳本內容。</p>';
-        return;
-    }
+    const lines = scriptData[scenarioId] || [];
+    lines.forEach((line) => {
+        const sentenceBlock = document.createElement('div');
+        sentenceBlock.className = 'sentence-control';
+        sentenceBlock.setAttribute('data-start', line.time);
 
-    scriptData[scenarioId].forEach(item => {
-        const btn = document.createElement('button');
-        btn.classList.add('script-jump-button');
-        btn.textContent = `${formatTime(item.time)} - ${item.text}`;
-        btn.addEventListener('click', () => {
+        sentenceBlock.addEventListener('click', () => {
             const player = document.getElementById('youtube-player');
-            player.src = `https://www.youtube.com/embed/${player.src.split('/embed/')[1].split('?')[0]}?start=${item.time}&autoplay=1`;
+            const baseId = player.src.split('/embed/')[1].split('?')[0];
+            player.src = `https://www.youtube.com/embed/${baseId}?start=${line.time}&autoplay=1`;
         });
-        container.appendChild(btn);
+
+        const timeLabel = document.createElement('span');
+        timeLabel.innerHTML = `<b>${formatTime(line.time)}</b> - ${line.text}`;
+
+        const startBtn = document.createElement('button');
+        startBtn.innerHTML = '🎙';
+        startBtn.title = '開始錄音';
+        startBtn.classList.add('record-btn');
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                alert('已有錄音進行中，請先停止');
+                return;
+            }
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                const chunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = e => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    audioChunks.set(sentenceBlock, blob);
+                    stream.getTracks().forEach(track => track.stop()); // 停止麥克風
+                    startBtn.classList.remove('recording'); // 移除提示狀態
+                };
+                mediaRecorder.start();
+                startBtn.classList.add('recording'); // 加上提示樣式
+            }).catch(err => {
+                alert('無法使用麥克風：' + err.message);
+            });
+        });
+
+        const stopBtn = document.createElement('button');
+        stopBtn.innerHTML = '🛑';
+        stopBtn.title = '停止錄音';
+        stopBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        });
+
+        const playBtn = document.createElement('button');
+        playBtn.innerHTML = '▶';
+        playBtn.title = '播放錄音';
+        playBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const blob = audioChunks.get(sentenceBlock);
+            if (!blob) {
+                alert('尚未錄音');
+                return;
+            }
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.play();
+        });
+        
+        const uploadBtn = document.createElement('button');
+        uploadBtn.innerHTML = '⇧';
+        uploadBtn.title = '上傳錄音';
+        uploadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const blob = audioChunks.get(sentenceBlock);
+            if (!blob) {
+                alert('尚未錄音');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', blob, `recording-${scenarioId}-${line.time}.webm`);
+
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(res => res.ok ? res.text() : Promise.reject(res))
+            .then(msg => {
+                alert('✅ 上傳成功');
+                console.log(msg);
+            })
+            .catch(err => {
+                console.error('❌ 上傳失敗', err);
+                alert('❌ 上傳失敗，請稍後再試');
+            });
+        });
+
+        sentenceBlock.appendChild(timeLabel);
+        sentenceBlock.appendChild(startBtn);
+        sentenceBlock.appendChild(stopBtn);
+        sentenceBlock.appendChild(playBtn);
+        sentenceBlock.appendChild(uploadBtn);
+
+        container.appendChild(sentenceBlock);
     });
 }
 
