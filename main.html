@@ -7,6 +7,7 @@
     <link id="fa-link" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
     document.getElementById('fa-link').addEventListener('error', function() {
         this.href = 'font-awesome.min.css';
@@ -241,187 +242,271 @@
                 
 
                 <div id="practice-video-section" class="practice-hidden">
-                    <iframe
-                        id="youtube-player"
-                        width="100%"
-                        height="400"
-                        frameborder="0"
-                        allow="autoplay; encrypted-media"
-                        allowfullscreen>
-                    </iframe>
+                    <div id="youtube-player"></div>
                     <div id="video-script-buttons" class="script-button-group"></div>
                     <button id="practice-back-button">返回</button>
                 </div>
             </div>
+            <div id="feedback-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-btn" onclick="closeFeedback()">×</span>
+                    <h3 id="feedback-title">治療師回饋</h3>
+                    <div id="feedback-body">載入中...</div>
+                </div>
+            </div>
             <div id="scenario-restaurant" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>🍽 餐廳練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
+                        <div class="practice-info-left">
                             <div class="practice-title">1-1 內用</div>
                             <div class="practice-description">點選內用流程</div>
-                            <!-- 使用 YouTube ID（例如 dQw4w9WgXcQ） -->
                             <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="1-1">開始練習</button>
+                        </div>
+                        <div class="practice-info-right">
+                            <button class="feedback-button" onclick="showFeedback('1-1')">📝查看回饋</button>
+                            <button class="ai-analysis-button" onclick="showAIAnalysis('1-1')">📊AI 分析</button>
+                        </div>
                         </div>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
+                        <div class="practice-info-left">
                             <div class="practice-title">1-2 外帶</div>
                             <div class="practice-description">模擬點外帶流程</div>
                             <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="1-2">開始練習</button>
+                        </div>
+                        <div class="practice-info-right">
+                            <button class="feedback-button" onclick="showFeedback('1-1')">📝查看回饋</button>
+                            <button class="ai-analysis-button" onclick="showAIAnalysis('1-1')">📊AI 分析</button>
+                        </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-hospital" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>🏥 醫院練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">2-1 看診</div>
-                            <div class="practice-description">模擬與醫生對話看病流程</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="2-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">2-1 看診</div>
+                                <div class="practice-description">模擬與醫生對話看病流程</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="2-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('2-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('2-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">2-2 拿藥</div>
-                            <div class="practice-description">模擬到藥局領藥流程</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="2-2">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">2-2 拿藥</div>
+                                <div class="practice-description">模擬到藥局領藥流程</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="2-2">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('2-2')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('2-2')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-shopping" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>🛍 購物付款練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">3-1 結帳</div>
-                            <div class="practice-description">模擬在商店結帳付款流程</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="3-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">3-1 結帳</div>
+                                <div class="practice-description">模擬在商店結帳付款流程</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="3-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('3-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('3-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">3-2 詢問價格</div>
-                            <div class="practice-description">練習詢問商品價格與優惠</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="3-2">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">3-2 詢問價格</div>
+                                <div class="practice-description">練習詢問商品價格與優惠</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="3-2">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('3-2')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('3-2')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-bank" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>🏦 銀行練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">4-1 開戶</div>
-                            <div class="practice-description">模擬到銀行開戶流程</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="4-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">4-1 開戶</div>
+                                <div class="practice-description">模擬到銀行開戶流程</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="4-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('4-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('4-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-post" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>📮 郵局練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">5-1 郵寄</div>
-                            <div class="practice-description">模擬寄信或包裹流程</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="5-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">5-1 郵寄</div>
+                                <div class="practice-description">模擬寄信或包裹流程</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="5-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('5-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('5-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">5-2 取件</div>
-                            <div class="practice-description">模擬到郵局領取包裹流程</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="5-2">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">5-2 取件</div>
+                                <div class="practice-description">模擬到郵局領取包裹流程</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="5-2">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('5-2')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('5-2')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-travel" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>✈️ 旅遊練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">6-1 問路</div>
-                            <div class="practice-description">模擬旅途中向人問路</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="6-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">6-1 問路</div>
+                                <div class="practice-description">模擬旅途中向人問路</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="6-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('6-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('6-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">6-2 買票</div>
-                            <div class="practice-description">模擬在旅途中購買門票或車票</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="6-2">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">6-2 買票</div>
+                                <div class="practice-description">模擬在旅途中購買門票或車票</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="6-2">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('6-2')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('6-2')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-emergency" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>🚨 緊急狀況練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">7-1 打電話求助</div>
-                            <div class="practice-description">模擬緊急情況打電話求救</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="7-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">7-1 打電話求助</div>
+                                <div class="practice-description">模擬緊急情況打電話求救</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="7-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('7-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('7-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="scenario-daily" class="scenario-list hidden">
                 <div style="margin: 20px 0 10px 20px;">
-                    <button onclick="goBackToChapterList()" class="practice-button">← 返回章節列表</button>
+                    <button onclick="goBackToChapterList()" class="practice-back-button">← 返回章節列表</button>
                 </div>
                 <h2>🗣 日常用語練習情境</h2>
-                <div class="practice-card-container">
+                <div class="sub-scenario practice-card-container">
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">8-1 基本禮貌用語</div>
-                            <div class="practice-description">請、謝謝、對不起、沒關係等基本日常表達</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="8-1">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">8-1 基本禮貌用語</div>
+                                <div class="practice-description">請、謝謝、對不起、沒關係等基本日常表達</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="8-1">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('8-1')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('8-1')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="practice-card-list" style="background-image: url('');">
                         <div class="practice-card-info">
-                            <div class="practice-title">8-2 打招呼與回應</div>
-                            <div class="practice-description">你好、早安、晚安、再見等常用問候語</div>
-                            <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="8-2">開始練習</button>
+                            <div class="practice-info-left">
+                                <div class="practice-title">8-2 打招呼與回應</div>
+                                <div class="practice-description">你好、早安、晚安、再見等常用問候語</div>
+                                <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="8-2">開始練習</button>
+                            </div>
+                            <div class="practice-info-right">
+                                <button class="feedback-button" onclick="showFeedback('8-2')">📝查看回饋</button>
+                                <button class="ai-analysis-button" onclick="showAIAnalysis('8-2')">📊AI 分析</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
 
 
 
@@ -720,6 +805,7 @@
             </div>
         </div>
     </section>
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script src="js_practice.js"></script>
     <script src="script.js"></script>
