@@ -829,7 +829,7 @@
             }
 
             // 用 token 呼叫需要授權的 API
-            fetch("https://api-vocalborn.r0930514.work/user/profile", {
+            fetch("https://vocalborn.r0930514.work/api/user/profile", {
                 method: "PATCH",
                 headers: {
                     "Authorization": "Bearer " + token
@@ -872,7 +872,7 @@
 
                 try {
                     console.log("送出的 token：", token);
-                    const response = await fetch('https://api-vocalborn.r0930514.work/user/password', {
+                    const response = await fetch('https://vocalborn.r0930514.work/api/user/password', {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1038,7 +1038,7 @@
 
                 // 🔹 載入使用者個人資料（姓名、性別）
                 try {
-                    const res = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                    const res = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
                         method: "GET",
                         headers: {
                             "Authorization": "Bearer " + token
@@ -1093,7 +1093,7 @@
                 }
 
                 try {
-                    const res = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                    const res = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
                         method: "PATCH",
                         headers: {
                             "Content-Type": "application/json",
@@ -1123,7 +1123,7 @@
                 const newGender = document.getElementById("genderSelect").value;
 
                 try {
-                    const res = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                    const res = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
                         method: "PATCH",
                         headers: {
                             "Content-Type": "application/json",

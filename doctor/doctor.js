@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch("https://api-vocalborn.r0930514.work/pairing/generate-token", {
+      const res = await fetch("https://vocalborn.r0930514.work/api/pairing/generate-token", {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + token,
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function fetchPatientList() {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("https://api-vocalborn.r0930514.work/therapist/my-clients", {
+            const response = await fetch("https://vocalborn.r0930514.work/api/therapist/my-clients", {
                 method: "GET",
                 headers: { "Authorization": `Bearer ${token}` }
             });
