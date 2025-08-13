@@ -81,10 +81,20 @@
                         今日任務
                     </div>
                     <div class="task-cards">
-                        <div class="task-card">
+                        <div id="sign-in-card" class="task-card">
                             <h4>📅 每日簽到</h4>
                             <p>完成今日簽到，保持學習習慣</p>
                             <button class="task-btn" onclick="signInToday()">立即簽到</button>
+                        </div>
+                        <div id="calendar-container" class="task-card calendar-card hidden">
+                            <div class="card-header">
+                                <i class="fa-solid fa-calendar-check"></i> 本月簽到紀錄
+                            </div>
+                            <div class="calendar-nav">
+                                <select id="year-select" onchange="updateCalendarFromSelect()"></select>
+                                <select id="month-select" onchange="updateCalendarFromSelect()"></select>
+                            </div>
+                            <div id="calendar-grid" class="calendar-grid"></div>
                         </div>
                         <div class="task-card">
                             <h4>📘 情境練習</h4>
@@ -106,6 +116,12 @@
                     </div>
                     <div class="quote-author">- 您的語言治療師</div>
                 </section>
+                <div id="sign-in-popup" class="popup hidden">
+                    <div class="popup-content">
+                    <span class="popup-message">✅ 今日簽到完成！</span><br />
+                    <button class="popup-confirm-btn" onclick="closePopup()">確定</button>
+                    </div>
+                </div>
             </div>
 
             <!-- 進度追蹤 -->
@@ -810,6 +826,7 @@
     <script src="js_practice.js"></script>
     <script src="script.js"></script>
     <script src="js_location.js"></script>
+    <script src="js_home.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', async() => {
