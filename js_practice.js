@@ -75,6 +75,8 @@ function goBackToChapterList() {
     if (videoSection) videoSection.classList.add('practice-hidden');
     log('返回章節列表');
 }
+
+let practiceStartTime = null; // 記錄開始時間
 // === 綁定影片播放按鈕 ===
 function bindPracticeVideoButtons() {
     const youtubePlayer = document.getElementById('youtube-player');
@@ -90,52 +92,38 @@ function bindPracticeVideoButtons() {
     
 
     document.querySelectorAll('.practice-button').forEach(button => {
-        let youtubeId = '';
         button.addEventListener('click', () => {
-        const youtubeId = button.getAttribute('data-youtube');
-        const scenarioId = button.getAttribute('data-scenario');
+            const youtubeId = button.getAttribute('data-youtube');
+            const scenarioId = button.getAttribute('data-scenario');
+            setupScriptButtons(scenarioId);
 
-        currentVideoId = youtubeId;
-
-        console.log("🟢 點擊到開始練習按鈕");
-        console.log("🎥 影片 ID:", youtubeId);
-        console.log("📘 情境 ID:", scenarioId);
-
-        // ✅ 顯示影片播放區
-        document.getElementById('practice-video-section').classList.remove('practice-hidden');
-
-        // ✅ 隱藏章節入口區塊
-        document.getElementById('practice-card-container').classList.add('hidden');
-
-        // ✅ 隱藏所有章節子選單（scenario-xxx）
-        document.querySelectorAll('.scenario-list').forEach(s => s.classList.add('hidden'));
-
-        // ✅ 等待 iframe 出現後再初始化 ytPlayer
-        setTimeout(() => {
-            if (!ytPlayerReady) {
-                console.log("🕐 等待 YT Player 初始化...");
-                loadYouTubePlayerWhenReady(); // 若你還沒建，這裡會建
-            }
-
-            // 等 ytPlayer 完成初始化
-            const waitUntilReady = setInterval(() => {
-                if (ytPlayerReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-                    clearInterval(waitUntilReady);
-                    console.log('🎞 準備載入影片', { ytPlayer, youtubeId });
-
+            if (youtubeId && ytPlayer && ytPlayer.loadVideoById) {
+                if (currentVideoId !== youtubeId) {
                     ytPlayer.loadVideoById(youtubeId);
-                    setupScriptButtons(scenarioId);
+                    currentVideoId = youtubeId;
+                    log(`▶️ 載入新影片：${youtubeId}`);
+                } else {
+                    log(`✅ 已載入影片 ${youtubeId}，不重複載入`);
                 }
-            }, 100);
-        }, 300); // 延遲 300ms 確保 iframe 顯示出來
-    });
+
+                // ✅ 記錄練習開始時間
+                practiceStartTime = new Date();
+                console.log("⏱ 練習開始於", practiceStartTime.toLocaleTimeString());
+
+                document.getElementById('practice-video-section').classList.remove('practice-hidden');
+                document.getElementById('practice-card-container').classList.add('practice-hidden');
+                document.querySelectorAll('.scenario-list').forEach(s => s.classList.add('hidden'));
+            } else {
+                log('❌ 缺少 ytPlayer 或 loadVideoById', 'error');
+            }
+        });
     });
 }
 
 // === 綁定返回按鈕 ===
 function bindPracticeBackButton() {
     const backButton = document.getElementById('practice-back-button');
-    const youtubePlayer = document.getElementById('youtube-player'); // ✅ 改成 iframe
+    const youtubePlayer = document.getElementById('youtube-player');
     const videoSection = document.getElementById('practice-video-section');
     const cardContainer = document.getElementById('practice-card-container');
 
@@ -145,18 +133,24 @@ function bindPracticeBackButton() {
     }
 
     backButton.addEventListener('click', () => {
-        // ✅ 停止 YouTube 播放（清空 src）
-        youtubePlayer.src = '';
+        // ✅ 記錄練習結束時間並計算時長
+        const practiceEndTime = new Date();
+        console.log("⏱ 練習結束於", practiceEndTime.toLocaleTimeString());
 
-        // 隱藏影片區塊
+        if (practiceStartTime) {
+            const durationSec = Math.floor((practiceEndTime - practiceStartTime) / 1000);
+            const min = Math.floor(durationSec / 60);
+            const sec = durationSec % 60;
+            console.log(`⏱ 本次練習總時長：${min} 分 ${sec} 秒`);
+        }
+
+        youtubePlayer.src = '';
         videoSection.classList.add('practice-hidden');
 
-        // 顯示章節列表（主卡片區）
         cardContainer.classList.remove('hidden');
         cardContainer.classList.remove('card-grid');
         cardContainer.classList.add('card-flex');
 
-        // ✅ 清除所有子情境（避免殘留）
         document.querySelectorAll('.scenario-list').forEach(s => s.classList.add('hidden'));
 
         log('🔙 返回章節選單');
