@@ -183,3 +183,51 @@
     margin-right: 0;
   }
 }
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  margin: 5px;
+  max-width: 80%;
+  position: relative;
+}
+
+.message.me {
+  justify-content: flex-end;
+  align-self: flex-end;
+}
+
+.message.bot {
+  justify-content: flex-start;
+  align-self: flex-start;
+}
+
+.chat-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+.chat-bubble {
+  background-color: #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  max-width: 60%;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+
+.message.me .chat-bubble {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.chat-time {
+  font-size: 10px;
+  color: #888;
+  position: absolute;
+  bottom: -12px;
+  right: 5px;
+}
+
