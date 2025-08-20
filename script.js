@@ -50,13 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     log(`已設定進度條寬度為 ${percent.toFixed(1)}%`);
 }
 
-    // === 初始化性別顯示（放在這裡） ===
-    const gender = localStorage.getItem('userGender');
-    const select = document.getElementById('genderSelect');
-    if (gender && select) {
-        select.value = gender;
-    }
-
     // === 登入/註冊處理 ===
     const loginPage = document.getElementById('login');
     const registerPage = document.getElementById('register');
@@ -283,20 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target === 'location-terms') {
             getLocation();
         }
-
-        if (target === 'edit-name') {
-            const nameInput = document.getElementById('nameInput');
-            if (nameInput) {
-                const currentUsername = usernameElements['profile-username']?.textContent || '這裡是使用者的名字';
-                nameInput.value = currentUsername;
-                nameInput.focus();
-            }
-        }
-
-        if (target === 'change-password') {
-            const current = document.getElementById('currentPassword');
-            if (current) current.focus();
-        }
     };
 
     // 將這些事件綁定放進這裡
@@ -371,60 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
             switchPage(target);
         });
     });
-
-    // 綁定個人檔案選項事件
-    const profileOptions = document.querySelectorAll('.profile-option');
-    profileOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            const target = option.getAttribute('data-target');
-            log(`點擊了個人檔案選項: ${target}`);
-            switchPage(target);
-        });
-    });
-
-    // 綁定返回按鈕
-    const backToProfileBtn = document.getElementById('backToProfile');
-    if (backToProfileBtn) {
-        backToProfileBtn.addEventListener('click', () => {
-            switchPage('profile');
-            log('返回個人檔案頁面');
-        });
-    }
-    const backToProfileFromPassword = document.getElementById('backToProfileFromPassword');
-    if (backToProfileFromPassword) {
-        backToProfileFromPassword.addEventListener('click', () => {
-            switchPage('profile');
-        });
-    }
-    const helpHowToItem = document.getElementById('how-to-change-password-item');
-    if (helpHowToItem) {
-    helpHowToItem.addEventListener('click', () => {
-        switchPage('how-to-change-password');
-    });
-    }
-
-    const backToHelpFromHowTo = document.getElementById('backToHelpFromHowTo');
-    if (backToHelpFromHowTo) {
-    backToHelpFromHowTo.addEventListener('click', () => {
-        switchPage('help');
-    });
-    }
-
-    const tutorialItem = document.getElementById('tutorial-item');
-    if (tutorialItem) {
-    tutorialItem.addEventListener('click', () => {
-        switchPage('tutorial');
-    });
-    }
-
-    const backToHelpFromTutorial = document.getElementById('backToHelpFromTutorial');
-    if (backToHelpFromTutorial) {
-    backToHelpFromTutorial.addEventListener('click', () => {
-        switchPage('help');
-    });
-    }
-
-
  
     // === 側邊欄切換 ===
     const sidebar = document.querySelector('.sidebar');
@@ -581,13 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    
-    
-
-
     // 即時溝通頁面功能
-document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function() {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
     const chatMessages = document.getElementById("chatMessages");
@@ -631,105 +551,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // === 設定頁面 ===
-    const settingsButtons = {
-    showProfile: 'profile',
-    showSetting: 'settings',
-    showNotification: 'notification',
-    backToSettingfromNotify: 'settings',
-    showHelp: 'help',
-    backToSettingfromHelp: 'settings',
-    showAbout: 'about',
-    backToSettingfromAbout: 'settings',
-    editName: 'edit-name',                  // 切換到編輯姓名
-    backToProfile: 'profile',               // 編輯頁返回
-    changePassword: 'change-password' ,
-    backToProfileFromPassword: 'profile',      // ✅ 新增：切換到變更密碼
-    editGender: 'edit-gender', // ← 修正這行，對應性別頁
-    backToProfileFromGender: 'profile' // ← 新增這行
-    };
-    
-    Object.entries(settingsButtons).forEach(([id, target]) => {
-        const btn = document.getElementById(id);
-        if (btn) {
-            btn.addEventListener('click', () => switchPage(target));
-        }
-    });
-    
-    // === 姓名編輯功能 ===
-    function saveName() {
-        const nameInput = document.getElementById('nameInput');
-        const newName = nameInput?.value.trim();
-
-        if (!nameInput || newName === '') {
-            showMessage('請輸入有效的姓名！');
-            log('姓名輸入為空或找不到 nameInput 元素', 'warn');
-            return;
-        }
-
-        // 更新 localStorage
-        const registeredUser = localStorage.getItem('registeredUser');
-        if (registeredUser) {
-            try {
-                const user = JSON.parse(registeredUser);
-                user.username = newName;
-                localStorage.setItem('registeredUser', JSON.stringify(user));
-                log('姓名已儲存到 localStorage');
-            } catch (error) {
-                log('更新 localStorage 時出錯: ' + error, 'error');
-                showMessage('儲存姓名時發生錯誤，請重試');
-                return;
-            }
-        } else {
-            log('未找到用戶資料，無法儲存姓名', 'warn');
-            showMessage('請先登入再修改姓名');
-            return;
-        }
-
-        // 更新顯示
-        const usernameElements = {
-            'profile-username': document.getElementById('profile-username'),
-            'settings-username': document.getElementById('settings-username'),
-            'welcome-username': document.getElementById('welcome-username')
-        };
-        Object.entries(usernameElements).forEach(([id, element]) => {
-            if (element) {
-                element.textContent = newName;
-            } else {
-                log(`找不到 ID 為 ${id} 的元素，無法更新姓名`, 'warn');
-            }
-        });
-
-        showMessage('姓名已更新！');
-        log(`姓名已更新為: ${newName}`);
-        switchPage('profile'); // 儲存後返回個人檔案頁面
-    }
-    function saveGender() {
-    const selectedGender = document.getElementById('genderSelect').value;
-    localStorage.setItem('userGender', selectedGender);
-    alert('性別已儲存：' + selectedGender);
-    switchPage('profile');
-    }
-    function signInToday() {
-    const today = new Date().toLocaleDateString();
-    const signedIn = localStorage.getItem('signedInDate');
-
-    if (signedIn === today) {
-        alert("您今天已經簽到過囉！");
-    } else {
-        localStorage.setItem('signedInDate', today);
-        alert("✅ 簽到成功，太棒了！");
-        // 可選：執行畫面更新或動畫
-    }
-}
-    // 通知切換
-    const notifyToggle = document.getElementById('notifyToggle');
-    if (notifyToggle) {
-        notifyToggle.addEventListener('change', () => {
-            log(`通知：${notifyToggle.checked ? '開啟' : '關閉'}`);
-        });
-    }
-
     // === 輔助函數 ===
     function showMessage(message) {
         const toast = document.createElement('div');
@@ -763,59 +584,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// === 全域函數 ===
-function logout() {
-    localStorage.removeItem('registeredUser');
-    showMessage('您已登出');
-    window.location.href = 'index.html';
-}
 
-function savechange() {
-    saveName();
-    showMessage('已儲存變更');
-}
-
-function submitPasswordChange() {
-    const currentPassword = document.getElementById('currentPassword')?.value.trim();
-    const newPassword = document.getElementById('newPassword')?.value.trim();
-    const confirmPassword = document.getElementById('confirmPassword')?.value.trim();
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-        showMessage('請完整填寫所有欄位');
-        return;
-    }
-
-    const stored = localStorage.getItem('registeredUser');
-    if (!stored) {
-        showMessage('請先登入');
-        return;
-    }
-
-    try {
-        const user = JSON.parse(stored);
-        if (user.password !== currentPassword) {
-            showMessage('目前密碼不正確');
-            return;
-        }
-
-        if (newPassword.length < 6) {
-            showMessage('新密碼長度需至少 6 字元');
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            showMessage('新密碼與確認密碼不一致');
-            return;
-        }
-
-        user.password = newPassword;
-        localStorage.setItem('registeredUser', JSON.stringify(user));
-        showMessage('密碼已成功更新');
-        log('密碼變更成功');
-        switchPage('profile');
-    } catch (error) {
-        log('密碼變更錯誤：' + error, 'error');
-        showMessage('更新失敗，請重試');
-    }
-}
 
