@@ -1,5 +1,23 @@
 let currentYear, currentMonth;
 
+function signInToday() {
+  const today = new Date();
+  const key = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  // 讀取舊資料
+  const signedDates = JSON.parse(localStorage.getItem("signedDates")) || {};
+  signedDates[key] = true; // 紀錄今天已簽到
+  localStorage.setItem("signedDates", JSON.stringify(signedDates));
+
+  // 更新畫面
+  document.getElementById("sign-in-card").classList.add("hidden");
+  document.getElementById("calendar-container").classList.remove("hidden");
+  renderCalendar();
+
+  // 彈出提示
+  showSignInPopup("簽到成功！");
+}
+
 function initCalendar() {
   const today = new Date();
   currentYear = today.getFullYear();
