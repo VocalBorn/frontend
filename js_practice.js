@@ -1,16 +1,35 @@
+function loadYouTubeScriptIfNeeded() {
+  if (!window.YT || !window.YT.Player) {
+    console.log('⏳ YT API 尚未載入，插入 <script> 載入中...');
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+  } else {
+    console.log('✅ YT API 已存在');
+    loadYouTubePlayerWhenReady(); // 若你想立即初始化播放器也可加這行
+  }
+}
+
+loadYouTubeScriptIfNeeded();
+
 window.onYouTubeIframeAPIReady = function () {
     console.log("✅ onYouTubeIframeAPIReady 被觸發");
     loadYouTubePlayerWhenReady(); // 你定義的初始化函式
 };
 // === 顯示子情境 ===
 function showScenario(scenarioId) {
+    // 隱藏所有子情境
+    document.querySelectorAll('.scenario-list').forEach(section => section.classList.add('hidden'));
+
+    // 隱藏主卡片區塊
     const cardContainer = document.getElementById('practice-card-container');
-    const allScenarios = document.querySelectorAll('.scenario-list');
-    const targetSection = document.getElementById(`scenario-${scenarioId}`);
     if (cardContainer) cardContainer.classList.add('hidden');
-    allScenarios.forEach(section => section.classList.add('hidden'));
-    if (targetSection) targetSection.classList.remove('hidden');
-    log(`顯示子情境：${scenarioId}`);
+
+    // 顯示對應子情境內容
+    const target = document.getElementById(`scenario-${scenarioId}`);
+    if (target) target.classList.remove('hidden');
+
+    console.log(`✅ 顯示子情境：${scenarioId}`);
 }
 // === 查看回饋 ===
 function showFeedback(scenarioId) {
@@ -61,18 +80,35 @@ function showAIAnalysis(scenarioId) {
     `;
   }, 1000);
 }
+function switchMainPage(pageId) {
+  const idsToHide = ['practice-content', 'scenario-1-1', 'scenario-1-2', 'practice-video-section'];
+  idsToHide.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
 
+  const target = document.getElementById(pageId);
+  if (target) target.classList.remove('hidden');
+}
 // === 返回章節列表 ===
 function goBackToChapterList() {
     const cardContainer = document.getElementById('practice-card-container');
     const videoSection = document.getElementById('practice-video-section');
+
     if (cardContainer) {
         cardContainer.classList.remove('hidden');
         cardContainer.classList.remove('card-grid');
         cardContainer.classList.add('card-flex');
     }
+
+    // ✅✅✅ 顯示英雄區
+    const heroSection = document.querySelector('#practice-content .hero-section');
+    if (heroSection) heroSection.classList.remove('hidden');
+
     document.querySelectorAll('.scenario-list').forEach(s => s.classList.add('hidden'));
-    if (videoSection) videoSection.classList.add('practice-hidden');
+
+    if (videoSection) videoSection.classList.add('hidden');
+
     log('返回章節列表');
 }
 
@@ -98,13 +134,9 @@ function bindPracticeVideoButtons() {
             setupScriptButtons(scenarioId);
 
             if (youtubeId && ytPlayer && ytPlayer.loadVideoById) {
-                if (currentVideoId !== youtubeId) {
-                    ytPlayer.loadVideoById(youtubeId);
-                    currentVideoId = youtubeId;
-                    log(`▶️ 載入新影片：${youtubeId}`);
-                } else {
-                    log(`✅ 已載入影片 ${youtubeId}，不重複載入`);
-                }
+                ytPlayer.loadVideoById(youtubeId); // 每次都播放
+                currentVideoId = youtubeId;
+                log(`▶️ 播放影片：${youtubeId}`);
 
                 // ✅ 記錄練習開始時間
                 practiceStartTime = new Date();
@@ -144,7 +176,7 @@ function bindPracticeBackButton() {
             console.log(`⏱ 本次練習總時長：${min} 分 ${sec} 秒`);
         }
 
-        youtubePlayer.src = '';
+        ytPlayer.stopVideo();
         videoSection.classList.add('practice-hidden');
 
         cardContainer.classList.remove('hidden');
@@ -211,11 +243,25 @@ function setupScriptButtons(scenarioId) {
             { start: 20, end: 24, text: '有餐具嗎？' },
             { start: 25, end: 29, text: '可以給我一個袋子嗎？' }
         ],
+        '2-1': [
+            { start: 5, end: 9, text: '請問我要怎麼掛號？' },
+            { start: 10, end: 14, text: '我今天有點頭痛。' },
+            { start: 15, end: 19, text: '需要量血壓嗎？' },
+            { start: 20, end: 24, text: '請問診間在哪裡？' },
+            { start: 25, end: 29, text: '醫生，這個藥有副作用嗎？' }
+        ],
+        '2-2': [
+            { start: 5, end: 9, text: '請問在哪裡領藥？' },
+            { start: 10, end: 14, text: '這個藥要飯前還是飯後吃？' },
+            { start: 15, end: 19, text: '一天要吃幾次？' },
+            { start: 20, end: 24, text: '請問可以用健保卡嗎？' },
+            { start: 25, end: 29, text: '藥品需要冷藏保存嗎？' }
+        ],
         '3-1': [
             { start: 5, end: 9, text: '請問可以刷卡嗎？' },
             { start: 10, end: 14, text: '這個有折扣嗎？' },
             { start: 15, end: 19, text: '我想用行動支付。' },
-            { start: 25, end: 29, end: 24, text: '我需要明細，謝謝。' }
+            { start: 25, end: 29, text: '我需要明細，謝謝。' }
         ],
         '3-2': [
             { start: 5, end: 9, text: '這個多少錢？' },
@@ -430,16 +476,15 @@ document.addEventListener('DOMContentLoaded', () => {
             log('❌ 尚未載入情境練習 DOM 元素，稍後再初始化', 'warn');
         }
     }, 200); // 等 DOM 有機會渲染
+
 });
+
 window.ytPlayer = null;
 let currentVideoId = '';
 let stopTimeout = null;
 let ytPlayerReady = false;
-function loadYouTubePlayerWhenReady() {
-  //const script = document.createElement('script');
-  //script.src = 'https://www.youtube.com/iframe_api';
-  //document.head.appendChild(script);
 
+function loadYouTubePlayerWhenReady() {
   const waitForYT = setInterval(() => {
     if (window.YT && window.YT.Player) {
       clearInterval(waitForYT);
@@ -453,11 +498,12 @@ function loadYouTubePlayerWhenReady() {
         events: {
           'onReady': () => {
             ytPlayerReady = true;
-            console.log('🎬 ytPlayer 初始化完成！開始綁定事件...');
-
             // ✅ ✅ ✅ 綁定在這裡
             bindPracticeVideoButtons();
             bindPracticeBackButton();
+            console.log('🎬 ytPlayer 初始化完成！開始綁定事件...');
+
+            
 
             log('✅ 情境練習模組初始化完成（YT onReady）');
           }
@@ -467,10 +513,6 @@ function loadYouTubePlayerWhenReady() {
   }, 100);
 }
 
-// ✅ DOM 渲染完成後啟動 YT 載入程序
-document.addEventListener('DOMContentLoaded', () => {
-  loadYouTubePlayerWhenReady();
-});
 // === 將函式掛到全域供 HTML 呼叫 ===
 window.showScenario = showScenario;
 window.goBackToChapterList = goBackToChapterList;
