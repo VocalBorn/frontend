@@ -601,20 +601,20 @@
                   <div class="username">這裡是使用者的名字</div>
             
                   <div class="settings-container">
-                    <div class="settings-item" id="showProfile">
+                    <div class="settings-item" id="showProfile" data-switch="profile">
                       <label class="auth-switch">個人檔案</label>
                       <i class="fas fa-chevron-right"></i>
                     </div>
                     <hr />
-                    <div class="settings-item" id="showNotification">
+                    <div class="settings-item" id="showNotification" data-switch="notification">
                       <label>通知設定</label><i class="fas fa-chevron-right"></i>
                     </div>
                     <hr />
-                    <div class="settings-item" id="showHelp">
+                    <div class="settings-item" id="showHelp" data-switch="help">
                       <label>幫助</label><i class="fas fa-chevron-right"></i>
                     </div>
                     <hr />
-                    <div class="settings-item" id="showAbout">
+                    <div class="settings-item" id="showAbout" data-switch="about">
                       <label>關於語聲俱來</label><i class="fas fa-chevron-right"></i>
                     </div>
                     <hr />
@@ -628,7 +628,7 @@
             <div id="profile-content" class="main-content-page">
             <div class="profile">
                 <div class="profile-container">
-                    <div class="profile-item" id="showSetting">
+                    <div class="profile-item" id="showSetting" data-switch="profile">
                         <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
                     </div>
                     <hr/>
@@ -641,7 +641,7 @@
                     </div>
                     <hr/>
                     <div class="profile-item">
-                        <label id="changePassword" class="profile-option" data-target="change-password">變更密碼</label>
+                        <label id="change-password" class="profile-option" data-target="change-password">變更密碼</label>
                     </div>
                 </div>
             </div>
@@ -651,7 +651,7 @@
             <div id="edit-name-content" class="main-content-page hidden">
                 <div class="card">
                     <div class="card-header">
-                        <div class="edit-name-item" id="backToProfile">
+                        <div class="edit-name-item" id="backToProfile" data-switch="profile">
                             <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
                         </div>
                     </div>
