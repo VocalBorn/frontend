@@ -18,9 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const cancelCancelBtn = document.getElementById("cancel-cancel-btn");
 
   const todos = [
-    "病患 X 請求 2025-07-28 下午 3:00",
-    "病患 Y 請求 2025-07-29 上午 9:00",
-    "病患 Z 請求 2025-07-30 下午 2:30",
+    "病患 X 請求 2025-07-24 下午 3:00",
+    "病患 Y 請求 2025-07-25 上午 9:00",
+    "病患 Z 請求 2025-07-36 下午 2:30",
   ];
 
   let currentYear, currentMonth;

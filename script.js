@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 即時溝通頁面功能
+    // 溝通頁面功能
     document.addEventListener("DOMContentLoaded", function() {
     const chatInput = document.getElementById("chatInput");
     const sendButton = document.getElementById("sendButton");
@@ -517,24 +517,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message", "user-message");
 
-        // 設置訊息內容
+        // 設定時間為 data-time 屬性（供 CSS 顯示）
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        messageElement.setAttribute("data-time", timeString);
+
+        // 設定訊息內容
         const messageText = document.createElement("span");
         messageText.textContent = message;
         messageElement.appendChild(messageText);
 
-        // 設置時間
-        const timeElement = document.createElement("span");
-        timeElement.classList.add("message-time");
-        const now = new Date();
-        timeElement.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        messageElement.appendChild(timeElement);
-
-        // 將訊息添加到訊息區域
+        // 將訊息加入畫面
         chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight; // 滾動至訊息區底部
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // 監聽發送按鈕
+    // 發送按鈕事件
     sendButton.addEventListener("click", function() {
         const userMessage = chatInput.value.trim();
 
@@ -544,45 +542,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 監聽回車鍵發送訊息
+    // 按下 Enter 發送訊息
     chatInput.addEventListener("keypress", function(event) {
         if (event.key === "Enter" && chatInput.value.trim() !== "") {
             sendButton.click();
         }
     });
-
-    // === 輔助函數 ===
-    function showMessage(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-        `;
-
-        setTimeout(() => {
-            toast.style.opacity = '1';
-        }, 10);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-
-        log(`顯示訊息: ${message}`);
-    }
 });
-
-
-
