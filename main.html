@@ -81,10 +81,20 @@
                         今日任務
                     </div>
                     <div class="task-cards">
-                        <div class="task-card">
+                        <div id="sign-in-card" class="task-card">
                             <h4>📅 每日簽到</h4>
                             <p>完成今日簽到，保持學習習慣</p>
                             <button class="task-btn" onclick="signInToday()">立即簽到</button>
+                        </div>
+                        <div id="calendar-container" class="task-card calendar-card hidden">
+                            <div class="card-header">
+                                <i class="fa-solid fa-calendar-check"></i> 本月簽到紀錄
+                            </div>
+                            <div class="calendar-nav">
+                                <select id="year-select" onchange="updateCalendarFromSelect()"></select>
+                                <select id="month-select" onchange="updateCalendarFromSelect()"></select>
+                            </div>
+                            <div id="calendar-grid" class="calendar-grid"></div>
                         </div>
                         <div class="task-card">
                             <h4>📘 情境練習</h4>
@@ -106,6 +116,12 @@
                     </div>
                     <div class="quote-author">- 您的語言治療師</div>
                 </section>
+                <div id="sign-in-popup" class="popup hidden">
+                    <div class="popup-content">
+                    <span class="popup-message">✅ 今日簽到完成！</span><br />
+                    <button class="popup-confirm-btn" onclick="closePopup()">確定</button>
+                    </div>
+                </div>
             </div>
 
             <!-- 進度追蹤 -->
@@ -282,8 +298,8 @@
                             <button class="practice-button" data-youtube="zFBjXTyXBMw" data-scenario="1-2">開始練習</button>
                         </div>
                         <div class="practice-info-right">
-                            <button class="feedback-button" onclick="showFeedback('1-1')">📝查看回饋</button>
-                            <button class="ai-analysis-button" onclick="showAIAnalysis('1-1')">📊AI 分析</button>
+                            <button class="feedback-button" onclick="showFeedback('1-2')">📝查看回饋</button>
+                            <button class="ai-analysis-button" onclick="showAIAnalysis('1-2')">📊AI 分析</button>
                         </div>
                         </div>
                     </div>
@@ -506,8 +522,6 @@
                     </div>
                 </div>
             </div>
-
-
 
 
             <div id="location-terms-content" class="main-content-page">
@@ -810,6 +824,8 @@
     <script src="js_practice.js"></script>
     <script src="script.js"></script>
     <script src="js_location.js"></script>
+    <script src="js_home.js"></script>
+    <script src="js_setting.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', async() => {
@@ -904,137 +920,7 @@
             };
 
 
-            //取得情境列表
-                /*const container = document.getElementById('practice-card-container');
-                const content=document.getElementById('practice-content');
-                const videoSection = document.getElementById('practice-video-section');
-                // document.getElementById('practice-back-button').onclick = () => {
-                //             document.getElementById('practice-video-section').style.display = 'none';
-                //             document.getElementById('practice-content').style.display = 'block';
-                //             };
-                if (!container) {
-                    console.error('找不到 #practice-card-container 容器元素！');
-                    return;
-                }
 
-                fetch('https://api-vocalborn.r0930514.work/situations/list?skip=0&limit=10', {
-                    headers: {
-                    'Authorization': 'Bearer '+token,
-                    'Content-Type': 'application/json'
-                    }
-                })
-                .then(res => {
-                    console.log('HTTP 回傳狀態碼：', res.status);
-                    return res.json().then(data => {
-                        console.log('API 原始資料（不論錯誤與否）：', data);
-
-                    if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                    }
-
-                    return data;
-                    });
-                })
-
-                .then(data => {
-                console.log('API 回傳資料：', data);
-
-                const situations = Array.isArray(data.situations) ? data.situations : data;
-                if (!Array.isArray(situations)) {
-                    throw new Error('API 回傳格式錯誤，不是陣列');
-                }
-
-                //container.innerHTML = '';
-
-                situations.forEach(situation => {
-                    console.log(situation);
-
-                    const card = document.createElement('div');
-                    card.className = 'practice-card';
-                    card.innerHTML = `
-                    <div class="practice-title">${situation.situation_name}</div>
-                    <div class="practice-description">${situation.description}</div>
-                    <button class="practice-button" data-id="${situation.situation_id}">開始練習</button>
-                    `;
-
-                    //點「開始練習」後進入該情境練習畫面
-                    const button = card.querySelector('.practice-button');
-                    button.addEventListener('click', () => {
-                        const situationId = button.getAttribute('data-id'); // 這裡修正為取 data-id
-                        const contentSection = document.getElementById('practice-content');
-                        const backButton = document.getElementById('practice-back-button');
-
-                        document.getElementById('practice-content').classList.add('practice-hidden');
-                        document.getElementById('practice-video-section').classList.remove('practice-hidden');
-                        container.style.display = 'none';
-
-                        const detailContainer = document.getElementById('practice-detail-content');
-                        if (detailContainer) {
-                            detailContainer.innerHTML = `
-                                <div class="loader"></div>
-                                <p style="text-align:center;">載入中，請稍候...</p>
-                            `;
-                        }
-
-                        fetch(`https://api-vocalborn.r0930514.work/situations/${situationId}`, {
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(res => {
-                            if (!res.ok) {
-                                throw new Error(`HTTP 錯誤！狀態碼：${res.status}`);
-                            }
-                            return res.json();
-                        })
-                        .then(detailData => {
-                            const detailContainer = document.getElementById('practice-detail-content');
-                            if (detailContainer) {
-                                detailContainer.innerHTML = `
-                                    <h2>${detailData.situation_name}</h2>
-                                    <p><strong>地點：</strong>${detailData.location}</p>
-                                    <p><strong>情境描述：</strong>${detailData.description}</p>
-                                    <video id="practice-scenario-video" controls width="640">
-                                        <source id="practice-video-source" src="" type="video/mp4">
-                                        您的瀏覽器不支援影片播放。
-                                    </video>
-                                    <p id="video-message" style="color: red; text-align: center;"></p>
-                                `;
-
-                                // ✨這兩個操作等資料準備好後再做
-                                container.classList.add('practice-hidden');
-                                videoSection.classList.remove('practice-hidden');
-                            }
-
-                            //videoSection.classList.remove('practice-hidden');
-                            //videoSection.classList.add('show');
-
-                            if (backButton) {
-                                backButton.addEventListener('click', () => {
-                                    videoSection.classList.add('practice-hidden'); // 隱藏影片區
-                                    content.classList.remove('practice-hidden'); // 顯示情境卡片區
-                                    // 確保卡片容器顯示
-                                    const container = document.getElementById('practice-card-container');
-                                    if (container) {
-                                        container.style.display = 'grid'; // 或 'grid'，根據你的 CSS 設計
-                                    }
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            alert('載入練習資料失敗！' + error.message);
-                        });
-                    });
-                    
-                    console.log(situation);
-                    container.appendChild(card);
-                });
-            })
-                .catch(err => {
-                console.error('載入情境失敗：', err);
-                container.innerHTML = '<p style="color: red;">載入情境失敗，請稍後再試。</p>';
-                });*/
 
                 // 🔹 載入使用者個人資料（姓名、性別）
                 try {
