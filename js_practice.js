@@ -1,3 +1,5 @@
+const token = localStorage.getItem("token");
+
 function loadYouTubeScriptIfNeeded() {
   if (!window.YT || !window.YT.Player) {
     console.log('⏳ YT API 尚未載入，插入 <script> 載入中...');
@@ -158,6 +160,7 @@ function bindPracticeBackButton() {
     const youtubePlayer = document.getElementById('youtube-player');
     const videoSection = document.getElementById('practice-video-section');
     const cardContainer = document.getElementById('practice-card-container');
+    const container = document.getElementById('video-script-buttons');
 
     if (!backButton || !youtubePlayer || !videoSection || !cardContainer) {
         log('❌ 找不到返回按鈕或影片區塊元素', 'warn');
@@ -165,6 +168,8 @@ function bindPracticeBackButton() {
     }
 
     backButton.addEventListener('click', () => {
+        //把前一次的video-script-buttons(句子卡片)清空
+        container.innerHTML = '';
         // ✅ 記錄練習結束時間並計算時長
         const practiceEndTime = new Date();
         console.log("⏱ 練習結束於", practiceEndTime.toLocaleTimeString());
@@ -194,22 +199,21 @@ let mediaRecorder = null;
 
 
 function playSegment(start, end) {
-  if (!ytPlayerReady || !ytPlayer || typeof ytPlayer.seekTo !== 'function') {
-    log('❌ ytPlayer 尚未準備好或功能無效', 'error');
-    return;
-  }
+    if (!ytPlayer || typeof ytPlayer.seekTo !== 'function') {
+        console.error('❌ ytPlayer 尚未準備好或功能無效');
+        return;
+    }
 
-  console.log(`🎬 播放影片區間：${start}s ~ ${end}s`);
+    ytPlayer.seekTo(start, true);  // 跳到 start 秒
+    ytPlayer.playVideo();
 
-  ytPlayer.seekTo(start, true); // ✅ 第二參數 true 代表精確跳轉
-  ytPlayer.playVideo();
-
-  if (stopTimeout) clearTimeout(stopTimeout);
-  stopTimeout = setTimeout(() => {
-    ytPlayer.pauseVideo();
-    console.log("⏹ 已自動暫停影片");
-  }, (end - start) * 1000);
+    // 自動停止到 end 秒
+    const stopTimeout = (end - start) * 1000;
+    setTimeout(() => {
+        ytPlayer.pauseVideo();
+    }, stopTimeout);
 }
+
 
 // === IndexedDB 暫存函式 ===
 function saveRecordingToIndexedDB(key, blob) {
@@ -227,111 +231,178 @@ function saveRecordingToIndexedDB(key, blob) {
   };
 }
 
-function setupScriptButtons(scenarioId) {
-    const scriptData = {
-        '1-1': [
-            { start: 5, end: 9, text: '請問2位內用有位置嗎？' },
-            { start: 10, end: 14, text: '有菜單嗎？' },
-            { start: 15, end: 19, text: '有什麼推薦的嗎？' },
-            { start: 20, end: 24, text: '好的謝謝你，那我想一下' },
-            { start: 25, end: 29, text: '不好意思　可以幫我點餐嗎？' },
-        ],
-        '1-2': [
-            { start: 5, end: 9, text: '請問可以外帶嗎？' },
-            { start: 10, end: 14,text: '我要一份漢堡，謝謝。' },
-            { start: 15, end: 19, text: '請問要等多久？' },
-            { start: 20, end: 24, text: '有餐具嗎？' },
-            { start: 25, end: 29, text: '可以給我一個袋子嗎？' }
-        ],
-        '2-1': [
-            { start: 5, end: 9, text: '請問我要怎麼掛號？' },
-            { start: 10, end: 14, text: '我今天有點頭痛。' },
-            { start: 15, end: 19, text: '需要量血壓嗎？' },
-            { start: 20, end: 24, text: '請問診間在哪裡？' },
-            { start: 25, end: 29, text: '醫生，這個藥有副作用嗎？' }
-        ],
-        '2-2': [
-            { start: 5, end: 9, text: '請問在哪裡領藥？' },
-            { start: 10, end: 14, text: '這個藥要飯前還是飯後吃？' },
-            { start: 15, end: 19, text: '一天要吃幾次？' },
-            { start: 20, end: 24, text: '請問可以用健保卡嗎？' },
-            { start: 25, end: 29, text: '藥品需要冷藏保存嗎？' }
-        ],
-        '3-1': [
-            { start: 5, end: 9, text: '請問可以刷卡嗎？' },
-            { start: 10, end: 14, text: '這個有折扣嗎？' },
-            { start: 15, end: 19, text: '我想用行動支付。' },
-            { start: 25, end: 29, text: '我需要明細，謝謝。' }
-        ],
-        '3-2': [
-            { start: 5, end: 9, text: '這個多少錢？' },
-            { start: 10, end: 14, text: '第二件有優惠嗎？' },
-            { start: 15, end: 19, text: '有我的尺寸嗎？' },
-            { start: 20, end: 24, text: '有其他款式可以選嗎？' },
-            { start: 25, end: 29, text: '這裡有賣漢堡嗎？' }
-        ],
-        '4-1': [
-            { start: 5, end: 9, text: '你好，我想開一個帳戶。' },
-            { start: 10, end: 14, text: '請問要準備哪些資料？' },
-            { start: 15, end: 19, text: '我要開的是儲蓄帳戶。' },
-            { start: 20, end: 24, text: '我可以申請提款卡嗎？' }
-        ],
-        '5-1': [
-            { start: 5, end: 9, text: '我想寄這個包裹。' },
-            { start: 10, end: 14, text: '請問有快遞服務嗎？' },
-            { start: 15, end: 19, text: '最快可以多久送達？' },
-            { start: 20, end: 24, text: '這個寄到台北要多少錢？' }
-        ],
-        '5-2': [
-            { start: 5, end: 9, text: '我來領包裹，這是通知單。' },
-            { start: 10, end: 14, text: '需要出示身分證嗎？' },
-            { start: 15, end: 19, text: '請問可以幫我拆開確認嗎？' },
-        ],
-        '6-1': [
-            { start: 5, end: 9, text: '不好意思，請問車站怎麼走？' },
-            { start: 10, end: 14, text: '走路大概要多久？' },
-            { start: 15, end: 19, text: '請問這附近有廁所嗎？' }
-        ],
-        '6-2': [
-            { start: 5, end: 9, text: '我要一張到高雄的車票。' },
-            { start: 10, end: 14, text: '請問有學生票嗎？' },
-            { start: 15, end: 19, text: '我要買今天下午三點的票。' },
-            { start: 20, end: 24, text: '請問有沒有對號座？' }
-        ],
-        '7-1': [
-            { start: 5, end: 9, text: '可以幫助我嗎？我遇到了一些狀況' },
-            { start: 10, end: 14, text: '我在大安森林公園，腳扭到了。' },
-            { start: 15, end: 19, text: '可以派救護車嗎？' },
-            { start: 20, end: 24, text: '我大概二十歲，穿著藍色外套。' }
-        ],
-        '8-1': [
-            { start: 5, end: 9, text: '請幫我一下，謝謝！' },
-            { start: 10, end: 14, text: '不好意思，請問洗手間在哪？' },
-            { start: 15, end: 19, text: '對不起，我不是故意的。' },
-            { start: 20, end: 24, text: '沒關係，謝謝你的理解。' },
-            { start: 25, end: 29, text: '真的非常感謝你。' }
-        ],
-        '8-2': [
-            { start: 5, end: 9, text: '你好！今天過得怎麼樣？' },
-            { start: 10, end: 14, text: '早安，祝你有美好的一天！' },
-            { start: 15, end: 19, text: '晚安，明天見～' },
-            { start: 20, end: 24, text: '再見，路上小心。' },
-            { start: 25, end: 29, text: '嗨！好久不見！' }
-        ]
+async function setupScriptButtons(scenarioId,chapterName) {
+    console.log(scenarioId)
+    console.log(chapterName)
+    // const scriptData = {
+    //     '1-1 內用': [
+    //         { start: 5, end: 9, text: '請問2位內用有位置嗎？' },
+    //         { start: 10, end: 14, text: '有菜單嗎？' },
+    //         { start: 15, end: 19, text: '有什麼推薦的嗎？' },
+    //         { start: 20, end: 24, text: '好的謝謝你，那我想一下' },
+    //         { start: 25, end: 29, text: '不好意思　可以幫我點餐嗎？' },
+    //     ],
+    //     '1-2 外帶': [
+    //         { start: 5, end: 9, text: '請問可以外帶嗎？' },
+    //         { start: 10, end: 14,text: '我要一份漢堡，謝謝。' },
+    //         { start: 15, end: 19, text: '請問要等多久？' },
+    //         { start: 20, end: 24, text: '有餐具嗎？' },
+    //         { start: 25, end: 29, text: '可以給我一個袋子嗎？' }
+    //     ],
+    //     '2-1 看診': [
+    //         { start: 5, end: 9, text: '請問我要怎麼掛號？' },
+    //         { start: 10, end: 14, text: '我今天有點頭痛。' },
+    //         { start: 15, end: 19, text: '需要量血壓嗎？' },
+    //         { start: 20, end: 24, text: '請問診間在哪裡？' },
+    //         { start: 25, end: 29, text: '醫生，這個藥有副作用嗎？' }
+    //     ],
+    //     '2-2 拿藥': [
+    //         { start: 5, end: 9, text: '請問在哪裡領藥？' },
+    //         { start: 10, end: 14, text: '這個藥要飯前還是飯後吃？' },
+    //         { start: 15, end: 19, text: '一天要吃幾次？' },
+    //         { start: 20, end: 24, text: '請問可以用健保卡嗎？' },
+    //         { start: 25, end: 29, text: '藥品需要冷藏保存嗎？' }
+    //     ],
+    //     '3-1 結帳': [
+    //         { start: 5, end: 9, text: '請問可以刷卡嗎？' },
+    //         { start: 10, end: 14, text: '這個有折扣嗎？' },
+    //         { start: 15, end: 19, text: '我想用行動支付。' },
+    //         { start: 25, end: 29, text: '我需要明細，謝謝。' }
+    //     ],
+    //     '3-2 詢問價格': [
+    //         { start: 5, end: 9, text: '這個多少錢？' },
+    //         { start: 10, end: 14, text: '第二件有優惠嗎？' },
+    //         { start: 15, end: 19, text: '有我的尺寸嗎？' },
+    //         { start: 20, end: 24, text: '有其他款式可以選嗎？' },
+    //         { start: 25, end: 29, text: '這裡有賣漢堡嗎？' }
+    //     ],
+    //     '4-1 開戶': [
+    //         { start: 5, end: 9, text: '你好，我想開一個帳戶。' },
+    //         { start: 10, end: 14, text: '請問要準備哪些資料？' },
+    //         { start: 15, end: 19, text: '我要開的是儲蓄帳戶。' },
+    //         { start: 20, end: 24, text: '我可以申請提款卡嗎？' }
+    //     ],
+    //     '5-1 郵寄': [
+    //         { start: 5, end: 9, text: '我想寄這個包裹。' },
+    //         { start: 10, end: 14, text: '請問有快遞服務嗎？' },
+    //         { start: 15, end: 19, text: '最快可以多久送達？' },
+    //         { start: 20, end: 24, text: '這個寄到台北要多少錢？' }
+    //     ],
+    //     '5-2 取件': [
+    //         { start: 5, end: 9, text: '我來領包裹，這是通知單。' },
+    //         { start: 10, end: 14, text: '需要出示身分證嗎？' },
+    //         { start: 15, end: 19, text: '請問可以幫我拆開確認嗎？' },
+    //     ],
+    //     '6-1 問路': [
+    //         { start: 5, end: 9, text: '不好意思，請問車站怎麼走？' },
+    //         { start: 10, end: 14, text: '走路大概要多久？' },
+    //         { start: 15, end: 19, text: '請問這附近有廁所嗎？' }
+    //     ],
+    //     '6-2 買票': [
+    //         { start: 5, end: 9, text: '我要一張到高雄的車票。' },
+    //         { start: 10, end: 14, text: '請問有學生票嗎？' },
+    //         { start: 15, end: 19, text: '我要買今天下午三點的票。' },
+    //         { start: 20, end: 24, text: '請問有沒有對號座？' }
+    //     ],
+    //     '7-1 打電話求助': [
+    //         { start: 5, end: 9, text: '可以幫助我嗎？我遇到了一些狀況' },
+    //         { start: 10, end: 14, text: '我在大安森林公園，腳扭到了。' },
+    //         { start: 15, end: 19, text: '可以派救護車嗎？' },
+    //         { start: 20, end: 24, text: '我大概二十歲，穿著藍色外套。' }
+    //     ],
+    //     '8-1 基本禮貌用語': [
+    //         { start: 5, end: 9, text: '請幫我一下，謝謝！' },
+    //         { start: 10, end: 14, text: '不好意思，請問洗手間在哪？' },
+    //         { start: 15, end: 19, text: '對不起，我不是故意的。' },
+    //         { start: 20, end: 24, text: '沒關係，謝謝你的理解。' },
+    //         { start: 25, end: 29, text: '真的非常感謝你。' }
+    //     ],
+    //     '8-2 打招呼與回應': [
+    //         { start: 5, end: 9, text: '你好！今天過得怎麼樣？' },
+    //         { start: 10, end: 14, text: '早安，祝你有美好的一天！' },
+    //         { start: 15, end: 19, text: '晚安，明天見～' },
+    //         { start: 20, end: 24, text: '再見，路上小心。' },
+    //         { start: 25, end: 29, text: '嗨！好久不見！' }
+    //     ]
+    // };
+
+    const chapterMap = {
+        "1-1 內用": "e5b821e5-c45b-4d6f-83a2-d313f841b94e",
+        "1-2 外帶": "23d1eff4-28fb-479d-bf2d-061255b6ceee",
+        "2-1 看診": "d6cabf94-a777-44a9-9d73-576f38673be6",
+        "2-2 拿藥": "8e005d80-63b3-40c2-9b3f-3f791481be4e",
+        "3-1 結帳":"ab72d2ce-8b32-4c4a-b8a4-26ac6c1246c8",
+        "3-2 詢問價格":"67aef952-cfa9-447c-aa26-c1304740ccf2",
+        "4-1 開戶":"e63c2e89-1893-41ad-920d-f619cc1250d6",
+        "5-1 郵寄":"5b0e6016-1a97-4e45-9d95-beeba5a15f98",
+        "5-2 取件":"5fbfa97d-1ebb-4577-a355-ed1b19e285fd",
+        "6-1 問路":"25f242a6-bfbc-45c7-aecf-04bbcdfae570",
+        "6-2 買票":"d84143ef-db7c-492f-a68e-639e23745687",
+        "7-1 打電話求助":"3c468e5c-c5e9-443a-b79d-54d6185a90c8",
+        "8-1 基本禮貌用語":"450f4d9a-6f0b-4c2b-88b1-9e95a1d077ba",
+        "8-2 打招呼與回應":"ed0398ae-5dd5-42e5-ae02-5dbf54e84ec2"
     };
 
+    const chapterId = chapterMap[chapterName]; //哪一章節
+    
     const container = document.getElementById('video-script-buttons');
-    container.innerHTML = '';
 
-    const lines = scriptData[scenarioId] || [];
+    const url = `https://vocalborn.r0930514.work/api/situations/chapters/${chapterId}/sentences?skip=0&limit=50`;
+
+    let lines = [];
+    try {
+        const res = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            }
+        });
+        if (!res.ok) throw new Error(`API 請求失敗：${res.status}`);
+        const data = await res.json();
+        lines = data.sentences || [];
+
+        if (!lines.length) {
+            container.innerHTML = '<p>⚠️ 此章節尚無句子資料</p>';
+            return;
+        }
+    // 對每句話呼叫 detail API
+    if (window._alreadyFetchingDetail) {
+        console.log('已經在抓 detail，跳過');
+        return;
+    }
+    window._alreadyFetchingDetail = true;
+
+    for (const line of lines) {
+        try {
+            const resDetail = await fetch(`https://vocalborn.r0930514.work/api/situations/sentence/${line.sentence_id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            if (!resDetail.ok) throw new Error(`API 請求失敗：${resDetail.status}`);
+            const detail = await resDetail.json();
+            console.log(detail);
+        } catch (err) {
+            console.error('❌ 取得句子詳細資料失敗', err);
+        }
+    }
+
+} catch (err) {
+    console.error('❌ 取得章節句子失敗', err);
+    container.innerHTML = '<p>❌ 讀取句子資料失敗</p>';
+}
+    if (window._alreadyFetching) return;
+    window._alreadyFetching = true;
+    console.log('開始 fetch detail 迴圈');
+
     lines.forEach((line) => {
-        
-        if (typeof line.start !== 'number' || typeof line.end !== 'number') {
+        if (typeof line.start_time !== 'number' || typeof line.end_time !== 'number') {
             console.warn(`⚠️ 無效播放範圍：${JSON.stringify(line)}`);
             return; // 跳過這句，因為沒有明確的播放區間
         }
-        const start = line.start;
-        const end = line.end;
+        const start = line.start_time;
+        const end = line.end_time;
         const sentenceBlock = document.createElement('div');
         sentenceBlock.className = 'sentence-control';
         sentenceBlock.setAttribute('data-start', start);
@@ -343,7 +414,7 @@ function setupScriptButtons(scenarioId) {
             });
 
         const timeLabel = document.createElement('span');
-        timeLabel.innerHTML = `<b>${formatTime(line.start)} ~ ${formatTime(line.end)}</b> - ${line.text}`;
+        timeLabel.innerHTML = `<b>${formatTime(line.start_time)} ~ ${formatTime(line.end_time)}</b> - ${line.content}`;
 
         const startBtn = document.createElement('button');
         startBtn.innerHTML = '🎙';
@@ -459,6 +530,7 @@ function setupScriptButtons(scenarioId) {
 
         container.appendChild(sentenceBlock);
     });
+
 }
 function formatTime(seconds) {
     const min = Math.floor(seconds / 60).toString().padStart(2, '0');
