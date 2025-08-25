@@ -232,8 +232,6 @@ function saveRecordingToIndexedDB(key, blob) {
 }
 
 async function setupScriptButtons(scenarioId,chapterName) {
-    console.log(scenarioId)
-    console.log(chapterName)
     // const scriptData = {
     //     '1-1 內用': [
     //         { start: 5, end: 9, text: '請問2位內用有位置嗎？' },
@@ -530,7 +528,9 @@ async function setupScriptButtons(scenarioId,chapterName) {
 
         container.appendChild(sentenceBlock);
     });
-
+        // 🔑 無論成功或失敗都要清除 flag
+        window._alreadyFetchingDetail = false;
+        window._alreadyFetching = false;
 }
 function formatTime(seconds) {
     const min = Math.floor(seconds / 60).toString().padStart(2, '0');
