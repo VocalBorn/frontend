@@ -399,13 +399,25 @@ async function setupScriptButtons(scenarioId,chapterName) {
             console.warn(`⚠️ 無效播放範圍：${JSON.stringify(line)}`);
             return; // 跳過這句，因為沒有明確的播放區間
         }
+        async function getPracticeSession(chapterId, token) {
+            const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`,'Content-Type': 'application/json' },
+                body: JSON.stringify({ chapter_id: chapterId })
+            });
+            if (!res.ok) throw new Error(`取得 practice session 失敗 ${res.status}`);
+            const data = await res.json();
+            console.log("data",data)
+            console.log("practice_session_id",data.practice_session_id)
+            return data.practice_session_id; // 假設回傳欄位是這個
+        }
+        
         const start = line.start_time;
         const end = line.end_time;
         const sentenceBlock = document.createElement('div');
         sentenceBlock.className = 'sentence-control';
         sentenceBlock.setAttribute('data-start', start);
         sentenceBlock.setAttribute('data-end', end);
-
 
         sentenceBlock.addEventListener('click', () => {
             playSegment(start, end);
@@ -414,33 +426,67 @@ async function setupScriptButtons(scenarioId,chapterName) {
         const timeLabel = document.createElement('span');
         timeLabel.innerHTML = `<b>${formatTime(line.start_time)} ~ ${formatTime(line.end_time)}</b> - ${line.content}`;
 
+        // 暫存錄音
+        const audioChunksMap = new Map();
+        let mediaRecorder = null;
+        let chunks = [];
+
+        // 🎙️ 開始錄音
         const startBtn = document.createElement('button');
         startBtn.innerHTML = '🎙';
         startBtn.title = '開始錄音';
         startBtn.classList.add('record-btn');
-        startBtn.addEventListener('click', (e) => {
+        startBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 alert('已有錄音進行中，請先停止');
                 return;
             }
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                const chunks = [];
-                mediaRecorder = new MediaRecorder(stream);
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                chunks = []; // 🔄 清空舊的錄音資料
+
+                // 判斷瀏覽器支援的格式
+                let mimeType = '';
+                let extension = '';
+                if (MediaRecorder.isTypeSupported('audio/webm')) {
+                    mimeType = 'audio/webm'; extension = 'webm';
+                } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+                    mimeType = 'audio/wav'; extension = 'wav';
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4'; extension = 'm4a'; // Safari 特例
+                } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+                    mimeType = 'audio/ogg'; extension = 'ogg';
+                } else {
+                    mimeType = ''; extension = 'bin'; // fallback
+                }
+
+                mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
+                // 收集 chunks
                 mediaRecorder.ondataavailable = e => chunks.push(e.data);
+
+                // 停止後的處理只負責暫存
                 mediaRecorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'audio/webm' });
-                    audioChunks.set(sentenceBlock, blob);
+                    const blob = new Blob(chunks, { type: mimeType });
+                    audioChunks.set(sentenceBlock, { blob, extension, mimeType });
                     stream.getTracks().forEach(track => track.stop()); // 停止麥克風
-                    startBtn.classList.remove('recording'); // 移除提示狀態
+                    startBtn.classList.remove('recording');
+                    console.log("✅ 錄音已暫存", blob);
+                    alert("錄音已暫存");
                 };
+
                 mediaRecorder.start();
-                startBtn.classList.add('recording'); // 加上提示樣式
-            }).catch(err => {
-                alert('無法使用麥克風：' + err.message);
-            });
+                startBtn.classList.add('recording');
+                console.log("🎙️ 開始錄音");
+            } catch (err) {
+                console.error("無法使用麥克風:", err);
+                alert("無法使用麥克風：" + err.message);
+            }
         });
 
+        // 🛑 停止錄音（只暫存，不上傳）
         const stopBtn = document.createElement('button');
         stopBtn.innerHTML = '🛑';
         stopBtn.title = '停止錄音';
@@ -448,44 +494,66 @@ async function setupScriptButtons(scenarioId,chapterName) {
             e.stopPropagation();
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
+                console.log("🛑 錄音停止，等待暫存");
             }
         });
 
+        // ▶ 播放錄音
         const playBtn = document.createElement('button');
         playBtn.innerHTML = '▶';
         playBtn.title = '播放錄音';
         playBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const blob = audioChunks.get(sentenceBlock);
-            if (!blob) {
+            const saved = audioChunks.get(sentenceBlock);
+            if (!saved || !saved.blob) {
                 alert('尚未錄音');
                 return;
             }
-            const url = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(saved.blob);
             const audio = new Audio(url);
             audio.play();
+            console.log('現在正在播放音頻')
         });
+
+        // ⇧ 上傳錄音
         const uploadBtn = document.createElement('button');
         uploadBtn.innerHTML = '⇧';
         uploadBtn.title = '上傳錄音';
-        uploadBtn.addEventListener('click', (e) => {
+        uploadBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            const blob = audioChunks.get(sentenceBlock);
-            if (!blob) {
+            const saved = audioChunks.get(sentenceBlock);
+            if (!saved || !saved.blob) {
                 alert('尚未錄音');
                 return;
             }
+        const practice_session_id = await getPracticeSession(chapterId, token); 
+        const sentence_id = line.sentence_id;
+        try {
+            const formData = new FormData();
+            formData.append('audio_file', saved.blob, `recording.${saved.extension}`);
 
-            const sentenceId = `${scenarioId}-${start}-${end}`;
-            const key = `recording-${sentenceId}`;
+            const res = await fetch(
+                `https://vocalborn.r0930514.work/api/practice/sessions/${practice_session_id}/recordings/${sentence_id}`,
+                {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                }
+            );
 
-            // ✅ 先暫存到 IndexedDB
-            saveRecordingToIndexedDB(key, blob);
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`上傳失敗，狀態碼：${res.status}, 訊息：${errText}`);
+            }
 
-            // ✅ 立即當作上傳成功處理
-            sentenceBlock.classList.add('uploaded'); // 套用句子樣式
-            localStorage.setItem(`uploaded-${sentenceId}`, 'true');
-            alert('✅ 上傳成功（已儲存）');
+            const result = await res.json();
+            console.log("✅ 錄音上傳成功", result);
+            alert("錄音已上傳成功！");
+            sentenceBlock.classList.add('uploaded');
+        } catch (err) {
+            console.error("❌ 錄音上傳失敗", err);
+            alert("錄音上傳失敗：" + err.message);
+        }
 
 
             /*const formData = new FormData();
