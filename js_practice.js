@@ -67,7 +67,7 @@ function showAIAnalysis(scenarioId) {
   const body = document.getElementById("feedback-body");
 
   modal.classList.remove("hidden");
-  title.textContent = `AI 分析 - 情境 ${scenarioId}`;
+  title.textContent = `AI 分析 - 單元 ${scenarioId}`;
   body.textContent = "AI 分析結果載入中...";
 
   // 🧠 模擬 API 載入（或串接實際分析 API）
