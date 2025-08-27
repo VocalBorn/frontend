@@ -549,3 +549,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+//home的預約卡片功能
+const bookBtn = document.getElementById("book-btn");
+const cancelBtn = document.getElementById("cancel-btn");
+const appointmentText = document.getElementById("appointment-text");
+
+const popup = document.getElementById("appointment-popup");
+const confirmBtn = document.getElementById("confirm-appointment");
+const closePopupBtn = document.getElementById("close-popup");
+const dateInput = document.getElementById("appointment-date");
+const timeInput = document.getElementById("appointment-time");
+
+// 點擊預約 → 顯示彈窗
+bookBtn.addEventListener("click", () => {
+    popup.classList.remove("hidden");
+});
+
+// 關閉彈窗
+closePopupBtn.addEventListener("click", () => {
+    popup.classList.add("hidden");
+});
+
+// 確認預約
+confirmBtn.addEventListener("click", () => {
+    const date = dateInput.value;
+    const time = timeInput.value;
+
+    if (!date || !time) {
+        alert("請選擇完整日期與時間");
+        return;
+    }
+
+    appointmentText.textContent = `已預約：${date} ${time}`;
+    popup.classList.add("hidden");
+    bookBtn.classList.add("hidden");
+    cancelBtn.classList.remove("hidden");
+});
+
+// 取消預約 → 彈出確認
+cancelBtn.addEventListener("click", () => {
+    const confirmCancel = confirm("確定要取消預約嗎？");
+    if (confirmCancel) {
+        appointmentText.textContent = "安排下次語言治療的時間，方便追蹤進度";
+        cancelBtn.classList.add("hidden");
+        bookBtn.classList.remove("hidden");
+        dateInput.value = "";
+        timeInput.value = "";
+    }
+});

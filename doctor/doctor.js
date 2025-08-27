@@ -21,6 +21,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 定義 attachWidgetCardEvents
+function attachWidgetCardEvents() {
+  const cards = document.querySelectorAll(".widget-card");
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      console.log("卡片被點擊:", card.dataset.index || card.dataset.patient);
+      // 可以在這裡加入你想做的事情，例如切換頁面或顯示病患詳細資料
+    });
+  });
+}
+// 切換頁面
+function switchPage(showSectionId) {
+  document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
+  const target = document.getElementById(showSectionId);
+  if (target) target.classList.add("active");
+}
 
   // 顯示首頁，隱藏其他 section
   function showHome() {

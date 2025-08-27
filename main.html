@@ -100,14 +100,31 @@
                             <h4>📘 情境練習</h4>
                             <p>完成 1 次醫院情境練習</p>
                             <button class="task-btn" onclick="switchPage('practice')">前往</button>
-                            <div class="progress-wrapper">
                             <div class="progress-label">今日學習進度</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: 60%;"></div>
                             </div>
+                            <div class="progress-wrapper">
                             </div>
                         </div>
-                    </div>
+                        <div class="task-card">
+                            <h4>🗓 預約語言治療時間</h4>
+                            <p id="appointment-text">安排下次語言治療的時間，方便追蹤進度</p>
+                            <button class="task-btn" id="book-btn">預約</button>
+                            <button class="task-btn hidden" id="cancel-btn" style="background-color:#f44336;">取消預約</button>
+                        </div>
+                        <!-- 預約彈窗 -->
+                        <div class="popup hidden" id="appointment-popup">
+                            <h3>預約語言治療時間</h3>
+                            <label for="appointment-date">日期</label>
+                            <input type="date" id="appointment-date">
+                            <label for="appointment-time">時間</label>
+                            <input type="time" id="appointment-time">
+                            <div class="popup-buttons">
+                                <button class="popup-confirm-btn" id="confirm-appointment">確認預約</button>
+                                <button class="popup-confirm-btn" id="close-popup" style="background-color:#ccc; color:#333;">取消</button>
+                            </div>
+                        </div>
                 </section>
                 <section class="motivation-quote">
                     <i class="fas fa-quote-left quote-icon"></i>
