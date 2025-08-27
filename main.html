@@ -71,7 +71,7 @@
             <div id="home-content" class="main-content-page active">
                 <section class="hero-section">
                     <div class="hero-content">
-                        <h1>歡迎回來，XXX！</h1>
+                        <h1 id="welcome-text">歡迎回來，XXX！</h1>
                         <p>今天是您語言治療的第 15 天，讓我們繼續努力吧！</p>
                     </div>
                 </section>
@@ -1190,6 +1190,11 @@
                     const usernameDiv = document.querySelector('.username');
                     if (usernameDiv && data.name) {
                         usernameDiv.textContent = data.name;
+                    }
+                    // 修改 hero 區塊文字
+                    const welcomeText = document.getElementById('welcome-text');
+                    if (welcomeText && data.name) {
+                    welcomeText.textContent = `歡迎回來，${data.name}！`;
                     }
 
                     // 顯示姓名與性別到表單
