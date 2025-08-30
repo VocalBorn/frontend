@@ -34,22 +34,82 @@ function showScenario(scenarioId) {
     console.log(`✅ 顯示子情境：${scenarioId}`);
 }
 // === 查看回饋 ===
-function showFeedback(scenarioId) {
+async function showFeedback(scenarioId,page = 1, limit = 10) {
     const modal = document.getElementById('feedback-modal');
     const body = document.getElementById('feedback-body');
     const title = document.getElementById('feedback-title');
 
-    const feedbackData = {
-        '1-1': '你已練習 5 次，發音清晰，請注意語速控制。',
-        '1-2': '語調自然，但「刷卡嗎？」稍快。',
-        '2-1': '醫學用詞清楚，請再放慢語速。',
-        '2-2': '語句完整，語氣自然。',
-        '3-1': '語句完整，語氣自然。',
-        // ...未來可加更多
-    };
+    // const feedbackData = {
+    //     '1-1': '你已練習 5 次，發音清晰，請注意語速控制。',
+    //     '1-2': '語調自然，但「刷卡嗎？」稍快。',
+    //     '2-1': '醫學用詞清楚，請再放慢語速。',
+    //     '2-2': '語句完整，語氣自然。',
+    //     '3-1': '語句完整，語氣自然。',
+    //     // ...未來可加更多
+    // };
+    
+    try {
+        let data;
+        const res = await fetch(`https://vocalborn.r0930514.work/api/practice/patient/feedbacks?page=${page}&limit=${limit}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (res.ok) {
+            data = await res.json();
+        } else {
+            console.warn(`⚠️ API 請求失敗 (狀態碼: ${res.status})，改用假資料`);
+            data = { feedbacks: [] }; // 空資料，會觸發假資料 fallback
+        }
+
+        console.log("📌 患者回饋列表:", data);
+
+        // === 如果後端沒有回饋，使用假資料 ===
+        let feedbacks = data.feedbacks;
+        if (!feedbacks || feedbacks.length === 0) {
+            feedbacks = [
+                {
+                    practice_session_id: "test-session-001",
+                    content: "這是測試用的假回饋，代表 API 已經成功串接。",
+                    created_at: new Date().toISOString()
+                },
+                {
+                    practice_session_id: "test-session-002",
+                    content: "假資料第二筆：患者覺得練習效果不錯！",
+                    created_at: new Date().toISOString()
+                }
+            ];
+        }
+
+        // === 將回饋顯示到畫面上 ===
+        const feedbackContainer = document.getElementById("feedback-body");
+        feedbackContainer.innerHTML = "";
+
+        if (feedbacks && feedbacks.length > 0) {
+            feedbacks.forEach((feedback, index) => {
+                const item = document.createElement("div");
+                item.className = "feedback-item";
+                item.innerHTML = `
+                    <h3>回饋 #${index + 1}</h3>
+                    <p><strong>Session:</strong> ${feedback.practice_session_id || "無"}</p>
+                    <p><strong>回饋內容:</strong> ${feedback.content || "尚無內容"}</p>
+                    <p><strong>日期:</strong> ${feedback.created_at || "未知"}</p>
+                `;
+                feedbackContainer.appendChild(item);
+            });
+        } else {
+            feedbackContainer.textContent = "尚無回饋資料";
+        }
+
+    } catch (error) {
+        console.error("❌ fetch 過程出錯:", error);
+    }
 
     title.textContent = `單元 ${scenarioId} 的練習回饋`;
-    body.textContent = feedbackData[scenarioId] || '尚無回饋資料';
+    //body.textContent = feedbackData[scenarioId] || '尚無回饋資料';
     modal.classList.remove('hidden');
 }
 
@@ -58,7 +118,7 @@ function closeFeedback() {
 }
 
 // === AI分析 ===
-function showAIAnalysis(scenarioId) {
+async function showAIAnalysis(scenarioId) {
   console.log("觸發 AI 分析情境：", scenarioId);
 
   // 顯示 modal、切換畫面、載入分析資料等等
@@ -70,17 +130,111 @@ function showAIAnalysis(scenarioId) {
   title.textContent = `AI 分析 - 單元 ${scenarioId}`;
   body.textContent = "AI 分析結果載入中...";
 
+    const chapterMap = {
+        "1-1 內用": "e5b821e5-c45b-4d6f-83a2-d313f841b94e",
+        "1-2 外帶": "23d1eff4-28fb-479d-bf2d-061255b6ceee",
+        "2-1 看診": "d6cabf94-a777-44a9-9d73-576f38673be6",
+        "2-2 拿藥": "8e005d80-63b3-40c2-9b3f-3f791481be4e",
+        "3-1 結帳":"ab72d2ce-8b32-4c4a-b8a4-26ac6c1246c8",
+        "3-2 詢問價格":"67aef952-cfa9-447c-aa26-c1304740ccf2",
+        "4-1 開戶":"e63c2e89-1893-41ad-920d-f619cc1250d6",
+        "5-1 郵寄":"5b0e6016-1a97-4e45-9d95-beeba5a15f98",
+        "5-2 取件":"5fbfa97d-1ebb-4577-a355-ed1b19e285fd",
+        "6-1 問路":"25f242a6-bfbc-45c7-aecf-04bbcdfae570",
+        "6-2 買票":"d84143ef-db7c-492f-a68e-639e23745687",
+        "7-1 打電話求助":"3c468e5c-c5e9-443a-b79d-54d6185a90c8",
+        "8-1 基本禮貌用語":"450f4d9a-6f0b-4c2b-88b1-9e95a1d077ba",
+        "8-2 打招呼與回應":"ed0398ae-5dd5-42e5-ae02-5dbf54e84ec2"
+    };
+
+    const chapterId = chapterMap[scenarioId]; //哪一章節
+
+  const practice_session_id = await getPracticeSession(chapterId, token);
+  async function getPracticeSession(chapterId, token) {
+        const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`,'Content-Type': 'application/json' },
+            body: JSON.stringify({ chapter_id: chapterId })
+        });
+        if (!res.ok) throw new Error(`取得 practice session 失敗 ${res.status}`);
+        const data = await res.json();
+        console.log("data",data)
+        console.log("practice_session_id",data.practice_session_id)
+        return data.practice_session_id; // 假設回傳欄位是這個
+    }
+
+
+  try {
+        let data;
+        const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (res.ok) {
+            data = await res.json();
+        } else {
+            console.warn(`⚠️ API 請求失敗 (狀態碼: ${res.status})，改用假資料`);
+            data = { feedbacks: [] }; // 空資料，會觸發假資料 fallback
+        }
+
+        console.log("📌 AI回饋:", data);
+
+        // === 如果後端沒有回饋，使用假資料 ===
+        let feedbacks = data.feedbacks;
+        if (!feedbacks || feedbacks.length === 0) {
+            feedbacks = [
+                {
+                    practice_session_id: "test-session-001",
+                    content: "這是測試用的假回饋，代表 API 已經成功串接。",
+                    created_at: new Date().toISOString()
+                },
+                {
+                    practice_session_id: "test-session-002",
+                    content: "假資料第二筆：患者覺得練習效果不錯！",
+                    created_at: new Date().toISOString()
+                }
+            ];
+        }
+
+        // === 將回饋顯示到畫面上 ===
+        const feedbackContainer = document.getElementById("feedback-body");
+        feedbackContainer.innerHTML = "";
+
+        if (feedbacks && feedbacks.length > 0) {
+            feedbacks.forEach((feedback, index) => {
+                const item = document.createElement("div");
+                item.className = "feedback-item";
+                item.innerHTML = `
+                    <h3>回饋 #${index + 1}</h3>
+                    <p><strong>Session:</strong> ${feedback.practice_session_id || "無"}</p>
+                    <p><strong>回饋內容:</strong> ${feedback.content || "尚無內容"}</p>
+                    <p><strong>日期:</strong> ${feedback.created_at || "未知"}</p>
+                `;
+                feedbackContainer.appendChild(item);
+            });
+        } else {
+            feedbackContainer.textContent = "尚無回饋資料";
+        }
+
+    } catch (error) {
+        console.error("❌ fetch 過程出錯:", error);
+    }
+
   // 🧠 模擬 API 載入（或串接實際分析 API）
-  setTimeout(() => {
-    body.innerHTML = `
-      <p>這是 <strong>${scenarioId}</strong> 的 AI 分析結果範例。</p>
-      <ul>
-        <li>語速適中</li>
-        <li>句子完整率 92%</li>
-        <li>聲音辨識準確率 87%</li>
-      </ul>
-    `;
-  }, 1000);
+//   setTimeout(() => {
+//     body.innerHTML = `
+//       <p>這是 <strong>${scenarioId}</strong> 的 AI 分析結果範例。</p>
+//       <ul>
+//         <li>語速適中</li>
+//         <li>句子完整率 92%</li>
+//         <li>聲音辨識準確率 87%</li>
+//       </ul>
+//     `;
+//   }, 1000);
 }
 function switchMainPage(pageId) {
   const idsToHide = ['practice-content', 'scenario-1-1', 'scenario-1-2', 'practice-video-section'];
