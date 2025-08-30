@@ -65,8 +65,6 @@ async function showFeedback(scenarioId,page = 1, limit = 10) {
             data = { feedbacks: [] }; // 空資料，會觸發假資料 fallback
         }
 
-        console.log("📌 患者回饋列表:", data);
-
         // === 如果後端沒有回饋，使用假資料 ===
         let feedbacks = data.feedbacks;
         if (!feedbacks || feedbacks.length === 0) {
@@ -103,7 +101,6 @@ async function showFeedback(scenarioId,page = 1, limit = 10) {
         } else {
             feedbackContainer.textContent = "尚無回饋資料";
         }
-
     } catch (error) {
         console.error("❌ fetch 過程出錯:", error);
     }
@@ -149,7 +146,6 @@ async function showAIAnalysis(scenarioId) {
 
     const chapterId = chapterMap[scenarioId]; //哪一章節
 
-  const practice_session_id = await getPracticeSession(chapterId, token);
   async function getPracticeSession(chapterId, token) {
         const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
             method: 'POST',
@@ -162,7 +158,7 @@ async function showAIAnalysis(scenarioId) {
         console.log("practice_session_id",data.practice_session_id)
         return data.practice_session_id; // 假設回傳欄位是這個
     }
-
+const practice_session_id = await getPracticeSession(chapterId, token);
 
   try {
         let data;
@@ -183,42 +179,63 @@ async function showAIAnalysis(scenarioId) {
 
         console.log("📌 AI回饋:", data);
 
-        // === 如果後端沒有回饋，使用假資料 ===
-        let feedbacks = data.feedbacks;
-        if (!feedbacks || feedbacks.length === 0) {
-            feedbacks = [
-                {
-                    practice_session_id: "test-session-001",
-                    content: "這是測試用的假回饋，代表 API 已經成功串接。",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    practice_session_id: "test-session-002",
-                    content: "假資料第二筆：患者覺得練習效果不錯！",
-                    created_at: new Date().toISOString()
-                }
-            ];
-        }
+        results = data.results.map(r => ({
+            accuracy_percentage: r.analysis_result.accuracy_percentage,
+            fluency_score: r.analysis_result.fluency_score,
+            pronunciation_score: r.analysis_result.pronunciation_score,
+            feedback: r.analysis_result.feedback,
+            created_at: r.created_at,
+            practice_session_id: data.practice_session_id
+        }));
 
         // === 將回饋顯示到畫面上 ===
         const feedbackContainer = document.getElementById("feedback-body");
         feedbackContainer.innerHTML = "";
 
-        if (feedbacks && feedbacks.length > 0) {
-            feedbacks.forEach((feedback, index) => {
-                const item = document.createElement("div");
-                item.className = "feedback-item";
-                item.innerHTML = `
-                    <h3>回饋 #${index + 1}</h3>
-                    <p><strong>Session:</strong> ${feedback.practice_session_id || "無"}</p>
-                    <p><strong>回饋內容:</strong> ${feedback.content || "尚無內容"}</p>
-                    <p><strong>日期:</strong> ${feedback.created_at || "未知"}</p>
-                `;
-                feedbackContainer.appendChild(item);
-            });
-        } else {
-            feedbackContainer.textContent = "尚無回饋資料";
+        let feedbacks = [];
+
+        // ✅ API 的格式
+        if (data.results && data.results.length > 0) {
+            feedbacks = data.results.map(r => ({
+                practice_session_id: data.practice_session_id,
+                content: r.analysis_result.feedback,
+                created_at: r.created_at
+            }));
         }
+
+        // ✅ 沒資料就塞假資料
+        if (feedbacks.length === 0) {
+            results = [
+                {
+                    practice_session_id: "test-session-001",
+                    accuracy_percentage: 90,
+                    fluency_score: 80,
+                    pronunciation_score: 85,
+                    feedback: "這是測試用的假回饋，代表 API 已經成功串接。",
+                    created_at: new Date().toISOString()
+                },
+                {
+                    practice_session_id: "test-session-002",
+                    accuracy_percentage: 88,
+                    fluency_score: 78,
+                    pronunciation_score: 82,
+                    feedback: "假資料第二筆：患者覺得練習效果不錯！",
+                    created_at: new Date().toISOString()
+                }
+            ];
+        }
+
+        results.forEach((result, index) => {
+            const item = document.createElement("div");
+            item.className = "feedback-item";
+            item.innerHTML = `
+                <h3>回饋 #${index + 1}</h3>
+                <p><strong>accuracy_percentage:</strong> ${result.accuracy_percentage || "無"}</p>
+                <p><strong>fluency_score：</strong> ${result.fluency_score || "尚無內容"}</p>
+                <p><strong>pronunciation_score:</strong> ${result.pronunciation_score || "未知"}</p>
+            `;
+            feedbackContainer.appendChild(item);
+        });
 
     } catch (error) {
         console.error("❌ fetch 過程出錯:", error);
