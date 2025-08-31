@@ -98,7 +98,7 @@
                         localStorage.setItem("loggedInUser", JSON.stringify(result));
 
                         // ✅ 第二步：取得使用者角色
-                        const profileRes = await fetch("https://api-vocalborn.r0930514.work/user/profile", {
+                        const profileRes = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
                             method: "GET",
                             headers: { "Authorization": `Bearer ${token}` }
                         });
