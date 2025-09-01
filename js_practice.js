@@ -402,6 +402,75 @@ function saveRecordingToIndexedDB(key, blob) {
   };
 }
 
+// === 建立會話 ===
+let practiceSessionId = '';
+
+// 已建立的 session 會存到 localStorage，key 可以用 chapterName
+async function createPracticeSession(chapterName) {
+    // 映射章節ID
+    const chapterMap = {
+        "1-1 內用": "e5b821e5-c45b-4d6f-83a2-d313f841b94e",
+        "1-2 外帶": "23d1eff4-28fb-479d-bf2d-061255b6ceee",
+        "2-1 看診": "d6cabf94-a777-44a9-9d73-576f38673be6",
+        "2-2 拿藥": "8e005d80-63b3-40c2-9b3f-3f791481be4e",
+        "3-1 結帳":"ab72d2ce-8b32-4c4a-b8a4-26ac6c1246c8",
+        "3-2 詢問價格":"67aef952-cfa9-447c-aa26-c1304740ccf2",
+        "4-1 開戶":"e63c2e89-1893-41ad-920d-f619cc1250d6",
+        "5-1 郵寄":"5b0e6016-1a97-4e45-9d95-beeba5a15f98",
+        "5-2 取件":"5fbfa97d-1ebb-4577-a355-ed1b19e285fd",
+        "6-1 問路":"25f242a6-bfbc-45c7-aecf-04bbcdfae570",
+        "6-2 買票":"d84143ef-db7c-492f-a68e-639e23745687",
+        "7-1 打電話求助":"3c468e5c-c5e9-443a-b79d-54d6185a90c8",
+        "8-1 基本禮貌用語":"450f4d9a-6f0b-4c2b-88b1-9e95a1d077ba",
+        "8-2 打招呼與回應":"ed0398ae-5dd5-42e5-ae02-5dbf54e84ec2"
+    };
+
+    const chapterId = chapterMap[chapterName];
+
+    if (!chapterId) {
+        console.error("找不到對應的章節ID");
+        return;
+    }
+
+    // 檢查 localStorage 是否已有 session
+    const storedSessionId = localStorage.getItem(`practiceSession_${chapterName}`);
+    if (storedSessionId) {
+        practiceSessionId = storedSessionId;
+        console.log("📌 已有會話，使用現有的 sessionId:", practiceSessionId);
+        return practiceSessionId;
+    }
+
+    // 建立新會話
+    try {
+        const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({ chapter_id: chapterId })
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`練習會話建立失敗，狀態碼：${res.status}, 訊息：${errText}`);
+        }
+
+        const result = await res.json();
+        practiceSessionId = result.practice_session_id;
+
+        // 儲存到 localStorage
+        localStorage.setItem(`practiceSession_${chapterName}`, practiceSessionId);
+
+        console.log("✅ 新練習會話建立成功", practiceSessionId);
+        return practiceSessionId;
+
+    } catch (err) {
+        console.error("❌ 練習會話建立失敗", err);
+    }
+}
+
+
 async function setupScriptButtons(scenarioId,chapterName) {
     // const scriptData = {
     //     '1-1 內用': [
@@ -516,8 +585,8 @@ async function setupScriptButtons(scenarioId,chapterName) {
     
     const container = document.getElementById('video-script-buttons');
 
+    //取得語句列表
     const url = `https://vocalborn.r0930514.work/api/situations/chapters/${chapterId}/sentences?skip=0&limit=50`;
-
     let lines = [];
     try {
         const res = await fetch(url, {
@@ -534,43 +603,37 @@ async function setupScriptButtons(scenarioId,chapterName) {
             container.innerHTML = '<p>⚠️ 此章節尚無句子資料</p>';
             return;
         }
-    // 對每句話呼叫 detail API
-    if (window._alreadyFetchingDetail) {
-        console.log('已經在抓 detail，跳過');
-        return;
-    }
-    window._alreadyFetchingDetail = true;
-
-    for (const line of lines) {
-        try {
-            const resDetail = await fetch(`https://vocalborn.r0930514.work/api/situations/sentence/${line.sentence_id}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                }
-            });
-            if (!resDetail.ok) throw new Error(`API 請求失敗：${resDetail.status}`);
-            const detail = await resDetail.json();
-            console.log(detail);
-        } catch (err) {
-            console.error('❌ 取得句子詳細資料失敗', err);
+        // 對每句話呼叫 detail API
+        if (window._alreadyFetchingDetail) {
+            console.log('已經在抓 detail，跳過');
+            return;
         }
+        window._alreadyFetchingDetail = true;
+        //取得語句詳情
+        for (const line of lines) {
+            try {
+                const resDetail = await fetch(`https://vocalborn.r0930514.work/api/situations/sentence/${line.sentence_id}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+                if (!resDetail.ok) throw new Error(`API 請求失敗：${resDetail.status}`);
+                const detail = await resDetail.json();
+                console.log(detail);
+            } catch (err) {
+                console.error('❌ 取得句子詳細資料失敗', err);
+            }
+        }
+    } catch (err) {
+        console.error('❌ 取得章節句子失敗', err);
+        container.innerHTML = '<p>❌ 讀取句子資料失敗</p>';
     }
-
-} catch (err) {
-    console.error('❌ 取得章節句子失敗', err);
-    container.innerHTML = '<p>❌ 讀取句子資料失敗</p>';
-}
     if (window._alreadyFetching) return;
     window._alreadyFetching = true;
     console.log('開始 fetch detail 迴圈');
 
-    lines.forEach((line) => {
-        if (typeof line.start_time !== 'number' || typeof line.end_time !== 'number') {
-            console.warn(`⚠️ 無效播放範圍：${JSON.stringify(line)}`);
-            return; // 跳過這句，因為沒有明確的播放區間
-        }
-        async function getPracticeSession(chapterId, token) {
+    async function getPracticeSession(chapterId, token) {
             const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`,'Content-Type': 'application/json' },
@@ -580,7 +643,13 @@ async function setupScriptButtons(scenarioId,chapterName) {
             const data = await res.json();
             console.log("data",data)
             console.log("practice_session_id",data.practice_session_id)
-            return data.practice_session_id; // 假設回傳欄位是這個
+            //return data.practice_session_id; // 假設回傳欄位是這個
+        }
+
+    lines.forEach((line) => {
+        if (typeof line.start_time !== 'number' || typeof line.end_time !== 'number') {
+            console.warn(`⚠️ 無效播放範圍：${JSON.stringify(line)}`);
+            return; // 跳過這句，因為沒有明確的播放區間
         }
         
         const start = line.start_time;
@@ -697,7 +766,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
                 alert('尚未錄音');
                 return;
             }
-        const practice_session_id = await getPracticeSession(chapterId, token); 
+        const practice_session_id = practiceSessionId//await getPracticeSession(chapterId, token); 
         const sentence_id = line.sentence_id;
         try {
             const formData = new FormData();
@@ -726,6 +795,52 @@ async function setupScriptButtons(scenarioId,chapterName) {
             alert("錄音上傳失敗：" + err.message);
         }
 
+        try {
+            const res = await fetch(
+                `https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=10`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`取得練習會話列表失敗，狀態碼：${res.status}, 訊息：${errText}`);
+            }
+
+            const result = await res.json();
+            console.log("✅ 取得練習會話列表成功", result);
+
+        } catch (err) {
+            console.error("❌ 取得練習會話列表失敗", err);
+        }
+
+        try {
+            const res = await fetch(
+                `https://vocalborn.r0930514.work/api/practice/sessions/${practice_session_id}/records`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`取得錄音檔案資訊失敗，狀態碼：${res.status}, 訊息：${errText}`);
+            }
+
+            const recordings = await res.json();
+            console.log("✅ 取得錄音檔案資訊成功", recordings);
+
+
+        } catch (err) {
+            console.error("❌ 取得錄音檔案資訊失敗", err);
+        }
 
             /*const formData = new FormData();
             formData.append('file', blob, `recording-${scenarioId}-${line.start}-${line.end}.webm`);
