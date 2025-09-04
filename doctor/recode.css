@@ -102,6 +102,22 @@
 }
 
 /* 底部回饋區 */
+#feedback-section {
+  margin-top: 16px; /* 與上方例句保持距離，可調整 */
+}
+
+#feedback-section label {
+  display: block;          /* 換行 */
+  font-weight: 700;        /* 加粗 */
+  font-size: 1.2rem;       /* 字體放大 */
+  color: #1f2937;          /* 顏色 */
+  margin-bottom: 6px;      /* 與輸入框距離 */
+  gap: 6px;                /* emoji 與文字間距 */
+  display: flex;
+  align-items: center;
+}
+
+/* 底部回饋區 */
 #feedback-container {
   margin-top: 12px;
 }
