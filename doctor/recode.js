@@ -13,24 +13,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const USE_API = true;
   const token = localStorage.getItem("token");
 
-  function switchPage(showSectionId) {
-    document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
-    document.getElementById(showSectionId).classList.add("active");
+  // 底部統一回饋 input
+  let feedbackInput = document.getElementById("feedback-input");
+  if (!feedbackInput) {
+    feedbackInput = document.createElement("textarea");
+    feedbackInput.id = "feedback-input";
+    feedbackInput.placeholder = "請在此輸入整體回饋...";
+    feedbackInput.style.width = "100%";
+    feedbackInput.style.marginTop = "10px";
+    detailContainer.parentElement.appendChild(feedbackInput);
   }
 
-  function enableSubmit() {
-    btnSubmitDetails.disabled = false;
-  }
-
-  // 取得病患總覽
   async function fetchPatientsOverview() {
-    if (!USE_API) return; // TODO: 可放假資料
+    if (!USE_API) return;
     try {
       const res = await fetch("https://vocalborn.r0930514.work/api/practice/therapist/patients/overview", {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
-      console.log("總覽資料：", data);
 
       patientsProgress = data.patients_overview.map(p => ({
         id: p.patient_id,
@@ -65,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 取得病患詳細紀錄
   async function fetchPatientPractice(index) {
     try {
       const patientId = patientsProgress[index].id;
@@ -75,13 +74,12 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
-      console.log("API 詳細資料：", data);
 
       if (!data.practice_sessions || data.practice_sessions.length === 0) {
         throw new Error("找不到任何練習會話");
       }
 
-      const session = data.practice_sessions[0]; // 只取第一個會話
+      const session = data.practice_sessions[0];
       const records = session.practice_records || [];
 
       patientsProgress[index].details = records.map(r => ({
@@ -109,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const title = document.getElementById("detail-patient-name");
     title.textContent = `${patient.name} - ${patient.chapter_name || ""}`;
     detailContainer.innerHTML = "";
-    btnSubmitDetails.disabled = true;
+    feedbackInput.value = "";
 
     patient.details.forEach((detail, idx) => {
       const item = document.createElement("div");
@@ -117,19 +115,19 @@ document.addEventListener("DOMContentLoaded", () => {
       item.innerHTML = `
         <div class="patient-name">${idx + 1}. ${detail.sentence || ""}</div>
         <div class="patient-progress">
-          <button class="play-audio-btn" data-audio="${detail.audio || ''}">🔊</button>
+          <div class="audio-header" style="display: flex; align-items: center; gap: 10px;">
+            <h3>患者音訊</h3>
+            <button class="play-audio-btn" data-audio="${detail.audio || ''}">🔊</button>
+          </div>
         </div>
         <div class="patient-status">
           <button class="toggle-qualified-btn">${detail.qualified ? '✅' : '❌'}</button>
-        </div>
-        <div class="patient-suggestion">
-          <input type="text" class="suggestion-input" value="${detail.suggestion ? detail.suggestion.replace(/"/g, "&quot;") : ''}" />
         </div>
       `;
       detailContainer.appendChild(item);
     });
 
-    // 綁定事件
+    // 音訊播放
     detailContainer.querySelectorAll(".play-audio-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const audioSrc = btn.dataset.audio;
@@ -142,25 +140,20 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // 勾選完成狀態（無限制）
     detailContainer.querySelectorAll(".toggle-qualified-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        if (btn.textContent === '✅') {
-          btn.textContent = '❌';
-          btn.classList.add("rejected");
-        } else {
-          btn.textContent = '✅';
-          btn.classList.remove("rejected");
-        }
-        enableSubmit();
+        btn.textContent = btn.textContent === '✅' ? '❌' : '✅';
       });
-    });
-
-    detailContainer.querySelectorAll(".suggestion-input").forEach(input => {
-      input.addEventListener("input", enableSubmit);
     });
   }
 
-  // ====== 綁定按鈕 ======
+  function switchPage(showSectionId) {
+    document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById(showSectionId).classList.add("active");
+  }
+
+  // ===== 綁定按鈕 =====
   btnViewLog.addEventListener("click", async () => {
     await fetchPatientsOverview();
     switchPage("log-detail");
@@ -179,9 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  btnSubmitDetails.addEventListener("click", async () => {
-    btnSubmitDetails.disabled = true;
-
+  btnSubmitDetails.addEventListener("click", () => {
     const patientName = document.getElementById("detail-patient-name").textContent;
     const patient = patientsProgress.find(p => `${p.name} - ${p.chapter_name}` === patientName);
     if (!patient) return alert("找不到病患資料");
@@ -189,89 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const detailCards = detailContainer.querySelectorAll(".patient-card");
     detailCards.forEach((card, idx) => {
       const toggleBtn = card.querySelector(".toggle-qualified-btn");
-      const suggestionInput = card.querySelector(".suggestion-input");
       patient.details[idx].qualified = toggleBtn.textContent === '✅';
-      patient.details[idx].suggestion = suggestionInput.value.trim();
     });
 
-  //   const practice_session_id = patient.practice_session_id;
-  //   if (!practice_session_id) {
-  //     alert("缺少 practice_session_id，無法提交");
-  //     btnSubmitDetails.disabled = false;
-  //     return;
-  //   }
-
-  //   try {
-  //     // ---------------- 取得回饋 GET ----------------
-  //     let res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
-  //       method: "GET",
-  //       headers: { "Authorization": `Bearer ${token}` }
-  //     });
-
-  //     let feedbackData = [];
-  //     if (res.ok) {
-  //       feedbackData = await res.json();
-  //       console.log("取得回饋 GET 成功：", feedbackData);
-  //     }
-      
-
-  //     // ---------------- 如果沒有回饋就 POST ----------------
-  //     if (!feedbackData || feedbackData.length === 0) {
-  //       const postPayload = {
-  //         practice_session_id,
-  //         patient_id: patient.patient_id,
-  //         chapter_id: patient.chapter_id,
-  //         content: patient.content?.trim() || "無回饋"
-  //       };
-
-  //       res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Authorization": `Bearer ${token}`,
-  //           "Content-Type": "application/json"
-  //         },
-  //         body: JSON.stringify(postPayload)
-  //       });
-
-  //       if (!res.ok) {
-  //         const errText = await res.text();
-  //         throw new Error(`提交失敗：${res.status} - ${errText}`);
-  //       }
-  //       feedbackData = await res.json();
-  //       console.log("回饋 POST 成功：", feedbackData);
-  //     }
-
-  //     // ---------------- 更新回饋 PUT ----------------
-  //     for (let idx = 0; idx < patient.details.length; idx++) {
-  //       const card = detailCards[idx];
-  //       const suggestionInput = card.querySelector(".suggestion-input");
-  //       const putPayload = { content: suggestionInput.value.trim() };
-
-  //       res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
-  //         method: "PUT",
-  //         headers: {
-  //           "Authorization": `Bearer ${token}`,
-  //           "Content-Type": "application/json"
-  //         },
-  //         body: JSON.stringify(putPayload)
-  //       });
-
-  //       if (!res.ok) {
-  //         const errText = await res.text();
-  //         throw new Error(`更新失敗：${res.status} - ${errText}`);
-  //       }
-
-  //       const updateResult = await res.json();
-  //       console.log("更新回饋 PUT 成功：", updateResult);
-  //     }
-
-  //     alert("回饋已成功提交並更新！");
-  //   } catch (err) {
-  //     console.error("操作失敗：", err);
-  //     alert("回饋操作失敗");
-  //   } finally {
-  //     btnSubmitDetails.disabled = false;
-  //   }
-   });
-
+    const overallFeedback = feedbackInput.value.trim();
+    console.log("病患：", patient.name, "完成狀態：", patient.details.map(d => d.qualified), "整體回饋：", overallFeedback);
+    alert("已成功提交整體回饋！");
+    feedbackInput.value = "";
+  });
 });

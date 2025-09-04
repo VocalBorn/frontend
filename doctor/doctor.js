@@ -323,11 +323,9 @@ function switchPage(showSectionId) {
         card.addEventListener("click", () => {
           fetchPatientPractice(index);
         });
-
         container.appendChild(card);
       });
     }
-
 
 
 // 取得病患詳細紀錄
@@ -508,6 +506,62 @@ async function fetchPatientPractice(index) {
   // }
 
   // });
+
+async function submitFeedback(index) {
+  btnSubmitDetails.disabled = true;
+  const patient = patientsProgress[index];
+
+  const detailCards = detailContainer.querySelectorAll(".patient-card");
+  detailCards.forEach((card, idx) => {
+    const toggleBtn = card.querySelector(".toggle-qualified-btn");
+    const suggestionInput = card.querySelector(".suggestion-input");
+    if (!patient.details[idx]) patient.details[idx] = {};
+    patient.details[idx].qualified = toggleBtn.textContent === '✅';
+    patient.details[idx].suggestion = suggestionInput.value.trim();
+  });
+
+  if (!USE_API) {
+    console.log("假資料已更新：", patient);
+    alert("回饋已儲存（假資料模式）！");
+    return;
+  }
+
+  try {
+    const practice_session_id = patient.practice_session_id;
+    if (!practice_session_id) throw new Error("缺少 practice_session_id，無法提交");
+
+    const payload = Array.isArray(patient.details) ? patient.details.map(d => ({
+      practice_id: d.practice_id,
+      feedback: d.suggestion,
+      completed: d.qualified
+    })) : [];
+
+    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error("提交失敗: " + errText);
+    }
+
+    const result = await res.json().catch(() => ({}));
+    console.log("回饋 API 回傳：", result);
+    alert("回饋已成功提交！");
+  } catch (err) {
+    console.error("提交失敗：", err);
+    alert("回饋提交失敗");
+  }
+}
+
+
+
+  // //提交回饋c5c4c07 (治療師回饋欄修正)
   // async function submitFeedback(index) {
   //   btnSubmitDetails.disabled = true;
   //   const patient = patientsProgress[index];

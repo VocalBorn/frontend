@@ -134,18 +134,27 @@
     </section>
 
     <!-- 紀錄詳細區 -->
-    <section id="log-detail-detail" class="page-section">
-    <div class="widget-card">
-        <h3 id="detail-patient-name"></h3>
+<section id="log-detail-detail" class="page-section">
+  <div class="widget-card">
+    <h3 id="detail-patient-name"></h3>
 
-        <div id="detail-container"></div>
+    <div id="detail-container"></div>
 
-        <div class="detail-actions">
-        <button id="back-to-log" class="back-btn">返回紀錄</button>
-        <button id="submit-details" class="submit-btn">提交</button>
-        </div>
+    <!-- 底部統一回饋區 -->
+    <div id="feedback-section">
+      <label for="feedback-input">整體回饋：</label>
+      <textarea id="feedback-input" placeholder="請輸入整體回饋內容" rows="3"></textarea>
     </div>
-    </section>
+
+    <div class="detail-actions">
+      <button id="back-to-log" class="back-btn">返回紀錄</button>
+      <button id="submit-details" class="submit-btn">提交回饋</button>
+    </div>
+  </div>
+</section>
+
+
+
 
     <!-- 預約區 -->
     <section id="schedule-section" class="page-section">
