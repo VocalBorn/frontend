@@ -87,6 +87,7 @@ async function showFeedback(scenarioId,page = 1, limit = 10) {
         feedbackContainer.innerHTML = "";
 
         if (feedbacks && feedbacks.length > 0) {
+            console.log(feedbacks)
             feedbacks.forEach((feedback, index) => {
                 const item = document.createElement("div");
                 item.className = "feedback-item";
@@ -840,6 +841,30 @@ async function setupScriptButtons(scenarioId,chapterName) {
 
         } catch (err) {
             console.error("❌ 取得錄音檔案資訊失敗", err);
+        }
+
+        try {
+            const res = await fetch(
+                `https://vocalborn.r0930514.work/api/practice/sessions/${practice_session_id}/complete`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`標記練習會話失敗，狀態碼：${res.status}, 訊息：${errText}`);
+            }
+
+            const recordings = await res.json();
+            console.log("✅ 標記練習會話成功", recordings);
+
+
+        } catch (err) {
+            console.error("❌ 標記練習會話失敗", err);
         }
 
             /*const formData = new FormData();
