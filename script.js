@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-//home的預約卡片功能
+// home的預約卡片功能
 const bookBtn = document.getElementById("book-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 const appointmentText = document.getElementById("appointment-text");
@@ -560,6 +560,12 @@ const confirmBtn = document.getElementById("confirm-appointment");
 const closePopupBtn = document.getElementById("close-popup");
 const dateInput = document.getElementById("appointment-date");
 const timeInput = document.getElementById("appointment-time");
+
+// CSS: 讓換行生效
+appointmentText.style.whiteSpace = "pre-line";
+
+// 預約狀態
+let appointmentStatus = "none"; // none, pending, confirmed
 
 // 點擊預約 → 顯示彈窗
 bookBtn.addEventListener("click", () => {
@@ -581,7 +587,10 @@ confirmBtn.addEventListener("click", () => {
         return;
     }
 
-    appointmentText.textContent = `已預約：${date} ${time}`;
+    // 設定為審核中
+    appointmentStatus = "pending";
+    appointmentText.textContent = `已發送預約：${date} ${time}\n預約進度：治療師審核中`;
+
     popup.classList.add("hidden");
     bookBtn.classList.add("hidden");
     cancelBtn.classList.remove("hidden");
@@ -591,6 +600,7 @@ confirmBtn.addEventListener("click", () => {
 cancelBtn.addEventListener("click", () => {
     const confirmCancel = confirm("確定要取消預約嗎？");
     if (confirmCancel) {
+        appointmentStatus = "none";
         appointmentText.textContent = "安排下次語言治療的時間，方便追蹤進度";
         cancelBtn.classList.add("hidden");
         bookBtn.classList.remove("hidden");
@@ -598,3 +608,11 @@ cancelBtn.addEventListener("click", () => {
         timeInput.value = "";
     }
 });
+
+// 範例：當治療師確認後，可手動或透過 API 更新
+function confirmAppointment() {
+    if (appointmentStatus === "pending") {
+        appointmentStatus = "confirmed";
+        appointmentText.textContent = `已確認預約：${dateInput.value} ${timeInput.value}\n預約進度：成功預約`;
+    }
+}
