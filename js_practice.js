@@ -143,6 +143,27 @@ async function showAIAnalysis(scenarioId) {
     }
 const practice_session_id = await getPracticeSession(chapterId, token);
 
+
+    //  觸發 AI 分析
+        const triggerRes = await fetch(
+            `https://vocalborn.r0930514.work/api/ai-analysis/trigger/${practice_session_id}`,
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+            }
+        );
+
+        if (!triggerRes.ok) throw new Error(`觸發 AI 分析失敗 ${triggerRes.status}`);
+        const triggerData = await triggerRes.json();
+        console.log("⚡ AI 分析已觸發:", triggerData);
+
+        // 3️⃣ 等待 AI 分析完成 (先等 3 秒，避免拿不到結果)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+
   try {
         let data;
         const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
