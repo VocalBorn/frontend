@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  btnSubmitDetails.addEventListener("click", () => {
+  btnSubmitDetails.addEventListener("click", async() => {
     const patientName = document.getElementById("detail-patient-name").textContent;
     const patient = patientsProgress.find(p => `${p.name} - ${p.chapter_name}` === patientName);
     if (!patient) return alert("找不到病患資料");
@@ -181,11 +181,92 @@ document.addEventListener("DOMContentLoaded", () => {
     detailCards.forEach((card, idx) => {
       const toggleBtn = card.querySelector(".toggle-qualified-btn");
       patient.details[idx].qualified = toggleBtn.textContent === '✅';
+      patient.details[idx].suggestion = feedbackInput.value.trim();
     });
 
-    const overallFeedback = feedbackInput.value.trim();
-    console.log("病患：", patient.name, "完成狀態：", patient.details.map(d => d.qualified), "整體回饋：", overallFeedback);
-    alert("已成功提交整體回饋！");
-    feedbackInput.value = "";
+    const practice_session_id = patient.practice_session_id;
+    if (!practice_session_id) {
+      alert("缺少 practice_session_id，無法提交");
+      btnSubmitDetails.disabled = false;
+      return;
+    }
+
+    try {
+      // ---------------- 取得回饋 GET ----------------
+      let res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      let feedbackData = [];
+      if (res.ok) {
+        feedbackData = await res.json();
+        console.log("取得回饋 GET 成功：", feedbackData);
+      }
+      
+
+      // ---------------- 如果沒有回饋就 POST ----------------
+      if (!feedbackData || feedbackData.length === 0) {
+        const postPayload = {
+          practice_session_id,
+          patient_id: patient.patient_id,
+          chapter_id: patient.chapter_id,
+          content: patient.content?.trim() || "無回饋"
+        };
+
+        res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(postPayload)
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`提交失敗：${res.status} - ${errText}`);
+        }
+        feedbackData = await res.json();
+        console.log("回饋 POST 成功：", feedbackData);
+      }
+
+      // ---------------- 更新回饋 PUT ----------------
+      
+        //const card = detailCards[idx];
+        //const suggestionInput = card.querySelector(".feedback-input");
+        const putPayload = { content: feedbackInput.value.trim() };
+
+        res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(putPayload)
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`更新失敗：${res.status} - ${errText}`);
+        }
+
+        const updateResult = await res.json();
+        console.log("更新回饋 PUT 成功：", updateResult);
+      
+
+      alert("回饋已成功提交並更新！");
+    } catch (err) {
+      console.error("操作失敗：", err);
+      alert("回饋操作失敗");
+    } finally {
+      btnSubmitDetails.disabled = false;
+    }
+
+
+    // const overallFeedback = feedbackInput.value.trim();
+    // console.log("病患：", patient.name, "完成狀態：", patient.details.map(d => d.qualified), "整體回饋：", overallFeedback);
+    // alert("已成功提交整體回饋！");
+    // feedbackInput.value = "";
   });
 });

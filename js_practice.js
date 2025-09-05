@@ -34,82 +34,64 @@ function showScenario(scenarioId) {
     console.log(`✅ 顯示子情境：${scenarioId}`);
 }
 // === 查看回饋 ===
-async function showFeedback(scenarioId,page = 1, limit = 10) {
+async function showFeedback(scenarioId, page = 1, limit = 10) {
     const modal = document.getElementById('feedback-modal');
-    const body = document.getElementById('feedback-body');
+    const feedbackContainer = document.getElementById('feedback-body');
     const title = document.getElementById('feedback-title');
 
-    // const feedbackData = {
-    //     '1-1': '你已練習 5 次，發音清晰，請注意語速控制。',
-    //     '1-2': '語調自然，但「刷卡嗎？」稍快。',
-    //     '2-1': '醫學用詞清楚，請再放慢語速。',
-    //     '2-2': '語句完整，語氣自然。',
-    //     '3-1': '語句完整，語氣自然。',
-    //     // ...未來可加更多
-    // };
-    
     try {
         let data;
-        const res = await fetch(`https://vocalborn.r0930514.work/api/practice/patient/feedbacks?page=${page}&limit=${limit}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+        const res = await fetch(
+            `https://vocalborn.r0930514.work/api/practice/patient/feedbacks?page=${page}&limit=${limit}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
             }
-        });
+        );
 
         if (res.ok) {
             data = await res.json();
         } else {
-            console.warn(`⚠️ API 請求失敗 (狀態碼: ${res.status})，改用假資料`);
-            data = { feedbacks: [] }; // 空資料，會觸發假資料 fallback
+            console.warn(`⚠️ API 請求失敗 (狀態碼: ${res.status})，改用空資料`);
+            data = { feedbacks: [] };
         }
 
-        // === 如果後端沒有回饋，使用假資料 ===
-        let feedbacks = data.feedbacks;
-        if (!feedbacks || feedbacks.length === 0) {
-            feedbacks = [
-                {
-                    practice_session_id: "test-session-001",
-                    content: "這是測試用的假回饋，代表 API 已經成功串接。",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    practice_session_id: "test-session-002",
-                    content: "假資料第二筆：患者覺得練習效果不錯！",
-                    created_at: new Date().toISOString()
-                }
-            ];
-        }
+        // 取得所有回饋
+        let feedbacks = data.feedbacks || [];
 
-        // === 將回饋顯示到畫面上 ===
-        const feedbackContainer = document.getElementById("feedback-body");
-        feedbackContainer.innerHTML = "";
+        // === 過濾：只顯示對應章節 (chapter_name 開頭等於 scenarioId) ===
+        feedbacks = feedbacks.filter(fb => fb.chapter_name.startsWith(scenarioId));
 
-        if (feedbacks && feedbacks.length > 0) {
-            console.log(feedbacks)
-            feedbacks.forEach((feedback, index) => {
+        // 如果沒有回饋 → 顯示提示
+        if (feedbacks.length === 0) {
+            feedbackContainer.innerHTML = `<p>單元 ${scenarioId} 尚無回饋資料</p>`;
+        } else {
+            feedbackContainer.innerHTML = "";
+            feedbacks.forEach((feedback) => {
                 const item = document.createElement("div");
                 item.className = "feedback-item";
                 item.innerHTML = `
-                    <h3>回饋 #${index + 1}</h3>
-                    <p><strong>Session:</strong> ${feedback.practice_session_id || "無"}</p>
+                    <p><strong>治療師:</strong> ${feedback.therapist_name || "未知"}</p>
                     <p><strong>回饋內容:</strong> ${feedback.content || "尚無內容"}</p>
                     <p><strong>日期:</strong> ${feedback.created_at || "未知"}</p>
                 `;
                 feedbackContainer.appendChild(item);
             });
-        } else {
-            feedbackContainer.textContent = "尚無回饋資料";
         }
+
     } catch (error) {
         console.error("❌ fetch 過程出錯:", error);
+        feedbackContainer.textContent = "載入回饋時發生錯誤";
     }
 
     title.textContent = `單元 ${scenarioId} 的練習回饋`;
-    //body.textContent = feedbackData[scenarioId] || '尚無回饋資料';
     modal.classList.remove('hidden');
 }
+
+
 
 function closeFeedback() {
     document.getElementById('feedback-modal').classList.add('hidden');
@@ -234,6 +216,7 @@ const practice_session_id = await getPracticeSession(chapterId, token);
                 <p><strong>accuracy_percentage:</strong> ${result.accuracy_percentage || "無"}</p>
                 <p><strong>fluency_score：</strong> ${result.fluency_score || "尚無內容"}</p>
                 <p><strong>pronunciation_score:</strong> ${result.pronunciation_score || "未知"}</p>
+                <p><strong>feedback:</strong> ${result.feedback || "未知"}</p>
             `;
             feedbackContainer.appendChild(item);
         });
