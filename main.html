@@ -26,6 +26,31 @@
     script.src = 'chart.min.js';
     document.head.appendChild(script);
     "></script>
+    <style>
+    .logout-btn {
+      display: block;
+      width: 35%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #4396cd; /* 藍色 */
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #2980b9; /* hover 深藍 */
+    }
+
+    .logout-btn:active {
+      background-color: #1f6391; /* 點擊時更深 */
+    }
+  </style>
 </head>
 <body>
     <div class="loading-overlay">
@@ -640,6 +665,13 @@
                   </div>
             
                   <button class="logout-btn" onclick="logout()">登出</button>
+                  <script>
+                    function logout() {
+                    localStorage.removeItem("authToken");
+                    sessionStorage.removeItem("authToken");
+                    window.location.href = "index.html"; // 這裡換成實際的登入頁
+                    }
+                    </script>
                 </div>
             </div>
 

@@ -512,3 +512,9 @@ async function submitFeedback(index) {
   
   //showSection("home");
 
+  function logout() {
+    localStorage.removeItem("authToken");
+    sessionStorage.removeItem("authToken");
+    window.location.href = "../index.html"; // 這裡換成實際的登入頁
+   }
+
