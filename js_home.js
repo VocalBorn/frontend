@@ -1,21 +1,53 @@
 let currentYear, currentMonth;
 
-function signInToday() {
+async function signInToday() {
   const today = new Date();
   const key = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const btn = document.getElementById("sign-in-btn");
+  const status = document.getElementById("sign-in-status");
 
-  // 讀取舊資料
-  const signedDates = JSON.parse(localStorage.getItem("signedDates")) || {};
-  signedDates[key] = true; // 紀錄今天已簽到
-  localStorage.setItem("signedDates", JSON.stringify(signedDates));
+  try {
+    const res = await fetch("https://vocalborn.r0930514.work/api/checkin/daily", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
 
-  // 更新畫面
-  document.getElementById("sign-in-card").classList.add("hidden");
-  document.getElementById("calendar-container").classList.remove("hidden");
-  renderCalendar();
+    if (res.ok) {
+      const data = await res.json();
+      console.log("✅ 簽到成功:", data);
 
-  // 彈出提示
-  showSignInPopup("簽到成功！");
+      // ✅ 紀錄 localStorage
+      const signedDates = JSON.parse(localStorage.getItem("signedDates")) || {};
+      signedDates[key] = true;
+      localStorage.setItem("signedDates", JSON.stringify(signedDates));
+
+      document.getElementById("sign-in-card").classList.add("hidden");
+      document.getElementById("calendar-container").classList.remove("hidden");
+      renderCalendar();
+
+      // ✅ 彈窗提示
+      showSignInPopup("簽到成功！");
+    } else {
+      const errorData = await res.json().catch(() => ({}));
+      console.warn(`⚠️ 簽到失敗: ${res.status}`, errorData);
+
+      if (res.status === 400 || res.status === 409) {
+        status.textContent = "✅ 今日已簽到，明天再來！";
+        btn.disabled = true;
+        btn.textContent = "已簽到";
+      } else if (res.status === 401) {
+        alert("⚠️ 請先登入再簽到！");
+      } else {
+        alert("❌ 簽到失敗，請稍後再試！");
+      }
+    }
+  } catch (err) {
+    console.error("❌ 簽到過程出錯:", err);
+    alert("❌ 網路錯誤，請稍後再試！");
+  }
 }
 
 function initCalendar() {
