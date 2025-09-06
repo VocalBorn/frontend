@@ -608,6 +608,9 @@ async function setupScriptButtons(scenarioId,chapterName) {
             container.innerHTML = '<p>⚠️ 此章節尚無句子資料</p>';
             return;
         }
+        // 🔑 按時間順序排列
+        lines.sort((a, b) => a.start_time - b.start_time);
+        
         // 對每句話呼叫 detail API
         if (window._alreadyFetchingDetail) {
             console.log('已經在抓 detail，跳過');
