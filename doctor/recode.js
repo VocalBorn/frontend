@@ -32,15 +32,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
 
-      patientsProgress = data.patients_overview.map(p => ({
+      patientsProgress = data.patients_overview.map(p => {
+      let status = "";
+      let statusText = "";
+
+      if (p.session_progress && p.session_progress.length > 0) {
+        status = "practicing";
+        statusText = "🎯 正在練習";
+      } else if (p.total_pending_feedback > 0) {
+        status = "in-progress";
+        statusText = "⏳ 待回饋";
+      } else {
+        status = "completed";
+        statusText = "✅ 已回饋";
+      }
+
+      return {
         id: p.patient_id,
         name: p.patient_name,
         progress: `${p.completed_practice_sessions}/${p.total_practice_sessions}`,
-        status: p.total_pending_feedback > 0 ? "in-progress" : "completed",
-        statusText: p.total_pending_feedback > 0 ? "⏳ 待回饋" : "✅ 已完成",
+        status,
+        statusText,
         session_progress: p.session_progress || [],
         details: []
-      }));
+      };
+    });
+
 
       renderPatientsProgress();
     } catch (err) {
