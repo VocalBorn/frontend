@@ -123,7 +123,7 @@ async function getCheckinHistory(limit = 30, page = 0) {
 
 }
 
-// ✅ 查詢簽到統計資料
+// 查詢簽到統計資料
 async function getCheckinStatistics() {
   try {
     const res = await fetch("https://vocalborn.r0930514.work/api/checkin/statistics", {
@@ -145,13 +145,6 @@ async function getCheckinStatistics() {
     console.error("❌ 查詢過程出錯:", err);
   }
 }
-
-// 頁面載入時自動檢查
-document.addEventListener("DOMContentLoaded", () => {
-  checkTodaySignIn();
-  getCheckinHistory()
-  getCheckinStatistics()
-});
 
 function initCalendar() {
   const today = new Date();
@@ -242,3 +235,105 @@ function showSignInPopup(message) {
 function closePopup() {
   document.getElementById("sign-in-popup").classList.add("hidden");
 }
+
+// 取得近期練習統計
+async function getRecentPracticeProgress(days = 7) {
+  try {
+    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/progress/recent?days=${days}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📊 近期練習統計:", data);
+
+    } else {
+      console.warn(`⚠️ API 請求失敗: ${res.status}`);
+    }
+  } catch (err) {
+    console.error("❌ 取得練習統計錯誤:", err);
+  }
+}
+// 取得所有練習會話數量統計
+async function getTotalPracticeSessions() {
+  try {
+    const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/total-sessions", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📊 總練習會話數統計:", data);
+
+    } else {
+      const errText = await res.text();
+      console.warn(`⚠️ API 請求失敗: ${res.status}`, errText);
+    }
+  } catch (err) {
+    console.error("❌ 取得統計錯誤:", err);
+  }
+}
+// 取得課程進度統計
+async function getCourseProgress() {
+  try {
+    const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/courses", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📚 課程進度統計:", data);
+    } else {
+      const errText = await res.text();
+      console.warn(`⚠️ API 請求失敗: ${res.status}`, errText);
+    }
+  } catch (err) {
+    console.error("❌ 取得課程進度錯誤:", err);
+  }
+}
+//查詢使用者進度總覽
+async function getProgressOverview(recentDays = 7) {
+  try {
+    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/progress/overview?recent_days=${recentDays}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📊 完整進度總覽:", data);
+    } else {
+      const errText = await res.text();
+      console.warn(`⚠️ API 請求失敗: ${res.status}`, errText);
+    }
+  } catch (err) {
+    console.error("❌ 取得完整進度總覽錯誤:", err);
+  }
+}
+
+
+// 頁面載入時自動檢查
+document.addEventListener("DOMContentLoaded", () => {
+  checkTodaySignIn();
+  getCheckinHistory()
+  getCheckinStatistics()
+  getRecentPracticeProgress()
+  getTotalPracticeSessions()
+  getCourseProgress()
+  getProgressOverview()
+});
