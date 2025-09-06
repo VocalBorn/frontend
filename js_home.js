@@ -1,5 +1,5 @@
 let currentYear, currentMonth;
-
+//簽到
 async function signInToday() {
   const today = new Date();
   const key = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -49,6 +49,109 @@ async function signInToday() {
     alert("❌ 網路錯誤，請稍後再試！");
   }
 }
+
+// ✅ 查詢今日是否已簽到
+async function checkTodaySignIn() {
+  const btn = document.getElementById("sign-in-btn");
+  const status = document.getElementById("sign-in-status");
+
+  try {
+    const res = await fetch("https://vocalborn.r0930514.work/api/checkin/status", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📌 簽到狀態:", data);
+
+      if (data.has_checked_in_today) {
+        const checkinDate = new Date(data.checkin_time);
+        const formatted = checkinDate.toLocaleString("zh-TW", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+        //status.textContent = `✅ 今日已簽到（時間：${formatted}）`;
+        btn.disabled = true;
+        btn.textContent = "已簽到";
+      } else {
+        status.textContent = "📅 完成今日簽到，保持學習習慣";
+        btn.disabled = false;
+        btn.textContent = "立即簽到";
+      }
+    } else if (res.status === 401) {
+      status.textContent = "⚠️ 請先登入後才能簽到";
+      btn.disabled = true;
+    } else {
+      console.warn(`⚠️ 查詢簽到狀態失敗: ${res.status}`);
+    }
+  } catch (err) {
+    console.error("❌ 查詢簽到狀態錯誤:", err);
+  }
+}
+
+// 查詢簽到歷史紀錄 (支援分頁)
+async function getCheckinHistory(limit = 30, page = 0) {
+  try {
+    const offset = page * limit;
+    const res = await fetch(`https://vocalborn.r0930514.work/api/checkin/history?limit=${limit}&offset=${offset}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📌 簽到歷史紀錄:", data);
+    } else if (res.status === 401) {
+      historyContainer.innerHTML = "<p>⚠️ 請先登入後才能查詢簽到紀錄</p>";
+    } else {
+      console.warn(`⚠️ 查詢失敗: ${res.status}`);
+    }
+  } catch (err) {
+    console.error("❌ 查詢過程出錯:", err);
+  }
+
+}
+
+// ✅ 查詢簽到統計資料
+async function getCheckinStatistics() {
+  try {
+    const res = await fetch("https://vocalborn.r0930514.work/api/checkin/statistics", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("📊 簽到統計資料:", data);
+
+    } else {
+      console.warn(`⚠️ 查詢失敗: ${res.status}`);
+    }
+  } catch (err) {
+    console.error("❌ 查詢過程出錯:", err);
+  }
+}
+
+// 頁面載入時自動檢查
+document.addEventListener("DOMContentLoaded", () => {
+  checkTodaySignIn();
+  getCheckinHistory()
+  getCheckinStatistics()
+});
 
 function initCalendar() {
   const today = new Date();
