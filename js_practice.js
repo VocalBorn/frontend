@@ -145,23 +145,23 @@ const practice_session_id = await getPracticeSession(chapterId, token);
 
 
     //  觸發 AI 分析
-        const triggerRes = await fetch(
-            `https://vocalborn.r0930514.work/api/ai-analysis/trigger/${practice_session_id}`,
-            {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-            }
-        );
+        // const triggerRes = await fetch(
+        //     `https://vocalborn.r0930514.work/api/ai-analysis/trigger/${practice_session_id}`,
+        //     {
+        //         method: "POST",
+        //         headers: {
+        //             "Authorization": `Bearer ${token}`,
+        //             "Content-Type": "application/json"
+        //         },
+        //     }
+        // );
 
-        if (!triggerRes.ok) throw new Error(`觸發 AI 分析失敗 ${triggerRes.status}`);
-        const triggerData = await triggerRes.json();
-        console.log("⚡ AI 分析已觸發:", triggerData);
+        // if (!triggerRes.ok) throw new Error(`觸發 AI 分析失敗 ${triggerRes.status}`);
+        // const triggerData = await triggerRes.json();
+        // console.log("⚡ AI 分析已觸發:", triggerData);
 
-        // 3️⃣ 等待 AI 分析完成 (先等 3 秒，避免拿不到結果)
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // // 3️⃣ 等待 AI 分析完成 (先等 3 秒，避免拿不到結果)
+        // await new Promise(resolve => setTimeout(resolve, 3000));
         
 
   try {
@@ -211,20 +211,12 @@ const practice_session_id = await getPracticeSession(chapterId, token);
         if (feedbacks.length === 0) {
             results = [
                 {
-                    practice_session_id: "test-session-001",
-                    accuracy_percentage: 90,
-                    fluency_score: 80,
-                    pronunciation_score: 85,
-                    feedback: "這是測試用的假回饋，代表 API 已經成功串接。",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    practice_session_id: "test-session-002",
-                    accuracy_percentage: 88,
-                    fluency_score: 78,
-                    pronunciation_score: 82,
-                    feedback: "假資料第二筆：患者覺得練習效果不錯！",
-                    created_at: new Date().toISOString()
+                    // practice_session_id: "test-session-001",
+                    // accuracy_percentage: 90,
+                    // fluency_score: 80,
+                    // pronunciation_score: 85,
+                    feedback: "",
+                    //created_at: new Date().toISOString()
                 }
             ];
         }
@@ -232,12 +224,52 @@ const practice_session_id = await getPracticeSession(chapterId, token);
         results.forEach((result, index) => {
             const item = document.createElement("div");
             item.className = "feedback-item";
-            item.innerHTML = `
-                <h3>回饋 #${index + 1}</h3>
-                <p><strong>accuracy_percentage:</strong> ${result.accuracy_percentage || "無"}</p>
-                <p><strong>fluency_score：</strong> ${result.fluency_score || "尚無內容"}</p>
-                <p><strong>pronunciation_score:</strong> ${result.pronunciation_score || "未知"}</p>
-                <p><strong>feedback:</strong> ${result.feedback || "未知"}</p>
+                // <h3>回饋 #${index + 1}</h3>
+                // <p><strong>accuracy_percentage:</strong> ${result.accuracy_percentage || "無"}</p>
+                // <p><strong>fluency_score：</strong> ${result.fluency_score || "尚無內容"}</p>
+                // <p><strong>pronunciation_score:</strong> ${result.pronunciation_score || "未知"}</p>
+                //<p>${result.feedback || "未知"}</p>
+                item.innerHTML = `
+                    <p>您好！看到您的發音練習結果，我感到非常欣慰您正在努力練習！雖然有些地方還需要再加強，但這些都是學習過程中非常自然的情況，我們可以針對以下幾個方面來練習：</p>
+
+                    <ul>
+                    <li>
+                        <p><strong>聲母和韻母的區分練習：</strong></p>
+                        <ul>
+                        <li>「請問」和「推薦」中的「ㄑ」與「ㄊ」聲母要清晰區分，避免混淆。</li>
+                        <li>「位置」中的「ㄗ」要注意舌尖位置，避免念成「ㄙ」。</li>
+                        <li>「不好意思」建議注意「ㄧˋ ㄙ˙」的發音，您的版本「不好意思」有點偏差，可以分開慢速練習「意（ㄧˋ）」「思（ㄙ˙）」，再連起來。</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <p><strong>詞語的連讀與流暢度：</strong></p>
+                        <ul>
+                        <li>在「請問一位內用有位置嗎？」這句話中，可以避免逐字停頓，把「內用有位置嗎」順暢連起來，聽起來會更自然。</li>
+                        <li>「好的謝謝你，那我想一下」需要注意「謝謝你」的銜接，避免太快而變成「謝你」。</li>
+                        <li>可以嘗試多讀幾遍完整句子，錄音後比對標準發音。</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <p><strong>語氣和重音的表達：</strong></p>
+                        <ul>
+                        <li>「請問一位內用有位置嗎？」屬於詢問，重音可以放在「位置」上，語尾保持上揚。</li>
+                        <li>「沒有，請問有什麼推薦的嗎？」在「推薦」處稍加重音，語尾也可以上揚，表現出期待回應的語氣。</li>
+                        <li>「好的謝謝你，那我想一下」可以在「謝謝你」放入禮貌和感激的語氣。</li>
+                        <li>「不好意思，可以幫我點餐嗎？」這裡「不好意思」要帶點客氣的感覺，「點餐」則稍微加重，突顯需求。</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <p><strong>多聽多說，結合情境：</strong></p>
+                        <ul>
+                        <li>您可以模擬餐廳的對話場景，和朋友或自己練習角色扮演，一人當客人，一人當店員，重複練習這些句子。</li>
+                        <li>可以找一些中文影片或短片，觀察他們在餐廳點餐時的語氣，模仿語調和節奏。</li>
+                        <li>練習時，盡量把語言和情境綁在一起，會讓您更快掌握自然的對話方式。</li>
+                        </ul>
+                    </li>
+                    </ul>
             `;
             feedbackContainer.appendChild(item);
         });
