@@ -121,49 +121,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderPatientDetails(patient) {
-    const title = document.getElementById("detail-patient-name");
-    title.textContent = `${patient.name} - ${patient.chapter_name || ""}`;
-    detailContainer.innerHTML = "";
-    feedbackInput.value = "";
+  const title = document.getElementById("detail-patient-name");
+  title.textContent = `${patient.name} - ${patient.chapter_name || ""}`;
+  detailContainer.innerHTML = "";
+  feedbackInput.value = "";
 
-    patient.details.forEach((detail, idx) => {
-      const item = document.createElement("div");
-      item.className = "patient-card";
-      item.innerHTML = `
-        <div class="patient-name">${idx + 1}. ${detail.sentence || ""}</div>
-        <div class="patient-progress">
-          <div class="audio-header" style="display: flex; align-items: center; gap: 10px;">
-            <h3>患者音訊</h3>
-            <button class="play-audio-btn" data-audio="${detail.audio || ''}">🔊</button>
-          </div>
+  patient.details.forEach((detail, idx) => {
+    const item = document.createElement("div");
+    item.className = "patient-card";
+    item.innerHTML = `
+      <div class="patient-name">${idx + 1}. ${detail.sentence || ""}</div>
+
+      <div class="patient-progress">
+        <div class="audio-header" style="display: flex; align-items: center; gap: 10px;">
+          <h3>患者音訊</h3>
+          <button class="play-audio-btn" data-audio="${detail.audio || ''}">🔊</button>
         </div>
-        <div class="patient-status">
-          <button class="toggle-qualified-btn">${detail.qualified ? '✅' : '❌'}</button>
-        </div>
-      `;
-      detailContainer.appendChild(item);
-    });
+      </div>
 
-    // 音訊播放
-    detailContainer.querySelectorAll(".play-audio-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const audioSrc = btn.dataset.audio;
-        if (!audioSrc) return alert("沒有音訊檔案");
-        const audio = new Audio(audioSrc);
-        detailContainer.querySelectorAll(".play-audio-btn").forEach(b => b.classList.remove("playing"));
-        btn.classList.add("playing");
-        audio.play();
-        audio.addEventListener("ended", () => btn.classList.remove("playing"));
-      });
-    });
+      <div class="patient-status">
+        <label>🤖 AI 回饋</label>
+        <div class="ai-feedback-display">${detail.ai_feedback || '尚無 AI 回饋'}</div>
+      </div>
+    `;
+    detailContainer.appendChild(item);
+  });
 
-    // 勾選完成狀態（無限制）
-    detailContainer.querySelectorAll(".toggle-qualified-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        btn.textContent = btn.textContent === '✅' ? '❌' : '✅';
-      });
+  // 音訊播放功能
+  detailContainer.querySelectorAll(".play-audio-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const audioSrc = btn.dataset.audio;
+      if (!audioSrc) return alert("沒有音訊檔案");
+      const audio = new Audio(audioSrc);
+      detailContainer.querySelectorAll(".play-audio-btn").forEach(b => b.classList.remove("playing"));
+      btn.classList.add("playing");
+      audio.play();
+      audio.addEventListener("ended", () => btn.classList.remove("playing"));
     });
-  }
+  });
+}
 
   function switchPage(showSectionId) {
     document.querySelectorAll(".page-section").forEach(sec => sec.classList.remove("active"));

@@ -185,3 +185,16 @@
   color: #fff;
 }
 .detail-actions .back-btn:hover { background-color: #2563eb; }
+
+.ai-feedback-display {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #cfe0ff;
+  background-color: #f9fbff;
+  color: #333;
+  margin-top: 0.3rem;
+  min-height: 50px;
+  white-space: pre-wrap; /* 保留換行 */
+}
+
