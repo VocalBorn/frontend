@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="patient-list.css">
     <link rel="stylesheet" href="recode.css">
     <link rel="stylesheet" href="resever.css">
-   <link rel="stylesheet" href="../style_main.css">
+    <link rel="stylesheet" href="../style_main.css">
+    <link rel="stylesheet" href="../style_setting.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* 簡單的樣式：預設隱藏非 active 區塊 */
@@ -241,10 +242,11 @@
     </section>
         
     <!-- 設定 -->
-        <section id="settings" class="page-section">
-            <div class="setting">
+    <!-- 設定頁面 -->
+            <div id="settings-page" class="main-content-page active">
+                <div class="setting">
                   <img src="../images/User.jpeg" alt="使用者照片" class="user-pic" />
-                  <div class="username">名字</div>
+                  <div class="username">這裡是使用者的名字</div>
             
                   <div class="settings-container">
                     <div class="settings-item" id="showProfile">
@@ -267,7 +269,14 @@
                   </div>
             
                   <button class="logout-btn" onclick="logout()">登出</button>
-            </div>
+                  <script>
+                    function logout() {
+                    localStorage.removeItem("authToken");
+                    sessionStorage.removeItem("authToken");
+                    window.location.href = "index.html"; // 這裡換成實際的登入頁
+                    }
+                    </script>
+                </div>
             </div>
 
             <!-- 個人檔案頁面 -->
@@ -278,17 +287,20 @@
                         <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
                     </div>
                     <hr/>
-                    <div class="profile-item">
-                        <label class="profile-option" id="edit-name" data-target="edit-name">姓名</label>
-                    </div>
-                    <hr/>
-                    <div class="profile-item">
-                        <label class="profile-option" data-target="edit-email">電子郵件</label>
-                    </div>
-                    <hr/>
-                    <div class="profile-item">
-                        <label class="profile-option" data-target="change-password">變更密碼</label>
-                    </div>
+                        <div class="profile-item" id="edit-name">
+                        <span class="profile-option-text">姓名</span>
+                        <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <hr />
+                        <div class="profile-item" id="editGender">
+                        <span class="profile-option-text">性別</span>
+                        <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <hr />
+                        <div class="profile-item" id="changePassword">
+                        <span class="profile-option-text">變更密碼</span>
+                        <i class="fas fa-chevron-right"></i>
+                        </div>
                 </div>
             </div>
             </div>
@@ -311,13 +323,67 @@
                             <button class="button" onclick="saveName()">儲存</button>
                         </div>
                         <hr />
-                        <div class="form-group">
-                            <button class="button" onclick="savechange()">儲存變更</button>
-                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- 性別編輯頁面 -->
+            <div id="edit-gender-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                    <div class="edit-gender-item" id="backToProfileFromGender">
+                        <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
+                    </div>
+                    </div>
+                    <div class="card-content">
+                    <div class="form-group">
+                        <label for="genderSelect">選擇性別</label>
+                        <select id="genderSelect">
+                        <option value="male">男</option>
+                        <option value="female">女</option>
+                        <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <button class="button" onclick="saveGender()">儲存</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 變更密碼頁面 -->
+            <div id="change-password-content" class="main-content-page">
+                <div class="card">
+                    <div class="card-header">
+                    <div class="edit-name-item" id="backToProfileFromPassword">
+                        <label class="auth-switch"><i class="fas fa-chevron-left"></i> 返回</label>
+                    </div>
+                    </div>
+                    <div class="card-content">
+                    <div class="form-group">
+                        <label for="currentPassword">目前密碼</label>
+                        <input type="password" id="currentPassword" placeholder="請輸入目前密碼" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label for="newPassword">新密碼</label>
+                        <input type="password" id="newPassword" placeholder="請輸入新密碼" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <label for="confirmPassword">確認新密碼</label>
+                        <input type="password" id="confirmPassword" placeholder="再次輸入新密碼" />
+                    </div>
+                    <hr />
+                    <div class="form-group">
+                        <button class="button" onclick="submitPasswordChange()">儲存變更</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知設定頁面 -->
             <div id="notification-content" class="main-content-page">
                 <div class="notification">
                     <div class="notification-container">
@@ -339,6 +405,7 @@
                 </div>
             </div>
 
+            <!-- 幫助頁面 -->
             <div id="help-content" class="main-content-page">
                 <div class="help">
                     <div class="help-container">
@@ -346,13 +413,55 @@
                             <label class="auth-switch"><i class="fas fa-chevron-left"></i>返回</label>
                         </div>
                         <hr/>
-                        <div class="help-item">
+                        <div class="help-item" id="how-to-change-password-item">
                             <label>如何更改密碼？</label>
                         </div>
                         <hr/>
-                        <div class="help-item">
+                        <div class="help-item" id="tutorial-item">
                             <label>使用教學</label>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="how-to-change-password-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                    <label class="auth-switch" id="backToHelpFromHowTo"><i class="fas fa-chevron-left"></i> 返回</label>
+                    </div>
+                    <div class="card-content">
+                    <h2>如何更改密碼</h2>
+                    <ol class="instruction-list">
+                        <li>在主畫面點選右側選單「設定」。</li>
+                        <li>點選「個人檔案」。</li>
+                        <li>在選單中點選「變更密碼」。</li>
+                        <li>輸入目前密碼、新密碼與確認密碼，然後按下「儲存」。</li>
+                        <li>密碼變更成功後，會自動返回個人檔案頁面。</li>
+                    </ol>
+                    <p class="tip">⚠️ 新密碼需至少 6 個字元，且兩次輸入必須一致。</p>
+                    </div>
+                </div>
+            </div>
+            <div id="tutorial-content" class="main-content-page hidden">
+                <div class="card">
+                    <div class="card-header">
+                    <label class="auth-switch" id="backToHelpFromTutorial">
+                        <i class="fas fa-chevron-left"></i> 返回
+                    </label>
+                    </div>
+                    <div class="card-content">
+                    <h2>使用教學</h2>
+                    <ol class="instruction-list">
+                        <li>開啟網站後，請先註冊或登入帳號。</li>
+                        <li>登入成功後，進入主畫面，選擇「每日詞彙」可新增語句並播放發音。</li>
+                        <li>使用「練習模式」觀看影片並跟讀對話，提升口語能力。</li>
+                        <li>進入「智慧定位」，系統會推薦附近場所對應的語句。</li>
+                        <li>透過右上角的個人選單可進行「姓名編輯」、「變更密碼」、「性別設定」等個人化設定。</li>
+                        <li>點選「進度」頁面可查看學習曲線。</li>
+                    </ol>
+                    <div class="tip">
+                        小提醒：請開啟瀏覽器的麥克風與定位權限，以獲得最佳體驗！
+                    </div>
                     </div>
                 </div>
             </div>
@@ -371,11 +480,6 @@
                 </div>
             </div>
         </div>
-        </section>
-</div>
-</div>
-
-</section>
 
     <script>
         
@@ -386,5 +490,6 @@
     <script src="recode.js"></script>
     <script src="resever.js"></script>
     <script src="script.js"></script>
+    <script src="../js_setting.js"></script>
 </body>
 </html>
