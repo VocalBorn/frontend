@@ -68,9 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
     switchSettingPage("profile-content");
   });
 
-  el("change-password")?.addEventListener("click", () => {
-    switchSettingPage("change-password-content");
-  });
+  el("changePassword")?.addEventListener("click", () => {
+  switchSettingPage("change-password-content");
+});
 
   el("backToProfileFromPassword")?.addEventListener("click", () => {
     switchSettingPage("profile-content");
