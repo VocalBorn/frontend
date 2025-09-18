@@ -452,59 +452,185 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // === 每日詞彙 ===
+    // === 每日詞彙（含 localStorage、滑鼠/觸控拖曳、長按啟用） ===
     const inputField = document.getElementById('dailyTermInput');
     const addButton = document.getElementById('addDailyTermButton');
     const termsList = document.getElementById('dailyTermsList');
 
-    if (inputField && addButton && termsList) {
-        addButton.addEventListener('click', () => {
-            const termText = inputField.value.trim();
-            if (termText === '') {
-                showMessage('請輸入詞彙');
-                return;
-            }
-
-            const termItem = document.createElement('button');
-            termItem.classList.add('term-item');
-            termItem.innerHTML = `
-                <div class="term-text">
-                    <i class="fa-solid fa-volume-up play-icon"></i>
-                    <span>${termText}</span>
-                </div>
-                <button class="delete-term-button">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            `;
-
-            termItem.querySelector('.play-icon').addEventListener('click', (event) => {
-                event.stopPropagation();
-                let utterance = new SpeechSynthesisUtterance(termText);
-                speechSynthesis.speak(utterance);
-            });
-
-            termItem.querySelector('.delete-term-button').addEventListener('click', (event) => {
-                event.stopPropagation();
-                termItem.remove();
-            });
-
-            termsList.appendChild(termItem);
-            inputField.value = '';
-        });
-
-        const playButton = document.getElementById('playDailyTermButton');
-        if (playButton) {
-            playButton.addEventListener('click', () => {
-                const termText = inputField.value.trim();
-                if (termText === '') {
-                    showMessage('請輸入詞彙');
-                    return;
-                }
-                let utterance = new SpeechSynthesisUtterance(termText);
-                speechSynthesis.speak(utterance);
-            });
-        }
+    // ----- 工具函式：儲存/載入/更新順序 -----
+    function saveTerms(terms) {
+    localStorage.setItem('dailyTerms', JSON.stringify(terms));
     }
+
+    function loadTerms() {
+    return JSON.parse(localStorage.getItem('dailyTerms') || '[]');
+    }
+
+    function updateOrder() {
+    const newOrder = [...termsList.querySelectorAll('.term-item .term-text span')]
+        .map(span => span.textContent);
+    saveTerms(newOrder);
+    }
+
+    // 根據指標 Y 座標找出應插入的目標元素（容器中最接近且在下方的元素）
+    function getDragAfterElement(container, y) {
+    const items = [...container.querySelectorAll('.term-item:not(.dragging)')];
+    return items.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - (box.top + box.height / 2);
+        if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+        } else {
+        return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // ----- 建立單一句子項目 -----
+    function createTermItem(termText) {
+    const termItem = document.createElement('div');
+    termItem.classList.add('term-item');
+    termItem.setAttribute('draggable', 'false'); // 預設不能拖曳（長按後才啟用）
+
+    termItem.innerHTML = `
+        <div class="term-text">
+        <span>${termText}</span>
+        </div>
+        <button class="delete-term-button" title="刪除">
+        <i class="fa-solid fa-trash"></i>
+        </button>
+    `;
+
+    // --- 播放（點整行）---
+    termItem.addEventListener('click', () => {
+        // 若處於拖曳準備/拖曳中，不觸發播放
+        if (termItem.classList.contains('drag-ready') || termItem.classList.contains('dragging')) return;
+        speechSynthesis.speak(new SpeechSynthesisUtterance(termText));
+    });
+
+    // --- 刪除 ---
+    termItem.querySelector('.delete-term-button').addEventListener('click', (e) => {
+        e.stopPropagation();
+        termItem.remove();
+        const terms = loadTerms().filter(t => t !== termText);
+        saveTerms(terms);
+    });
+
+    // --- 滑鼠：長按 1 秒啟用原生拖曳 ---
+    let pressTimer;
+    termItem.addEventListener('mousedown', () => {
+        pressTimer = setTimeout(() => {
+        termItem.setAttribute('draggable', 'true');
+        termItem.classList.add('drag-ready');
+        }, 1000);
+    });
+    termItem.addEventListener('mouseup', () => clearTimeout(pressTimer));
+    termItem.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+
+    // 原生 drag 事件（滑鼠）
+    termItem.addEventListener('dragstart', (e) => {
+        termItem.classList.add('dragging');
+        // 提升拖曳影像可見度（可省略）
+        if (e.dataTransfer && e.target) {
+        e.dataTransfer.setData('text/plain', termText);
+        }
+    });
+
+    termItem.addEventListener('dragend', () => {
+        termItem.classList.remove('dragging', 'drag-ready');
+        termItem.setAttribute('draggable', 'false'); // 拖完關閉拖曳
+        updateOrder();
+    });
+
+    // --- 觸控：長按 1 秒進入「手動拖曳」模式（不靠原生 drag）---
+    let touchLongPressTimer;
+    let draggingByTouch = false;
+
+    termItem.addEventListener('touchstart', (e) => {
+        // 若有多指觸控，忽略
+        if (e.touches.length !== 1) return;
+        touchLongPressTimer = setTimeout(() => {
+        draggingByTouch = true;
+        termItem.classList.add('dragging');
+        }, 1000);
+    }, { passive: true });
+
+    termItem.addEventListener('touchmove', (e) => {
+        if (!draggingByTouch) return;
+        const touch = e.touches[0];
+        e.preventDefault(); // 防止頁面捲動
+        const afterElement = getDragAfterElement(termsList, touch.clientY);
+        if (!afterElement) {
+        termsList.appendChild(termItem);
+        } else {
+        termsList.insertBefore(termItem, afterElement);
+        }
+    }, { passive: false });
+
+    termItem.addEventListener('touchend', () => {
+        clearTimeout(touchLongPressTimer);
+        if (draggingByTouch) {
+        draggingByTouch = false;
+        termItem.classList.remove('dragging');
+        updateOrder();
+        }
+    });
+
+    termItem.addEventListener('touchcancel', () => {
+        clearTimeout(touchLongPressTimer);
+        if (draggingByTouch) {
+        draggingByTouch = false;
+        termItem.classList.remove('dragging');
+        }
+    });
+
+    return termItem;
+    }
+
+    // ----- 初始化與事件繫結 -----
+    if (inputField && addButton && termsList) {
+    // 初始載入（從 localStorage 還原）
+    loadTerms().forEach(termText => {
+        termsList.appendChild(createTermItem(termText));
+    });
+
+    // 新增句子
+    addButton.addEventListener('click', () => {
+        const termText = inputField.value.trim();
+        if (!termText) {
+        showMessage('請輸入詞彙');
+        return;
+        }
+
+        // 避免重複（可選）
+        const current = loadTerms();
+        if (current.includes(termText)) {
+        showMessage('這個詞彙已存在');
+        return;
+        }
+
+        termsList.appendChild(createTermItem(termText));
+        current.push(termText);
+        saveTerms(current);
+        inputField.value = '';
+    });
+
+    // 容器：原生拖曳（滑鼠）時決定插入位置
+    termsList.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const dragging = document.querySelector('.term-item.dragging');
+        if (!dragging) return;
+        const afterElement = getDragAfterElement(termsList, e.clientY);
+        if (!afterElement) {
+        termsList.appendChild(dragging);
+        } else {
+        termsList.insertBefore(dragging, afterElement);
+        }
+    });
+    }
+
+
+
 
     // 溝通頁面功能
     document.addEventListener("DOMContentLoaded", function() {
