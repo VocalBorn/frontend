@@ -186,7 +186,8 @@
 }
 
 /* ===== 影片頁面返回按鈕 ===== */
-#practice-back-button {
+#practice-back-button,
+#practice-complete-button {
     background-color: var(--primary);
     color: var(--white);
     border: none;
@@ -198,7 +199,7 @@
     width: 200px;
 }
 
-#practice-back-button:hover {
+#practice-back-button,#practice-complete-button:hover {
     background-color: var(--accent);
 }
 
