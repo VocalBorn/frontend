@@ -1,3 +1,4 @@
+
 // 日誌工具，加入時間戳以便除錯
 const log = (message, level = 'info') => {
     const timestamp = new Date().toISOString();
@@ -786,11 +787,11 @@ async function fetchProgressData() {
 
         // 更新卡片
         document.querySelector('.quick-stats .stat-card:nth-child(1) .stat-number')
-            .textContent = data.course_progress.completed_courses;
+            .textContent = data.course_progress.completed_courses; //已完成單元數
         document.querySelector('.quick-stats .stat-card:nth-child(2) .stat-number')
-            .textContent = `${data.course_progress.completion_percentage}%`;
+            .textContent = `${data.course_progress.completion_percentage}%`; //完成比率
         document.querySelector('.quick-stats .stat-card:nth-child(3) .stat-number')
-            .textContent = data.total_sessions.in_progress_sessions;
+            .textContent = (data.course_progress.total_courses)-(data.course_progress.completed_courses); //待完成單元數
 
         // 更新折線圖
         const dailyStats = data.recent_practice.daily_stats || [];
