@@ -127,25 +127,55 @@ document.addEventListener("DOMContentLoaded", () => {
   feedbackInput.value = "";
 
   patient.details.forEach((detail, idx) => {
-    const item = document.createElement("div");
-    item.className = "patient-card";
-    item.innerHTML = `
-      <div class="patient-name">${idx + 1}. ${detail.sentence || ""}</div>
+  const item = document.createElement("div");
+  item.className = "patient-card";
+  item.innerHTML = `
+    <div class="patient-name">${idx + 1}. ${detail.sentence || ""}</div>
 
-      <div class="patient-progress">
-        <div class="audio-header" style="display: flex; align-items: center; gap: 10px;">
-          <h3>患者音訊</h3>
-          <button class="play-audio-btn" data-audio="${detail.audio || ''}">🔊</button>
-        </div>
+    <div class="patient-progress">
+      <div class="audio-header" style="display: flex; align-items: center; gap: 10px;">
+        <h3>患者音訊</h3>
+        <button class="play-audio-btn" data-audio="${detail.audio || ''}">🔊</button>
       </div>
+    </div>
 
-      <div class="patient-status">
-        <label>🤖 AI 回饋</label>
-        <div class="ai-feedback-display">${detail.ai_feedback || '尚無 AI 回饋'}</div>
+    <div class="patient-status">
+      <label>🤖 AI 回饋</label>
+      <div class="ai-feedback-display">${detail.ai_feedback || '尚無 AI 回饋'}</div>
+    </div>
+
+    <!-- 彈出視窗 (不用 id，改用 class) -->
+    <div class="ai-feedback-modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h3>AI 回饋內容</h3>
+        <p>${detail.ai_feedback || '尚無 AI 回饋'}</p>
       </div>
-    `;
-    detailContainer.appendChild(item);
-  });
+    </div>
+  `;
+  detailContainer.appendChild(item);
+});
+
+// 綁定所有 AI 回饋框和對應的 modal
+document.addEventListener("click", (e) => {
+  // 點擊顯示彈窗
+  if (e.target.classList.contains("ai-feedback-display")) {
+    const modal = e.target.closest(".patient-card").querySelector(".ai-feedback-modal");
+    modal.style.display = "flex";
+  }
+
+  // 點擊關閉按鈕
+  if (e.target.classList.contains("close-btn")) {
+    const modal = e.target.closest(".ai-feedback-modal");
+    modal.style.display = "none";
+  }
+
+  // 點擊背景關閉
+  if (e.target.classList.contains("ai-feedback-modal")) {
+    e.target.style.display = "none";
+  }
+});
+
 
   // 音訊播放功能
   detailContainer.querySelectorAll(".play-audio-btn").forEach(btn => {
