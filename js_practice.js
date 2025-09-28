@@ -93,17 +93,18 @@ async function showFeedback(scenarioId, page = 1, limit = 10) {
         if (feedbacks.length === 0) {
             feedbackContainer.innerHTML = `<p>單元 ${scenarioId} 尚無回饋資料</p>`;
         } else {
+            feedbacks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const latestFeedback = feedbacks[0];
+
             feedbackContainer.innerHTML = "";
-            feedbacks.forEach((feedback) => {
-                const item = document.createElement("div");
-                item.className = "feedback-item";
-                item.innerHTML = `
-                    <p><strong>治療師:</strong> ${feedback.therapist_name || "未知"}</p>
-                    <p><strong>回饋內容:</strong> ${feedback.content || "尚無內容"}</p>
-                    <p><strong>日期:</strong> ${feedback.created_at || "未知"}</p>
-                `;
-                feedbackContainer.appendChild(item);
-            });
+            const item = document.createElement("div");
+            item.className = "feedback-item";
+            item.innerHTML = `
+                <p><strong>治療師:</strong> ${latestFeedback.therapist_name || "未知"}</p>
+                <p><strong>回饋內容:</strong> ${latestFeedback.content || "尚無內容"}</p>
+                <p><strong>日期:</strong> ${latestFeedback.created_at || "未知"}</p>
+            `;
+            feedbackContainer.appendChild(item);
         }
 
     } catch (error) {
@@ -395,7 +396,7 @@ async function createPracticeSession(chapterName) {
 
     if (storedSessionId) {
         // 詢問使用者是否延續
-        const continueSession = confirm("是否要延續之前的練習？\n按下『確定』延續，『取消』開始新的練習。");
+        const continueSession = confirm("是否要延續之前的練習？\n按下『好』延續，『取消』開始新的練習。");
 
         if (continueSession) {
             console.log("📌 已有會話，使用現有的 sessionId:", storedSessionId);
