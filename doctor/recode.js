@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
       patientsProgress[index].details = records.map(r => ({
         chapter_id: r.chapter_id,
         practice_session_id: session.practice_session_id,
+        sentence_id: r.sentence_id,
         sentence: r.sentence_content || "",
         audio: r.audio_stream_url || "",
         qualified: false,
@@ -120,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function renderPatientDetails(patient) {
+  async function renderPatientDetails(patient) {
   const title = document.getElementById("detail-patient-name");
   title.textContent = `${patient.name} - ${patient.chapter_name || ""}`;
   detailContainer.innerHTML = "";
@@ -141,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <div class="patient-status">
       <label>🤖 AI 回饋</label>
-      <div class="ai-feedback-display">${detail.ai_feedback || '尚無 AI 回饋'}</div>
+      <div class="ai-feedback-display" data-sentence-id="${detail.sentence_id}"></div>
     </div>
 
     <!-- 彈出視窗 (不用 id，改用 class) -->
@@ -149,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="modal-content">
         <span class="close-btn">&times;</span>
         <h3>AI 回饋內容</h3>
-        <p>${detail.ai_feedback || '尚無 AI 回饋'}</p>
+        <div class="ai-feedback-display" data-sentence-id="${detail.sentence_id}"></div>
       </div>
     </div>
   `;
@@ -189,6 +190,40 @@ document.addEventListener("click", (e) => {
       audio.addEventListener("ended", () => btn.classList.remove("playing"));
     });
   });
+
+  try {
+    const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${patient.practice_session_id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`AI 回饋抓取失敗: ${res.status} - ${errText}`);
+    }
+
+    const data = await res.json();
+    console.log('data',data)
+    // 假設 data.results 是 array
+    data.results.forEach(result => {
+      const feedbackEls = detailContainer.querySelectorAll(
+        `.ai-feedback-display[data-sentence-id="${result.sentence_id}"]`
+      );
+
+      feedbackEls.forEach((el) => {
+        el.textContent =
+          result.analysis_result?.suggestions || "尚無 AI 回饋";
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    detailContainer.querySelectorAll(".ai-feedback-display").forEach(el => {
+      el.textContent = "AI 回饋載入失敗";
+    });
+  }
 }
 
   function switchPage(showSectionId) {
@@ -223,7 +258,7 @@ document.addEventListener("click", (e) => {
     const detailCards = detailContainer.querySelectorAll(".patient-card");
     detailCards.forEach((card, idx) => {
       const toggleBtn = card.querySelector(".toggle-qualified-btn");
-      patient.details[idx].qualified = toggleBtn.textContent === '✅';
+      //patient.details[idx].qualified = toggleBtn.textContent === '✅';
       patient.details[idx].suggestion = feedbackInput.value.trim();
     });
 
@@ -298,7 +333,7 @@ document.addEventListener("click", (e) => {
         console.log("更新回饋 PUT 成功：", updateResult);
       
 
-      alert("回饋已成功提交並更新！");
+      alert("回饋已成功提交！");
     } catch (err) {
       console.error("操作失敗：", err);
       alert("回饋操作失敗");
