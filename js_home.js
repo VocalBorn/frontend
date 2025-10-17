@@ -137,6 +137,11 @@ async function getCheckinStatistics() {
     if (res.ok) {
       const data = await res.json();
       console.log("📊 簽到統計資料:", data);
+        const signInDays = data.total_checkin_days || 1; // 後端回傳簽到天數
+
+        // 找到段落標籤並更新內容
+        const heroParagraph = document.querySelector('.hero-content p');
+        heroParagraph.textContent = `今天是您語言治療的第 ${signInDays} 天，讓我們繼續努力吧！`;
 
     } else {
       console.warn(`⚠️ 查詢失敗: ${res.status}`);

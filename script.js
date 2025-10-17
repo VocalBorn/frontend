@@ -761,12 +761,18 @@ function drawProgressChart(labels, data) {
     progressChartInstance = new Chart(ctx, {
         type: 'line',
         data: { labels, datasets: [{ label:'完成次數', data, borderColor:'#479ac7', backgroundColor:'rgba(71, 154, 199, 0.2)', fill:true }] },
-        options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'天數'}},y:{beginAtZero:true}}}
+        options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'天數'}},y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,   // 刻度固定每格 1
+                        precision: 0   // 移除小數點
+                    }
+                }}}
     });
 }
 async function fetchProgressData() {
     try {
-        const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/overview?recent_days=30", {
+        const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/overview?recent_days=15", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -793,10 +799,35 @@ async function fetchProgressData() {
         document.querySelector('.quick-stats .stat-card:nth-child(3) .stat-number')
             .textContent = (data.course_progress.total_courses)-(data.course_progress.completed_courses); //待完成單元數
 
+        const completedCount = data.course_progress.completed_courses || 0;
+        const accuracy = data.avg_accuracy_last_30_days || 0;
+
+        // 抓取所有 title 和 description
+        const titles = document.querySelectorAll('.achievement-title');
+        const descriptions = document.querySelectorAll('.achievement-description');
+
+        // ✅ 卡片 1：完成練習次數
+        titles[0].textContent = `完成 ${completedCount} 次練習`;
+        descriptions[0].textContent = `恭喜您完成了 ${completedCount} 次練習，繼續加油！`;
+
+        // ✅ 卡片 2：達到準確率
+        titles[1].textContent = `達到 ${accuracy}% 準確率`;
+        descriptions[1].textContent = `您的平均準確率達到了 ${accuracy}% ，保持這個好成績！`;
+
         // 更新折線圖
+        const totalDays = 15;
         const dailyStats = data.recent_practice.daily_stats || [];
-        const labels = dailyStats.map((_, i) => `第 ${i+1} 天`);
-        const completedCounts = dailyStats.map(item => item.completed_sessions || 0);
+
+        // 建立一個長度 15 的陣列，預設值都為 0
+        const completedCounts = Array(totalDays).fill(0);
+
+        // 將有紀錄的天數覆蓋進去
+        dailyStats.forEach((item, index) => {
+            completedCounts[index] = Math.round(item.completed_sessions || 0);
+        });
+
+        // 產生 1~15 天的標籤
+        const labels = Array.from({ length: totalDays }, (_, i) => `第 ${i + 1} 天`);
 
         drawProgressChart(labels, completedCounts);
 
