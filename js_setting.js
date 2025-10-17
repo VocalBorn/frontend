@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function logout() {
     localStorage.removeItem('registeredUser');
     showMessage('您已登出');
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
   }
 
   function savechange() {
