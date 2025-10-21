@@ -483,20 +483,21 @@ async function submitFeedback(index) {
 }
 
   // 綁定事件
-  btnViewLog.addEventListener("click", fetchPatientsOverview);
-  btnBackToHome.addEventListener("click", () => switchPage("home"));
-  btnBackToLog.addEventListener("click", () => switchPage("log-detail"));
+  // 註: 「今日練習」相關功能已移至 recode.js 處理,避免重複綁定
+  // btnViewLog.addEventListener("click", fetchPatientsOverview);
+  // btnBackToHome.addEventListener("click", () => switchPage("home"));
+  // btnBackToLog.addEventListener("click", () => switchPage("log-detail"));
 
-  document.getElementById("patients-container").addEventListener("click", e => {
-    const card = e.target.closest(".patient-card");
-    if (card) {
-      const index = card.dataset.index;
-      if (index !== undefined) {
-        currentPatientIndex = index;
-        fetchPatientPractice(index);
-      }
-    }
-  });
+  // document.getElementById("patients-container").addEventListener("click", e => {
+  //   const card = e.target.closest(".patient-card");
+  //   if (card) {
+  //     const index = card.dataset.index;
+  //     if (index !== undefined) {
+  //       currentPatientIndex = index;
+  //       fetchPatientPractice(index);
+  //     }
+  //   }
+  // });
 
   fetchPatientList();
 });

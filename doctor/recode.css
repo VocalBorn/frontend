@@ -43,7 +43,8 @@
 .patient-status.not-started { color: #ef4444; }
 
 /* 返回按鈕 */
-#back-btn {
+#back-btn,
+#back-to-log-from-session {
   margin-top: auto;
   align-self: center;
   padding: 0.5rem 1.2rem;

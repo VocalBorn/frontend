@@ -1,16 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   const homeSection = document.getElementById("home");
   const logDetailSection = document.getElementById("log-detail");
+  const sessionListSection = document.getElementById("session-list");
   const logDetailDetailSection = document.getElementById("log-detail-detail");
 
   const btnViewLog = document.getElementById("view-log-btn");
   const btnBackToHome = document.getElementById("back-btn");
-  const btnBackToLog = document.getElementById("back-to-log");
+  const btnBackToLogFromSession = document.getElementById("back-to-log-from-session");
+  const btnBackToSession = document.getElementById("back-to-session");
   const btnSubmitDetails = document.getElementById("submit-details");
   const detailContainer = document.getElementById("detail-container");
+  const sessionsContainer = document.getElementById("sessions-container");
 
   let patientsProgress = []; // 全域存放病患資料
-  const USE_API = true;
+  let currentPatientIndex = null; // 當前選擇的病患索引
   const token = localStorage.getItem("token");
 
   // 底部統一回饋 input
@@ -25,44 +28,52 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fetchPatientsOverview() {
-    if (!USE_API) return;
     try {
       const res = await fetch("https://vocalborn.r0930514.work/api/practice/therapist/patients/overview", {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      const data = await res.json();
 
-      patientsProgress = data.patients_overview.map(p => {
-      let status = "";
-      let statusText = "";
-
-      if (p.session_progress && p.session_progress.length > 0) {
-        status = "practicing";
-        statusText = "🎯 正在練習";
-      } else if (p.total_pending_feedback > 0) {
-        status = "in-progress";
-        statusText = "⏳ 待回饋";
-      } else {
-        status = "completed";
-        statusText = "✅ 已回饋";
+      if (!res.ok) {
+        throw new Error(`API 錯誤: ${res.status} - ${res.statusText}`);
       }
 
-      return {
-        id: p.patient_id,
-        name: p.patient_name,
-        progress: `${p.completed_practice_sessions}/${p.total_practice_sessions}`,
-        status,
-        statusText,
-        session_progress: p.session_progress || [],
-        details: []
-      };
-    });
+      const data = await res.json();
 
+      if (!data.patients_overview || data.patients_overview.length === 0) {
+        alert("目前沒有病患資料");
+        return;
+      }
+
+      patientsProgress = data.patients_overview.map(p => {
+        let status = "";
+        let statusText = "";
+
+        if (p.session_progress && p.session_progress.length > 0) {
+          status = "practicing";
+          statusText = "🎯 正在練習";
+        } else if (p.total_pending_feedback > 0) {
+          status = "in-progress";
+          statusText = "⏳ 待回饋";
+        } else {
+          status = "completed";
+          statusText = "✅ 已回饋";
+        }
+
+        return {
+          id: p.patient_id,
+          name: p.patient_name,
+          progress: `${p.completed_practice_sessions}/${p.total_practice_sessions}`,
+          status,
+          statusText,
+          session_progress: p.session_progress || [],
+          details: []
+        };
+      });
 
       renderPatientsProgress();
     } catch (err) {
       console.error("取得總覽失敗：", err);
-      alert("無法取得病患總覽");
+      alert(`無法取得病患總覽: ${err.message}`);
     }
   }
 
@@ -82,26 +93,83 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  async function fetchPatientPractice(index) {
+  function renderSessionsList(patientIndex) {
+    const patient = patientsProgress[patientIndex];
+    if (!patient) {
+      alert("找不到病患資料");
+      return;
+    }
+
+    currentPatientIndex = patientIndex;
+    const sessionNameEl = document.getElementById("session-patient-name");
+    sessionNameEl.textContent = `${patient.name} - 選擇練習會話`;
+
+    sessionsContainer.innerHTML = "";
+
+    if (!patient.session_progress || patient.session_progress.length === 0) {
+      sessionsContainer.innerHTML = "<p>此病患目前沒有任何練習會話</p>";
+      return;
+    }
+
+    patient.session_progress.forEach((session, index) => {
+      const sessionCard = document.createElement("div");
+      sessionCard.className = "patient-card";
+      sessionCard.dataset.sessionIndex = index;
+      sessionCard.innerHTML = `
+        <div class="patient-name">會話 ${index + 1}: ${session.chapter_name || "未命名章節"}</div>
+        <div class="patient-progress">練習時間: ${new Date(session.created_at).toLocaleString('zh-TW')}</div>
+        <div class="patient-status ${session.has_feedback ? 'completed' : 'in-progress'}">
+          ${session.has_feedback ? '✅ 已回饋' : '⏳ 待回饋'}
+        </div>
+      `;
+      sessionsContainer.appendChild(sessionCard);
+    });
+  }
+
+  async function fetchPatientPractice(patientIndex, sessionIndex) {
     try {
-      const patientId = patientsProgress[index].id;
-      const sessionId = patientsProgress[index].session_progress[0]?.practice_session_id;
+      const patient = patientsProgress[patientIndex];
+      if (!patient) {
+        throw new Error("找不到病患資料");
+      }
+
+      const session = patient.session_progress[sessionIndex];
+      if (!session) {
+        throw new Error("找不到會話資料");
+      }
+
+      const patientId = patient.id;
+      const sessionId = session.practice_session_id;
+
+      if (!sessionId) {
+        throw new Error("會話 ID 不存在");
+      }
+
       const res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/patients/${patientId}/practices?practice_session_id=${sessionId}&pending_feedback_only=false`, {
         method: "GET",
         headers: { "Authorization": `Bearer ${token}` }
       });
+
+      if (!res.ok) {
+        throw new Error(`API 錯誤: ${res.status} - ${res.statusText}`);
+      }
+
       const data = await res.json();
 
       if (!data.practice_sessions || data.practice_sessions.length === 0) {
         throw new Error("找不到任何練習會話");
       }
 
-      const session = data.practice_sessions[0];
-      const records = session.practice_records || [];
+      const sessionData = data.practice_sessions[0];
+      const records = sessionData.practice_records || [];
 
-      patientsProgress[index].details = records.map(r => ({
+      if (records.length === 0) {
+        throw new Error("此會話沒有練習紀錄");
+      }
+
+      patientsProgress[patientIndex].details = records.map(r => ({
         chapter_id: r.chapter_id,
-        practice_session_id: session.practice_session_id,
+        practice_session_id: sessionData.practice_session_id,
         sentence_id: r.sentence_id,
         sentence: r.sentence_content || "",
         audio: r.audio_stream_url || "",
@@ -109,15 +177,15 @@ document.addEventListener("DOMContentLoaded", () => {
         suggestion: ""
       }));
 
-      patientsProgress[index].practice_session_id = session.practice_session_id;
-      patientsProgress[index].chapter_id = session.chapter_id;
-      patientsProgress[index].chapter_name = session.chapter_name;
+      patientsProgress[patientIndex].practice_session_id = sessionData.practice_session_id;
+      patientsProgress[patientIndex].chapter_id = sessionData.chapter_id;
+      patientsProgress[patientIndex].chapter_name = sessionData.chapter_name;
 
-      renderPatientDetails(patientsProgress[index]);
+      renderPatientDetails(patientsProgress[patientIndex]);
       switchPage("log-detail-detail");
     } catch (err) {
       console.error("取得病患詳細資料失敗：", err);
-      alert("無法取得詳細資料");
+      alert(`無法取得詳細資料: ${err.message}`);
     }
   }
 
@@ -192,6 +260,10 @@ document.addEventListener("click", (e) => {
   });
 
   try {
+    if (!patient.practice_session_id) {
+      throw new Error("缺少練習會話 ID");
+    }
+
     const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${patient.practice_session_id}`, {
       method: "GET",
       headers: {
@@ -206,8 +278,12 @@ document.addEventListener("click", (e) => {
     }
 
     const data = await res.json();
-    console.log('data',data)
-    // 假設 data.results 是 array
+    console.log('AI 回饋資料:', data);
+
+    if (!data.results || data.results.length === 0) {
+      throw new Error("沒有可用的 AI 回饋資料");
+    }
+
     data.results.forEach(result => {
       const feedbackEls = detailContainer.querySelectorAll(
         `.ai-feedback-display[data-sentence-id="${result.sentence_id}"]`
@@ -219,9 +295,9 @@ document.addEventListener("click", (e) => {
       });
     });
   } catch (err) {
-    console.error(err);
+    console.error("AI 回饋載入錯誤:", err);
     detailContainer.querySelectorAll(".ai-feedback-display").forEach(el => {
-      el.textContent = "AI 回饋載入失敗";
+      el.textContent = `AI 回饋載入失敗: ${err.message}`;
     });
   }
 }
@@ -238,14 +314,37 @@ document.addEventListener("click", (e) => {
   });
 
   btnBackToHome.addEventListener("click", () => switchPage("home"));
-  btnBackToLog.addEventListener("click", () => switchPage("log-detail"));
 
+  btnBackToLogFromSession.addEventListener("click", () => switchPage("log-detail"));
+
+  btnBackToSession.addEventListener("click", () => {
+    if (currentPatientIndex !== null) {
+      renderSessionsList(currentPatientIndex);
+      switchPage("session-list");
+    } else {
+      switchPage("log-detail");
+    }
+  });
+
+  // 點擊病患卡片 -> 顯示會話列表
   document.getElementById("patients-container").addEventListener("click", e => {
     const card = e.target.closest(".patient-card");
     if (card) {
       const index = card.dataset.index;
       if (index !== undefined) {
-        fetchPatientPractice(index);
+        renderSessionsList(index);
+        switchPage("session-list");
+      }
+    }
+  });
+
+  // 點擊會話卡片 -> 顯示詳細資料
+  sessionsContainer.addEventListener("click", e => {
+    const card = e.target.closest(".patient-card");
+    if (card) {
+      const sessionIndex = card.dataset.sessionIndex;
+      if (sessionIndex !== undefined && currentPatientIndex !== null) {
+        fetchPatientPractice(currentPatientIndex, parseInt(sessionIndex));
       }
     }
   });
