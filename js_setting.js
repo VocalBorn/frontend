@@ -29,12 +29,12 @@
 
 // === 切換頁面 ===
 function switchSettingPage(showId, hideIds = []) {
-  document.querySelectorAll(".main-content-page").forEach((page) => {
+  document.querySelectorAll(".page-section").forEach((page) => {
     if (page.id === showId) {
-      page.classList.remove("hidden");
+      page.style.display = "block";
       page.classList.add("active");
     } else {
-      page.classList.add("hidden");
+      page.style.display = "none";
       page.classList.remove("active");
     }
   });
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   el("showSetting")?.addEventListener("click", () => {
-    switchSettingPage("settings-page");
+    switchSettingPage("settings");
   });
 
   el("edit-name")?.addEventListener("click", () => {
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   el("backToSettingfromNotify")?.addEventListener("click", () => {
-    switchSettingPage("settings-page");
+    switchSettingPage("settings");
   });
 
   el("showHelp")?.addEventListener("click", () => {
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   el("backToSettingfromHelp")?.addEventListener("click", () => {
-    switchSettingPage("settings-page");
+    switchSettingPage("settings");
   });
 
   el("how-to-change-password-item")?.addEventListener("click", () => {
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   el("backToSettingfromAbout")?.addEventListener("click", () => {
-    switchSettingPage("settings-page");
+    switchSettingPage("settings");
   });
 });
 
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const el = document.getElementById(id);
         if (el) el.textContent = newName;
       });
-      const nameOnSettings = document.querySelector('#settings-page .username');
+      const nameOnSettings = document.querySelector('#settings .username');
       if (nameOnSettings) nameOnSettings.textContent = newName;
 
       showMessage('姓名已更新！');

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>醫生主畫面</title>
-    <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="doctor.css">
     <link rel="stylesheet" href="doctor_onlinecommunicate.css">
     <link rel="stylesheet" href="patient-list.css">
@@ -252,7 +251,7 @@
         
     <!-- 設定 -->
     <!-- 設定頁面 -->
-            <div id="settings-page" class="main-content-page active">
+            <section id="settings" class="page-section">
                 <div class="setting">
                   <img src="../images/User.jpeg" alt="使用者照片" class="user-pic" />
                   <div class="username">這裡是使用者的名字</div>
@@ -286,10 +285,10 @@
                     }
                     </script>
                 </div>
-            </div>
+            </section>
 
             <!-- 個人檔案頁面 -->
-            <div id="profile-content" class="main-content-page">
+            <section id="profile-content" class="page-section">
             <div class="profile">
                 <div class="profile-container">
                     <div class="profile-item" id="showSetting">
@@ -312,10 +311,10 @@
                         </div>
                 </div>
             </div>
-            </div>
+            </section>
 
             <!-- 姓名編輯頁面 -->
-            <div id="edit-name-content" class="main-content-page hidden">
+            <section id="edit-name-content" class="page-section">
                 <div class="card">
                     <div class="card-header">
                         <div class="edit-name-item" id="backToProfile">
@@ -334,10 +333,10 @@
                         <hr />
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- 性別編輯頁面 -->
-            <div id="edit-gender-content" class="main-content-page hidden">
+            <section id="edit-gender-content" class="page-section">
                 <div class="card">
                     <div class="card-header">
                     <div class="edit-gender-item" id="backToProfileFromGender">
@@ -359,10 +358,10 @@
                     </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- 變更密碼頁面 -->
-            <div id="change-password-content" class="main-content-page">
+            <section id="change-password-content" class="page-section">
                 <div class="card">
                     <div class="card-header">
                     <div class="edit-name-item" id="backToProfileFromPassword">
@@ -390,10 +389,10 @@
                     </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- 通知設定頁面 -->
-            <div id="notification-content" class="main-content-page">
+            <section id="notification-content" class="page-section">
                 <div class="notification">
                     <div class="notification-container">
                         <div class="notification-item" id="backToSettingfromNotify">
@@ -412,10 +411,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- 幫助頁面 -->
-            <div id="help-content" class="main-content-page">
+            <section id="help-content" class="page-section">
                 <div class="help">
                     <div class="help-container">
                         <div class="help-item" id="backToSettingfromHelp">
@@ -431,9 +430,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div id="how-to-change-password-content" class="main-content-page hidden">
+            </section>
+
+            <section id="how-to-change-password-content" class="page-section">
                 <div class="card">
                     <div class="card-header">
                     <label class="auth-switch" id="backToHelpFromHowTo"><i class="fas fa-chevron-left"></i> 返回</label>
@@ -450,8 +449,8 @@
                     <p class="tip">⚠️ 新密碼需至少 6 個字元，且兩次輸入必須一致。</p>
                     </div>
                 </div>
-            </div>
-            <div id="tutorial-content" class="main-content-page hidden">
+            </section>
+            <section id="tutorial-content" class="page-section">
                 <div class="card">
                     <div class="card-header">
                     <label class="auth-switch" id="backToHelpFromTutorial">
@@ -473,9 +472,9 @@
                     </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div id="about-content" class="main-content-page">
+            <section id="about-content" class="page-section">
                 <div class="about">
                     <div class="about-container">
                         <div class="about-item" id="backToSettingfromAbout">
@@ -487,7 +486,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
 
     <script>

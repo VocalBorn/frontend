@@ -140,12 +140,10 @@ function switchPage(showSectionId) {
         patients = await response.json();
       }
 
-      if (!patients || patients.length === 0) {
-        patients = [
-          { client_id: "TEST-001", client_info: { name: "（假資料）王小明", age: 10, gender: "男", diagnosis: "語言發展遲緩", notes: "這是測試假資料" } },
-          { client_id: "TEST-002", client_info: { name: "（假資料）李小美", age: 8, gender: "女", diagnosis: "構音障礙", notes: "每週 2 次治療" } }
-        ];
+      if (!patients) {
+        patients = [];
       }
+
       pairedCountElement.textContent = `目前配對：${patients.length} 位`;
       renderPatientList();
     } catch (error) {
@@ -155,6 +153,19 @@ function switchPage(showSectionId) {
 
   function renderPatientList() {
     patientListContainer.querySelectorAll(".patient-card").forEach(card => card.remove());
+    patientListContainer.querySelectorAll(".no-patient-message").forEach(msg => msg.remove());
+
+    if (patients.length === 0) {
+      const noPatientMsg = document.createElement("div");
+      noPatientMsg.classList.add("no-patient-message");
+      noPatientMsg.textContent = "目前沒有配對的病患";
+      noPatientMsg.style.textAlign = "center";
+      noPatientMsg.style.padding = "20px";
+      noPatientMsg.style.color = "#666";
+      patientListContainer.insertBefore(noPatientMsg, backToHomeBtn);
+      return;
+    }
+
     patients.forEach(item => {
       const client = item.client_info || {};
       const card = document.createElement("div");
@@ -500,22 +511,87 @@ async function submitFeedback(index) {
   // });
 
   fetchPatientList();
+
+  // ==================== 側邊欄切換功能 ====================
+  const sidebar = document.querySelector('.sidebar');
+  const mainContent = document.querySelector('.main-content');
+  const hamburger = document.querySelector('.hamburger');
+  const overlay = document.querySelector('.overlay');
+
+  if (hamburger && sidebar && mainContent && overlay) {
+    // 漢堡選單點擊事件
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('expanded');
+      overlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+      const icon = hamburger.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
+      }
+    });
+
+    // 點擊遮罩層關閉側邊欄
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('collapsed');
+      mainContent.classList.add('expanded');
+      overlay.classList.remove('active');
+      hamburger.classList.remove('active');
+      const icon = hamburger.querySelector('i');
+      if (icon) {
+        icon.classList.add('fa-bars');
+        icon.classList.remove('fa-times');
+      }
+    });
+
+    // 防抖處理螢幕大小調整
+    const debounce = (func, wait) => {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    };
+
+    // 視窗大小調整處理
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        // 桌面版：確保遮罩層隱藏，但保留用戶的側邊欄狀態
+        overlay.classList.remove('active');
+        // 只在初始化時設置預設狀態（側邊欄展開）
+        if (!sidebar.dataset.initialized) {
+          sidebar.classList.remove('collapsed');
+          mainContent.classList.remove('expanded');
+          sidebar.dataset.initialized = 'true';
+        }
+      } else {
+        // 手機版：強制側邊欄收合，主內容擴展
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('expanded');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('active');
+        const icon = hamburger.querySelector('i');
+        if (icon) {
+          icon.classList.add('fa-bars');
+          icon.classList.remove('fa-times');
+        }
+      }
+    };
+
+    // 監聽視窗大小調整事件
+    window.addEventListener('resize', debounce(handleResize, 100));
+
+    // 初始化時執行一次
+    handleResize();
+  } else {
+    console.error('找不到漢堡選單、側邊欄、主內容或遮罩層元素');
+  }
 });
 
-  // ==================== 初始執行 ====================
-  links.forEach(link => {
-    link.addEventListener("click", e => {
-      e.preventDefault();
-      const target = link.getAttribute("data-target");
-      showSection(target);
-    });
-  });
-  
-  //showSection("home");
-
-  function logout() {
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("authToken");
-    window.location.href = "../index.html"; // 這裡換成實際的登入頁
-   }
-
+// 登出函數（全域）
+function logout() {
+  localStorage.removeItem("authToken");
+  sessionStorage.removeItem("authToken");
+  window.location.href = "../index.html";
+}

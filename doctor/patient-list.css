@@ -74,4 +74,23 @@
   cursor: default;
 }
 
+/* ==================== 響應式設計 ==================== */
 
+/* 手機版 - 全寬顯示 */
+@media (max-width: 768px) {
+  .page-section {
+    position: relative;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+}
+
+/* 桌面版 - 側邊欄收合時全寬顯示 */
+@media (min-width: 769px) {
+  .sidebar.collapsed ~ * .page-section,
+  .main-content.expanded .page-section {
+    left: 0;
+    width: 100%;
+  }
+}

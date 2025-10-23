@@ -346,3 +346,50 @@ body {
 .close-btn:hover {
   color: #000;
 }
+
+/* ==================== 響應式設計 ==================== */
+@media (max-width: 768px) {
+  /* 顯示漢堡選單 */
+  .hamburger {
+    display: block;
+  }
+
+  /* 側邊欄預設隱藏 */
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  /* 當側邊欄不是 collapsed 時顯示 */
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+
+  /* 當側邊欄展開時顯示遮罩層 */
+  .sidebar:not(.collapsed) + .overlay {
+    display: block;
+  }
+
+  /* 主內容區域調整 */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+
+  /* 卡片佈局調整 */
+  .dashboard-widgets {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Widget 卡片調整 */
+  .widget-card {
+    min-height: 200px;
+  }
+
+  /* Modal 在手機版的調整 */
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+}
