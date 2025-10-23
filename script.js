@@ -674,7 +674,8 @@ async function initChatSystem() {
         }
 
         currentChatUserId = userProfile.user_id;
-        console.log('當前用戶 ID:', currentChatUserId);
+        console.log('🆔 當前用戶 ID:', currentChatUserId);
+        console.log('🆔 完整用戶資料:', userProfile);
 
         // 檢查 ChatManager 是否可用
         if (typeof ChatManager === 'undefined') {
@@ -1017,6 +1018,16 @@ function createMessageHTML(message) {
     const timeString = formatTime(message.created_at);
     const statusIcon = isSent ? getStatusIcon(message.status) : '';
 
+    // 調試日誌
+    console.log('創建訊息:', {
+        messageId: message.message_id,
+        senderId: message.sender_id,
+        currentUserId: currentChatUserId,
+        isSent: isSent,
+        messageClass: messageClass,
+        content: message.content
+    });
+
     return `
         <div class="${messageClass}" data-message-id="${message.message_id}">
             <div class="message-bubble">
@@ -1044,26 +1055,12 @@ function getStatusIcon(status) {
     }
 }
 
-// 格式化時間
+// 格式化時間（僅顯示時間，避免跑版）
 function formatTime(timestamp) {
     const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    const oneDayMs = 24 * 60 * 60 * 1000;
-
-    // 如果是今天
-    if (diff < oneDayMs && date.getDate() === now.getDate()) {
-        return date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-    }
-    // 如果是昨天
-    else if (diff < 2 * oneDayMs && date.getDate() === now.getDate() - 1) {
-        return '昨天 ' + date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-    }
-    // 其他日期
-    else {
-        return date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }) + ' ' +
-               date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-    }
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
 }
 
 // 滾動到底部
@@ -1095,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastPageState = false; // 追蹤上一次的頁面狀態
 
     // 監聽頁面切換
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
         const instantMessagingPage = document.getElementById('instant-messaging-terms-content');
         if (!instantMessagingPage) return;
 
