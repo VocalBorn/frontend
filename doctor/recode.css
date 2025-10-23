@@ -188,7 +188,7 @@
 .detail-actions .back-btn:hover { background-color: #2563eb; }
 
 .ai-feedback-display {
-  width: 100%;
+  /* width: 100%; */
   padding: 0.5rem;
   border-radius: 8px;
   border: 1px solid #cfe0ff;
@@ -196,7 +196,11 @@
   color: #333;
   margin-top: 0.3rem;
   min-height: 50px;
-  white-space: pre-wrap; /* 保留換行 */
+  /* white-space: pre-wrap; 保留換行 */
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ====== AI 回饋文字框 (平常顯示用) ====== */
