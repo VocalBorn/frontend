@@ -127,7 +127,7 @@ function switchPage(showSectionId) {
   const patientDiagnosisField = document.getElementById("patient-diagnosis");
   const patientNotesField = document.getElementById("patient-notes");
 
-  let patients = [];
+  // patients 陣列已在全局作用域定義（第 526 行），供聊天系統使用
 
   async function fetchPatientList() {
     try {

@@ -290,43 +290,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 }
+
+    // 統一的 switchPage 函數
     const switchPage = (target) => {
-        // 渲染進度圖表
-        // if (target === 'progress' && typeof Chart !== 'undefined') {
-        //     const ctx = document.getElementById('progressChart')?.getContext('2d');
-        //     if (ctx) {
-        //         if (chartInstance) {
-        //             chartInstance.destroy();
-        //         }
-        //         chartInstance = new Chart(ctx, {
-        //             type: 'line',
-        //             data: {
-        //                 labels: ['第1天', '第5天', '第10天', '第15天'],
-        //                 datasets: [{
-        //                     label: '練習完成次數',
-        //                     data: [2, 5, 8, 12],
-        //                     borderColor: '#479ac7',
-        //                     backgroundColor: 'rgba(71, 154, 199, 0.2)',
-        //                     fill: true,
-        //                     tension: 0.4
-        //                 }]
-        //             },
-        //             options: {
-        //                 responsive: true,
-        //                 scales: {
-        //                     y: { beginAtZero: true, title: { display: true, text: '完成次數' } },
-        //                     x: { title: { display: true, text: '日期' } }
-        //                 }
-        //             }
-        //         });
-        //     } else {
-        //         log('找不到 progressChart 元素', 'error');
-        //     }
-        // }
+        log(`切換到頁面: ${target}`);
 
-        
+        // 更新側邊欄導航的 active 狀態
+        navLinks.forEach(l => l.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-link[data-target="${target}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
 
-        // 初始化姓名編輯頁面
+        // 隱藏所有頁面
+        document.querySelectorAll('.main-content-page').forEach(page => {
+            page.classList.remove('active');
+            page.classList.add('hidden');
+        });
+
+        // 顯示目標頁面
+        const targetId = target === 'settings' ? 'settings-page' : `${target}-content`;
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            targetContent.classList.remove('hidden');
+        } else {
+            log(`找不到 ID 為 ${targetId} 的元素`, 'error');
+        }
+
+        // 更新 URL hash
+        location.hash = `#${target}`;
+
+        // 特定頁面的初始化邏輯
+        if (target === 'location-terms') {
+            getLocation();
+        }
+
         if (target === 'edit-name') {
             const nameInput = document.getElementById('nameInput');
             if (nameInput) {
@@ -335,11 +334,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 nameInput.focus();
             }
         }
+
         if (target === 'change-password') {
-        const current = document.getElementById('currentPassword');
-        if (current) current.focus();
+            const current = document.getElementById('currentPassword');
+            if (current) current.focus();
         }
     };
+
+    // 將 switchPage 暴露到全局作用域，使 HTML 的 onclick 可以訪問
+    window.switchPage = switchPage;
 
     // 綁定導航事件
     navLinks.forEach(link => {
@@ -633,48 +636,626 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // 溝通頁面功能
-    document.addEventListener("DOMContentLoaded", function() {
-    const chatInput = document.getElementById("chatInput");
-    const sendButton = document.getElementById("sendButton");
-    const chatMessages = document.getElementById("chatMessages");
+// ========================================
+// 即時溝通聊天系統整合
+// ========================================
+let chatManager = null;
+let currentChatUserId = null;
+let chatSystemInitializing = false; // 防止重複初始化
 
-    // 發送訊息的函數
-    function sendMessage(message) {
-        const messageElement = document.createElement("div");
-        messageElement.classList.add("message", "user-message");
-
-        // 設定時間為 data-time 屬性（供 CSS 顯示）
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        messageElement.setAttribute("data-time", timeString);
-
-        // 設定訊息內容
-        const messageText = document.createElement("span");
-        messageText.textContent = message;
-        messageElement.appendChild(messageText);
-
-        // 將訊息加入畫面
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+// 初始化聊天系統
+async function initChatSystem() {
+    // 如果正在初始化或已經初始化完成，直接返回
+    if (chatSystemInitializing) {
+        console.log('聊天系統正在初始化中，跳過重複請求');
+        return;
     }
 
-    // 發送按鈕事件
-    sendButton.addEventListener("click", function() {
-        const userMessage = chatInput.value.trim();
+    if (chatManager) {
+        console.log('聊天系統已初始化，跳過重複初始化');
+        return;
+    }
 
-        if (userMessage) {
-            sendMessage(userMessage);
-            chatInput.value = ""; // 清空輸入框
+    chatSystemInitializing = true;
+    console.log('開始初始化聊天系統...');
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.error('未找到 token，無法初始化聊天系統');
+        chatSystemInitializing = false;
+        return;
+    }
+
+    try {
+        // 取得當前用戶 ID (從 token 或 API)
+        const userProfile = await fetchUserProfile();
+        if (!userProfile || !userProfile.user_id) {
+            console.error('無法取得用戶資料');
+            chatSystemInitializing = false;
+            return;
+        }
+
+        currentChatUserId = userProfile.user_id;
+        console.log('🆔 當前用戶 ID:', currentChatUserId);
+        console.log('🆔 完整用戶資料:', userProfile);
+
+        // 檢查 ChatManager 是否可用
+        if (typeof ChatManager === 'undefined') {
+            console.error('❌ ChatManager 類別未定義！請檢查 js_chat.js 是否正確載入');
+            chatSystemInitializing = false;
+            return;
+        }
+
+        // 創建聊天管理器實例
+        console.log('正在創建 ChatManager 實例...');
+        chatManager = new ChatManager();
+        console.log('ChatManager 實例創建成功');
+
+        // 註冊事件處理器
+        chatManager.on('connectionChange', handleConnectionChange);
+        chatManager.on('newMessage', handleNewMessage);
+        chatManager.on('messageStatusUpdate', handleMessageStatusUpdate);
+        chatManager.on('typingStatusChange', handleTypingStatusChange);
+        chatManager.on('roomsUpdate', handleRoomsUpdate);
+        chatManager.on('error', handleChatError);
+        console.log('事件處理器註冊完成');
+
+        // 初始化聊天管理器
+        const success = await chatManager.init(token, currentChatUserId);
+
+        if (success) {
+            console.log('✅ 聊天系統初始化成功');
+            setupChatUI();
+        } else {
+            console.error('❌ 聊天系統初始化失敗');
+            chatManager = null; // 重置以便下次重試
+        }
+    } catch (error) {
+        console.error('❌ 初始化聊天系統失敗:', error);
+        chatManager = null; // 重置以便下次重試
+    } finally {
+        chatSystemInitializing = false;
+    }
+}
+
+// 取得用戶資料
+async function fetchUserProfile() {
+    const token = localStorage.getItem("token");
+    try {
+        const response = await fetch('https://vocalborn.r0930514.work/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('取得用戶資料失敗');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('取得用戶資料失敗:', error);
+        return null;
+    }
+}
+
+// 追蹤是否已設定 UI 事件（避免重複綁定）
+let chatUIEventsSetup = false;
+
+// 設定聊天 UI 事件
+function setupChatUI() {
+    // 如果已經設定過，不重複設定
+    if (chatUIEventsSetup) {
+        console.log('聊天 UI 事件已設定，跳過重複設定');
+        return;
+    }
+
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+    const refreshRoomsBtn = document.getElementById("refreshRoomsBtn");
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+    // 發送訊息
+    if (sendButton) {
+        sendButton.addEventListener("click", handleSendMessage);
+    }
+
+    // Enter 鍵發送訊息
+    if (chatInput) {
+        chatInput.addEventListener("keypress", handleChatInputKeypress);
+        chatInput.addEventListener("input", handleChatInputChange);
+    }
+
+    // 重新整理聊天室列表
+    if (refreshRoomsBtn) {
+        refreshRoomsBtn.addEventListener("click", handleRefreshRooms);
+    }
+
+    // 載入更多訊息
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener("click", handleLoadMoreMessages);
+    }
+
+    // 標記為已設定
+    chatUIEventsSetup = true;
+    console.log('聊天 UI 事件設定完成');
+}
+
+// 發送訊息處理函數
+function handleSendMessage() {
+    const chatInput = document.getElementById("chatInput");
+    const message = chatInput.value.trim();
+    if (message && chatManager) {
+        const success = chatManager.sendMessage(message);
+        if (success) {
+            chatInput.value = "";
+        }
+    }
+}
+
+// Enter 鍵處理函數
+function handleChatInputKeypress(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById("sendButton").click();
+    }
+}
+
+// 輸入變化處理函數
+function handleChatInputChange() {
+    if (chatManager && chatManager.isConnected) {
+        chatManager.startTyping();
+    }
+}
+
+// 重新整理聊天室處理函數
+async function handleRefreshRooms() {
+    if (chatManager) {
+        try {
+            console.log('開始重新整理聊天室列表...');
+            await chatManager.loadRooms();
+            console.log('聊天室列表重新整理完成');
+        } catch (error) {
+            console.error('重新整理聊天室失敗:', error);
+        }
+    }
+}
+
+// 載入更多訊息處理函數
+async function handleLoadMoreMessages() {
+    if (chatManager && chatManager.currentRoomId) {
+        try {
+            const currentMessageCount = chatManager.getMessages().length;
+            const result = await chatManager.loadMessages(
+                chatManager.currentRoomId,
+                CONFIG.CHAT.MESSAGE_LIMIT,
+                currentMessageCount
+            );
+
+            // 重新渲染訊息
+            renderMessages(chatManager.getMessages());
+
+            // 如果沒有更多訊息，隱藏按鈕
+            if (!result.hasMore) {
+                document.getElementById("loadMoreContainer").style.display = 'none';
+            }
+        } catch (error) {
+            console.error('載入更多訊息失敗:', error);
+        }
+    }
+}
+
+// 處理連線狀態變更
+function handleConnectionChange(isConnected) {
+    const statusElement = document.getElementById("chatConnectionStatus");
+    const statusText = document.getElementById("connectionStatusText");
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendButton");
+
+    if (statusElement) {
+        statusElement.className = isConnected ? 'chat-connection-status connected' : 'chat-connection-status disconnected';
+    }
+
+    if (statusText) {
+        statusText.textContent = isConnected ? '已連線' : '未連線';
+    }
+
+    // 啟用/禁用輸入框
+    if (chatInput) {
+        chatInput.disabled = !isConnected;
+    }
+
+    if (sendButton) {
+        sendButton.disabled = !isConnected;
+    }
+}
+
+// 處理新訊息
+function handleNewMessage(message) {
+    renderMessage(message);
+    scrollToBottom();
+
+    // 播放通知音效（可選）
+    if (message.sender_id !== currentChatUserId) {
+        playNotificationSound();
+    }
+}
+
+// 處理訊息狀態更新
+function handleMessageStatusUpdate(messageId, status, timestamp) {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageElement) {
+        const statusElement = messageElement.querySelector('.message-status');
+        if (statusElement) {
+            statusElement.innerHTML = getStatusIcon(status);
+        }
+    }
+}
+
+// 處理輸入狀態變更
+function handleTypingStatusChange(isTyping, userName) {
+    const typingIndicator = document.getElementById("typingIndicator");
+    if (typingIndicator) {
+        typingIndicator.style.display = isTyping ? 'flex' : 'none';
+        if (isTyping) {
+            scrollToBottom();
+        }
+    }
+}
+
+// 患者端：獲取已配對的治療師列表
+let pairedTherapists = [];
+
+async function fetchPairedTherapists() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error('未找到 token，無法獲取已配對治療師');
+        return [];
+    }
+
+    try {
+        const response = await fetch("https://vocalborn.r0930514.work/api/pairing/my-therapists", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            pairedTherapists = data.therapists || [];
+            console.log('已獲取配對治療師列表:', pairedTherapists);
+            return pairedTherapists;
+        } else {
+            console.error('獲取配對治療師失敗:', response.statusText);
+            return [];
+        }
+    } catch (error) {
+        console.error('無法取得治療師列表', error);
+        return [];
+    }
+}
+
+// 處理聊天室更新
+async function handleRoomsUpdate(rooms) {
+    // 整合治療師列表和聊天室列表
+    await fetchPairedTherapists();
+    const mergedList = await mergePairedTherapistsWithRooms(rooms, pairedTherapists);
+    renderRoomsList(mergedList);
+}
+
+// 合併已配對治療師和聊天室列表
+async function mergePairedTherapistsWithRooms(rooms, therapists) {
+    if (!therapists || therapists.length === 0) {
+        // 如果沒有治療師資料，只返回聊天室列表（標記為已有聊天室）
+        return rooms.map(room => ({
+            ...room,
+            hasRoom: true
+        }));
+    }
+
+    const mergedList = [];
+    const processedRoomTherapistIds = new Set();
+
+    // 先處理已有聊天室的治療師
+    rooms.forEach(room => {
+        mergedList.push({
+            ...room,
+            hasRoom: true,
+            therapist_id: room.therapist_id,
+            therapist_name: room.therapist_name
+        });
+        if (room.therapist_id) {
+            processedRoomTherapistIds.add(room.therapist_id);
         }
     });
 
-    // 按下 Enter 發送訊息
-    chatInput.addEventListener("keypress", function(event) {
-        if (event.key === "Enter" && chatInput.value.trim() !== "") {
-            sendButton.click();
+    // 再處理已配對但未建立聊天室的治療師
+    therapists.forEach(therapist => {
+        if (!processedRoomTherapistIds.has(therapist.therapist_id)) {
+            mergedList.push({
+                therapist_id: therapist.therapist_id,
+                therapist_name: therapist.therapist_name || '未知治療師',
+                hasRoom: false,
+                // 保留原始資料以供使用
+                rawTherapistData: therapist
+            });
         }
     });
+
+    return mergedList;
+}
+
+// 處理錯誤
+function handleChatError(message) {
+    console.error('聊天錯誤:', message);
+    alert(message);
+}
+
+// 渲染聊天室列表（混合顯示已有聊天室和已配對治療師）
+function renderRoomsList(mergedList) {
+    const roomsList = document.getElementById("chatRoomsList");
+    if (!roomsList) return;
+
+    if (mergedList.length === 0) {
+        roomsList.innerHTML = `
+            <div class="chat-rooms-empty">
+                <i class="fa-solid fa-inbox"></i>
+                <p>目前沒有配對治療師</p>
+            </div>
+        `;
+        return;
+    }
+
+    roomsList.innerHTML = mergedList.map(item => {
+        const therapistName = item.therapist_name || '未知治療師';
+
+        if (item.hasRoom) {
+            // 已有聊天室的治療師
+            const lastMessageTime = item.last_message_at ? formatTime(item.last_message_at) : '';
+            const unreadBadge = item.unread_count > 0 ? `<span class="unread-badge">${item.unread_count}</span>` : '';
+
+            return `
+                <div class="chat-room-item ${chatManager && chatManager.currentRoomId === item.room_id ? 'active' : ''}"
+                     data-room-id="${item.room_id}"
+                     onclick="selectChatRoom('${item.room_id}')">
+                    <div class="room-avatar">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-name">${therapistName}</div>
+                        <div class="room-last-message">${lastMessageTime}</div>
+                    </div>
+                    ${unreadBadge}
+                </div>
+            `;
+        } else {
+            // 已配對但未建立聊天室的治療師
+            return `
+                <div class="chat-room-item paired-only"
+                     data-therapist-id="${item.therapist_id}">
+                    <div class="room-avatar">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-name">${therapistName}</div>
+                    </div>
+                    <button class="start-chat-btn" onclick="handleCreateRoomWithTherapist('${item.therapist_id}'); event.stopPropagation();">開始對話</button>
+                </div>
+            `;
+        }
+    }).join('');
+}
+
+// 選擇聊天室
+async function selectChatRoom(roomId) {
+    if (!chatManager) return;
+
+    try {
+        // 顯示載入狀態
+        document.getElementById("chatEmptyState").style.display = 'none';
+        document.getElementById("chatActiveContainer").style.display = 'flex';
+
+        // 連接到聊天室
+        await chatManager.connectToRoom(roomId);
+
+        // 更新聊天室名稱
+        const room = chatManager.getCurrentRoom();
+        if (room) {
+            const otherUserName = room.therapist_name || room.client_name || '聊天室';
+            document.getElementById("chatRoomName").textContent = otherUserName;
+        }
+
+        // 渲染訊息
+        renderMessages(chatManager.getMessages());
+
+        // 更新聊天室列表選中狀態
+        document.querySelectorAll('.chat-room-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.roomId === roomId);
+        });
+
+        // 滾動到底部
+        scrollToBottom();
+    } catch (error) {
+        console.error('選擇聊天室失敗:', error);
+        handleChatError('無法連接到聊天室');
+    }
+}
+
+// 患者端建立聊天室（與治療師）
+async function handleCreateRoomWithTherapist(therapistId) {
+    if (!chatManager) {
+        console.error('聊天管理器未初始化');
+        alert('聊天系統尚未就緒，請稍後再試');
+        return;
+    }
+
+    try {
+        console.log('正在為治療師建立聊天室:', therapistId);
+
+        // 顯示載入提示
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = '建立中...';
+        button.disabled = true;
+
+        // 使用 ChatManager 的方法建立聊天室
+        const room = await chatManager.createRoom(therapistId);
+
+        console.log('聊天室建立成功:', room);
+
+        // 建立成功後自動進入聊天室
+        await selectChatRoom(room.room_id);
+
+    } catch (error) {
+        console.error('建立聊天室失敗:', error);
+        alert('建立聊天室失敗: ' + (error.message || '未知錯誤'));
+
+        // 恢復按鈕狀態
+        if (event && event.target) {
+            event.target.textContent = '開始對話';
+            event.target.disabled = false;
+        }
+    }
+}
+
+// 渲染所有訊息
+function renderMessages(messages) {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+
+    chatMessages.innerHTML = messages.map(msg => createMessageHTML(msg)).join('');
+
+    // 標記未讀訊息為已讀
+    const unreadMessages = messages.filter(m =>
+        m.sender_id !== currentChatUserId && m.status !== 'read'
+    );
+    if (unreadMessages.length > 0) {
+        chatManager.markAsRead(unreadMessages.map(m => m.message_id));
+    }
+}
+
+// 渲染單一訊息
+function renderMessage(message) {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+
+    const messageHTML = createMessageHTML(message);
+    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+}
+
+// 創建訊息 HTML
+function createMessageHTML(message) {
+    const isSent = message.sender_id === currentChatUserId;
+    const messageClass = isSent ? 'message message-sent' : 'message message-received';
+    const timeString = formatTime(message.created_at);
+    const statusIcon = isSent ? getStatusIcon(message.status) : '';
+
+    // 調試日誌
+    console.log('創建訊息:', {
+        messageId: message.message_id,
+        senderId: message.sender_id,
+        currentUserId: currentChatUserId,
+        isSent: isSent,
+        messageClass: messageClass,
+        content: message.content
+    });
+
+    return `
+        <div class="${messageClass}" data-message-id="${message.message_id}">
+            <div class="message-bubble">
+                <div class="message-content">${escapeHtml(message.content)}</div>
+                <div class="message-meta">
+                    <span class="message-time">${timeString}</span>
+                    ${isSent ? `<span class="message-status">${statusIcon}</span>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 取得訊息狀態圖示
+function getStatusIcon(status) {
+    switch (status) {
+        case 'sent':
+            return '<i class="fa-solid fa-check"></i>';
+        case 'delivered':
+            return '<i class="fa-solid fa-check-double"></i>';
+        case 'read':
+            return '<i class="fa-solid fa-check-double" style="color: #4396cd;"></i>';
+        default:
+            return '';
+    }
+}
+
+// 格式化時間（僅顯示時間，避免跑版）
+function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+// 滾動到底部
+function scrollToBottom() {
+    const chatMessagesContainer = document.getElementById("chatMessagesContainer");
+    if (chatMessagesContainer) {
+        setTimeout(() => {
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }, 100);
+    }
+}
+
+// 轉義 HTML 特殊字符
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 播放通知音效
+function playNotificationSound() {
+    // 可選：播放音效
+    // const audio = new Audio('/path/to/notification.mp3');
+    // audio.play().catch(e => console.log('無法播放音效:', e));
+}
+
+// 當切換到聊天頁面時初始化
+document.addEventListener('DOMContentLoaded', () => {
+    let lastPageState = false; // 追蹤上一次的頁面狀態
+
+    // 監聽頁面切換
+    const observer = new MutationObserver(() => {
+        const instantMessagingPage = document.getElementById('instant-messaging-terms-content');
+        if (!instantMessagingPage) return;
+
+        const isActive = instantMessagingPage.classList.contains('active');
+
+        // 只在狀態從 false 變為 true 時觸發（避免重複觸發）
+        if (isActive && !lastPageState) {
+            console.log('📱 切換到聊天頁面');
+            lastPageState = true;
+
+            // 切換到聊天頁面，初始化聊天系統
+            if (!chatManager && !chatSystemInitializing) {
+                initChatSystem();
+            }
+        } else if (!isActive && lastPageState) {
+            console.log('👋 離開聊天頁面');
+            lastPageState = false;
+        }
+    });
+
+    const instantMessagingPage = document.getElementById('instant-messaging-terms-content');
+    if (instantMessagingPage) {
+        observer.observe(instantMessagingPage, {
+            attributes: true,
+            attributeFilter: ['class'] // 只監聽 class 屬性變化
+        });
+
+        console.log('🔍 已設定聊天頁面監聽器');
+    }
 });
 
 // home的預約卡片功能
@@ -795,7 +1376,7 @@ async function fetchProgressData() {
         document.querySelector('.quick-stats .stat-card:nth-child(1) .stat-number')
             .textContent = data.course_progress.completed_courses; //已完成單元數
         document.querySelector('.quick-stats .stat-card:nth-child(2) .stat-number')
-            .textContent = `${data.avg_accuracy_last_30_days}%`; //平均準確率
+            .textContent = `${data.avg_accuracy_last_30_days ?? 0}%`; //平均準確率
         document.querySelector('.quick-stats .stat-card:nth-child(3) .stat-number')
             .textContent = (data.course_progress.total_courses)-(data.course_progress.completed_courses); //待完成單元數
 
