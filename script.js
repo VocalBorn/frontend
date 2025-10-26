@@ -290,43 +290,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 }
+
+    // 統一的 switchPage 函數
     const switchPage = (target) => {
-        // 渲染進度圖表
-        // if (target === 'progress' && typeof Chart !== 'undefined') {
-        //     const ctx = document.getElementById('progressChart')?.getContext('2d');
-        //     if (ctx) {
-        //         if (chartInstance) {
-        //             chartInstance.destroy();
-        //         }
-        //         chartInstance = new Chart(ctx, {
-        //             type: 'line',
-        //             data: {
-        //                 labels: ['第1天', '第5天', '第10天', '第15天'],
-        //                 datasets: [{
-        //                     label: '練習完成次數',
-        //                     data: [2, 5, 8, 12],
-        //                     borderColor: '#479ac7',
-        //                     backgroundColor: 'rgba(71, 154, 199, 0.2)',
-        //                     fill: true,
-        //                     tension: 0.4
-        //                 }]
-        //             },
-        //             options: {
-        //                 responsive: true,
-        //                 scales: {
-        //                     y: { beginAtZero: true, title: { display: true, text: '完成次數' } },
-        //                     x: { title: { display: true, text: '日期' } }
-        //                 }
-        //             }
-        //         });
-        //     } else {
-        //         log('找不到 progressChart 元素', 'error');
-        //     }
-        // }
+        log(`切換到頁面: ${target}`);
 
-        
+        // 更新側邊欄導航的 active 狀態
+        navLinks.forEach(l => l.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-link[data-target="${target}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
 
-        // 初始化姓名編輯頁面
+        // 隱藏所有頁面
+        document.querySelectorAll('.main-content-page').forEach(page => {
+            page.classList.remove('active');
+            page.classList.add('hidden');
+        });
+
+        // 顯示目標頁面
+        const targetId = target === 'settings' ? 'settings-page' : `${target}-content`;
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+            targetContent.classList.remove('hidden');
+        } else {
+            log(`找不到 ID 為 ${targetId} 的元素`, 'error');
+        }
+
+        // 更新 URL hash
+        location.hash = `#${target}`;
+
+        // 特定頁面的初始化邏輯
+        if (target === 'location-terms') {
+            getLocation();
+        }
+
         if (target === 'edit-name') {
             const nameInput = document.getElementById('nameInput');
             if (nameInput) {
@@ -335,11 +334,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 nameInput.focus();
             }
         }
+
         if (target === 'change-password') {
-        const current = document.getElementById('currentPassword');
-        if (current) current.focus();
+            const current = document.getElementById('currentPassword');
+            if (current) current.focus();
         }
     };
+
+    // 將 switchPage 暴露到全局作用域，使 HTML 的 onclick 可以訪問
+    window.switchPage = switchPage;
 
     // 綁定導航事件
     navLinks.forEach(link => {
