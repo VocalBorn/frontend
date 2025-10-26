@@ -127,7 +127,7 @@ function switchPage(showSectionId) {
   const patientDiagnosisField = document.getElementById("patient-diagnosis");
   const patientNotesField = document.getElementById("patient-notes");
 
-  let patients = [];
+  // patients 陣列已在全局作用域定義（第 526 行），供聊天系統使用
 
   async function fetchPatientList() {
     try {
@@ -523,6 +523,7 @@ console.log('🏥 治療師端聊天系統代碼已載入');
 let chatManager = null;
 let currentChatUserId = null;
 let chatSystemInitializing = false; // 防止重複初始化
+let patients = []; // 全局患者列表，供聊天系統使用
 
 // 初始化聊天系統
 async function initChatSystem() {
@@ -787,8 +788,52 @@ function handleTypingStatusChange(isTyping, userName) {
 }
 
 // 處理聊天室更新
-function handleRoomsUpdate(rooms) {
-    renderRoomsList(rooms);
+async function handleRoomsUpdate(rooms) {
+    // 整合患者列表和聊天室列表
+    const mergedList = await mergePairedPatientsWithRooms(rooms, patients);
+    renderRoomsList(mergedList);
+}
+
+// 合併已配對患者和聊天室列表
+async function mergePairedPatientsWithRooms(rooms, patients) {
+    if (!patients || patients.length === 0) {
+        // 如果沒有患者資料，只返回聊天室列表（標記為已有聊天室）
+        return rooms.map(room => ({
+            ...room,
+            hasRoom: true
+        }));
+    }
+
+    const mergedList = [];
+    const processedRoomClientIds = new Set();
+
+    // 先處理已有聊天室的患者
+    rooms.forEach(room => {
+        mergedList.push({
+            ...room,
+            hasRoom: true,
+            client_id: room.client_id,
+            client_name: room.client_name
+        });
+        if (room.client_id) {
+            processedRoomClientIds.add(room.client_id);
+        }
+    });
+
+    // 再處理已配對但未建立聊天室的患者
+    patients.forEach(patient => {
+        if (!processedRoomClientIds.has(patient.client_id)) {
+            mergedList.push({
+                client_id: patient.client_id,
+                client_name: patient.client_info?.name || '未知患者',
+                hasRoom: false,
+                // 保留原始資料以供使用
+                rawPatientData: patient
+            });
+        }
+    });
+
+    return mergedList;
 }
 
 // 處理錯誤
@@ -797,40 +842,58 @@ function handleChatError(message) {
     alert(message);
 }
 
-// 渲染聊天室列表
-function renderRoomsList(rooms) {
+// 渲染聊天室列表（混合顯示已有聊天室和已配對患者）
+function renderRoomsList(mergedList) {
     const roomsList = document.getElementById("chatRoomsList");
     if (!roomsList) return;
 
-    if (rooms.length === 0) {
+    if (mergedList.length === 0) {
         roomsList.innerHTML = `
             <div class="chat-rooms-empty">
                 <i class="fas fa-inbox"></i>
-                <p>目前沒有聊天室</p>
+                <p>目前沒有配對患者</p>
             </div>
         `;
         return;
     }
 
-    roomsList.innerHTML = rooms.map(room => {
-        const patientName = room.client_name || '未知病患';
-        const lastMessageTime = room.last_message_at ? formatTime(room.last_message_at) : '';
-        const unreadBadge = room.unread_count > 0 ? `<span class="unread-badge">${room.unread_count}</span>` : '';
+    roomsList.innerHTML = mergedList.map(item => {
+        const patientName = item.client_name || '未知患者';
 
-        return `
-            <div class="chat-room-item ${chatManager.currentRoomId === room.room_id ? 'active' : ''}"
-                 data-room-id="${room.room_id}"
-                 onclick="selectChatRoom('${room.room_id}')">
-                <div class="room-avatar">
-                    <i class="fas fa-user"></i>
+        if (item.hasRoom) {
+            // 已有聊天室的患者
+            const lastMessageTime = item.last_message_at ? formatTime(item.last_message_at) : '';
+            const unreadBadge = item.unread_count > 0 ? `<span class="unread-badge">${item.unread_count}</span>` : '';
+
+            return `
+                <div class="chat-room-item ${chatManager && chatManager.currentRoomId === item.room_id ? 'active' : ''}"
+                     data-room-id="${item.room_id}"
+                     onclick="selectChatRoom('${item.room_id}')">
+                    <div class="room-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-name">${patientName}</div>
+                        <div class="room-last-message">${lastMessageTime}</div>
+                    </div>
+                    ${unreadBadge}
                 </div>
-                <div class="room-info">
-                    <div class="room-name">${patientName}</div>
-                    <div class="room-last-message">${lastMessageTime}</div>
+            `;
+        } else {
+            // 已配對但未建立聊天室的患者
+            return `
+                <div class="chat-room-item paired-only"
+                     data-client-id="${item.client_id}">
+                    <div class="room-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-name">${patientName}</div>
+                    </div>
+                    <button class="start-chat-btn" onclick="handleCreateRoomWithPatient('${item.client_id}'); event.stopPropagation();">開始對話</button>
                 </div>
-                ${unreadBadge}
-            </div>
-        `;
+            `;
+        }
     }).join('');
 }
 
@@ -866,6 +929,43 @@ async function selectChatRoom(roomId) {
     } catch (error) {
         console.error('選擇聊天室失敗:', error);
         handleChatError('無法連接到聊天室');
+    }
+}
+
+// 治療師端建立聊天室（與患者）
+async function handleCreateRoomWithPatient(clientId) {
+    if (!chatManager) {
+        console.error('聊天管理器未初始化');
+        alert('聊天系統尚未就緒，請稍後再試');
+        return;
+    }
+
+    try {
+        console.log('正在為患者建立聊天室:', clientId);
+
+        // 顯示載入提示
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = '建立中...';
+        button.disabled = true;
+
+        // 使用 ChatManager 的新方法建立聊天室
+        const room = await chatManager.createRoomWithClient(clientId);
+
+        console.log('聊天室建立成功:', room);
+
+        // 建立成功後自動進入聊天室
+        await selectChatRoom(room.room_id);
+
+    } catch (error) {
+        console.error('建立聊天室失敗:', error);
+        alert('建立聊天室失敗: ' + (error.message || '未知錯誤'));
+
+        // 恢復按鈕狀態
+        if (event && event.target) {
+            event.target.textContent = '開始對話';
+            event.target.disabled = false;
+        }
     }
 }
 

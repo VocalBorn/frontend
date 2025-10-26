@@ -903,9 +903,85 @@ function handleTypingStatusChange(isTyping, userName) {
     }
 }
 
+// 患者端：獲取已配對的治療師列表
+let pairedTherapists = [];
+
+async function fetchPairedTherapists() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error('未找到 token，無法獲取已配對治療師');
+        return [];
+    }
+
+    try {
+        const response = await fetch("https://vocalborn.r0930514.work/api/pairing/my-therapists", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            pairedTherapists = data.therapists || [];
+            console.log('已獲取配對治療師列表:', pairedTherapists);
+            return pairedTherapists;
+        } else {
+            console.error('獲取配對治療師失敗:', response.statusText);
+            return [];
+        }
+    } catch (error) {
+        console.error('無法取得治療師列表', error);
+        return [];
+    }
+}
+
 // 處理聊天室更新
-function handleRoomsUpdate(rooms) {
-    renderRoomsList(rooms);
+async function handleRoomsUpdate(rooms) {
+    // 整合治療師列表和聊天室列表
+    await fetchPairedTherapists();
+    const mergedList = await mergePairedTherapistsWithRooms(rooms, pairedTherapists);
+    renderRoomsList(mergedList);
+}
+
+// 合併已配對治療師和聊天室列表
+async function mergePairedTherapistsWithRooms(rooms, therapists) {
+    if (!therapists || therapists.length === 0) {
+        // 如果沒有治療師資料，只返回聊天室列表（標記為已有聊天室）
+        return rooms.map(room => ({
+            ...room,
+            hasRoom: true
+        }));
+    }
+
+    const mergedList = [];
+    const processedRoomTherapistIds = new Set();
+
+    // 先處理已有聊天室的治療師
+    rooms.forEach(room => {
+        mergedList.push({
+            ...room,
+            hasRoom: true,
+            therapist_id: room.therapist_id,
+            therapist_name: room.therapist_name
+        });
+        if (room.therapist_id) {
+            processedRoomTherapistIds.add(room.therapist_id);
+        }
+    });
+
+    // 再處理已配對但未建立聊天室的治療師
+    therapists.forEach(therapist => {
+        if (!processedRoomTherapistIds.has(therapist.therapist_id)) {
+            mergedList.push({
+                therapist_id: therapist.therapist_id,
+                therapist_name: therapist.therapist_name || '未知治療師',
+                hasRoom: false,
+                // 保留原始資料以供使用
+                rawTherapistData: therapist
+            });
+        }
+    });
+
+    return mergedList;
 }
 
 // 處理錯誤
@@ -914,40 +990,58 @@ function handleChatError(message) {
     alert(message);
 }
 
-// 渲染聊天室列表
-function renderRoomsList(rooms) {
+// 渲染聊天室列表（混合顯示已有聊天室和已配對治療師）
+function renderRoomsList(mergedList) {
     const roomsList = document.getElementById("chatRoomsList");
     if (!roomsList) return;
 
-    if (rooms.length === 0) {
+    if (mergedList.length === 0) {
         roomsList.innerHTML = `
             <div class="chat-rooms-empty">
                 <i class="fa-solid fa-inbox"></i>
-                <p>目前沒有聊天室</p>
+                <p>目前沒有配對治療師</p>
             </div>
         `;
         return;
     }
 
-    roomsList.innerHTML = rooms.map(room => {
-        const otherUserName = room.therapist_name || room.client_name || '未知';
-        const lastMessageTime = room.last_message_at ? formatTime(room.last_message_at) : '';
-        const unreadBadge = room.unread_count > 0 ? `<span class="unread-badge">${room.unread_count}</span>` : '';
+    roomsList.innerHTML = mergedList.map(item => {
+        const therapistName = item.therapist_name || '未知治療師';
 
-        return `
-            <div class="chat-room-item ${chatManager.currentRoomId === room.room_id ? 'active' : ''}"
-                 data-room-id="${room.room_id}"
-                 onclick="selectChatRoom('${room.room_id}')">
-                <div class="room-avatar">
-                    <i class="fa-solid fa-user-doctor"></i>
+        if (item.hasRoom) {
+            // 已有聊天室的治療師
+            const lastMessageTime = item.last_message_at ? formatTime(item.last_message_at) : '';
+            const unreadBadge = item.unread_count > 0 ? `<span class="unread-badge">${item.unread_count}</span>` : '';
+
+            return `
+                <div class="chat-room-item ${chatManager && chatManager.currentRoomId === item.room_id ? 'active' : ''}"
+                     data-room-id="${item.room_id}"
+                     onclick="selectChatRoom('${item.room_id}')">
+                    <div class="room-avatar">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-name">${therapistName}</div>
+                        <div class="room-last-message">${lastMessageTime}</div>
+                    </div>
+                    ${unreadBadge}
                 </div>
-                <div class="room-info">
-                    <div class="room-name">${otherUserName}</div>
-                    <div class="room-last-message">${lastMessageTime}</div>
+            `;
+        } else {
+            // 已配對但未建立聊天室的治療師
+            return `
+                <div class="chat-room-item paired-only"
+                     data-therapist-id="${item.therapist_id}">
+                    <div class="room-avatar">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="room-info">
+                        <div class="room-name">${therapistName}</div>
+                    </div>
+                    <button class="start-chat-btn" onclick="handleCreateRoomWithTherapist('${item.therapist_id}'); event.stopPropagation();">開始對話</button>
                 </div>
-                ${unreadBadge}
-            </div>
-        `;
+            `;
+        }
     }).join('');
 }
 
@@ -983,6 +1077,43 @@ async function selectChatRoom(roomId) {
     } catch (error) {
         console.error('選擇聊天室失敗:', error);
         handleChatError('無法連接到聊天室');
+    }
+}
+
+// 患者端建立聊天室（與治療師）
+async function handleCreateRoomWithTherapist(therapistId) {
+    if (!chatManager) {
+        console.error('聊天管理器未初始化');
+        alert('聊天系統尚未就緒，請稍後再試');
+        return;
+    }
+
+    try {
+        console.log('正在為治療師建立聊天室:', therapistId);
+
+        // 顯示載入提示
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = '建立中...';
+        button.disabled = true;
+
+        // 使用 ChatManager 的方法建立聊天室
+        const room = await chatManager.createRoom(therapistId);
+
+        console.log('聊天室建立成功:', room);
+
+        // 建立成功後自動進入聊天室
+        await selectChatRoom(room.room_id);
+
+    } catch (error) {
+        console.error('建立聊天室失敗:', error);
+        alert('建立聊天室失敗: ' + (error.message || '未知錯誤'));
+
+        // 恢復按鈕狀態
+        if (event && event.target) {
+            event.target.textContent = '開始對話';
+            event.target.disabled = false;
+        }
     }
 }
 

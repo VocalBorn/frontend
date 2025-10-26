@@ -93,7 +93,7 @@ class ChatManager {
   }
 
   /**
-   * 建立或取得聊天室 (僅患者可用)
+   * 建立或取得聊天室 (患者端使用)
    * @param {string} therapistId - 治療師 ID
    */
   async createRoom(therapistId) {
@@ -106,6 +106,50 @@ class ChatManager {
         },
         body: JSON.stringify({
           therapist_id: therapistId
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '建立聊天室失敗');
+      }
+
+      const room = await response.json();
+
+      // 更新聊天室列表
+      const existingIndex = this.rooms.findIndex(r => r.room_id === room.room_id);
+      if (existingIndex >= 0) {
+        this.rooms[existingIndex] = room;
+      } else {
+        this.rooms.unshift(room);
+      }
+
+      // 觸發聊天室更新事件
+      if (this.eventHandlers.onRoomsUpdate) {
+        this.eventHandlers.onRoomsUpdate(this.rooms);
+      }
+
+      return room;
+    } catch (error) {
+      console.error('建立聊天室失敗:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 建立或取得聊天室 (治療師端使用)
+   * @param {string} clientId - 患者 ID
+   */
+  async createRoomWithClient(clientId) {
+    try {
+      const response = await fetch(CONFIG.getChatApiUrl('/rooms'), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          client_id: clientId
         })
       });
 
