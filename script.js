@@ -1376,7 +1376,7 @@ async function fetchProgressData() {
         document.querySelector('.quick-stats .stat-card:nth-child(1) .stat-number')
             .textContent = data.course_progress.completed_courses; //已完成單元數
         document.querySelector('.quick-stats .stat-card:nth-child(2) .stat-number')
-            .textContent = `${data.avg_accuracy_last_30_days}%`; //平均準確率
+            .textContent = `${data.avg_accuracy_last_30_days ?? 0}%`; //平均準確率
         document.querySelector('.quick-stats .stat-card:nth-child(3) .stat-number')
             .textContent = (data.course_progress.total_courses)-(data.course_progress.completed_courses); //待完成單元數
 
