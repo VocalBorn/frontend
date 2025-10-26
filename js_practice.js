@@ -122,10 +122,11 @@ function closeFeedback() {
     document.getElementById('feedback-modal').classList.add('hidden');
 }
 
-// === AI分析（含 localStorage 快取、順序調整）===
+// === AI分析 ===
 async function showAIAnalysis(scenarioId) {
   console.log("觸發 AI 分析情境：", scenarioId);
 
+  // 顯示 modal、切換畫面、載入分析資料等等
   const modal = document.getElementById("feedback-modal");
   const title = document.getElementById("feedback-title");
   const body = document.getElementById("feedback-body");
@@ -134,150 +135,122 @@ async function showAIAnalysis(scenarioId) {
   title.textContent = `AI 分析 - 單元 ${scenarioId}`;
   body.textContent = "AI 分析結果載入中...";
 
-  const chapterMap = {
-    "1-1 內用": "e5b821e5-c45b-4d6f-83a2-d313f841b94e",
-    "1-2 外帶": "23d1eff4-28fb-479d-bf2d-061255b6ceee",
-    "2-1 看診": "d6cabf94-a777-44a9-9d73-576f38673be6",
-    "2-2 拿藥": "8e005d80-63b3-40c2-9b3f-3f791481be4e",
-    "3-1 結帳":"ab72d2ce-8b32-4c4a-b8a4-26ac6c1246c8",
-    "3-2 詢問價格":"67aef952-cfa9-447c-aa26-c1304740ccf2",
-    "4-1 開戶":"e63c2e89-1893-41ad-920d-f619cc1250d6",
-    "5-1 郵寄":"5b0e6016-1a97-4e45-9d95-beeba5a15f98",
-    "5-2 取件":"5fbfa97d-1ebb-4577-a355-ed1b19e285fd",
-    "6-1 問路":"25f242a6-bfbc-45c7-aecf-04bbcdfae570",
-    "6-2 買票":"d84143ef-db7c-492f-a68e-639e23745687",
-    "7-1 打電話求助":"3c468e5c-c5e9-443a-b79d-54d6185a90c8",
-    "8-1 基本禮貌用語":"450f4d9a-6f0b-4c2b-88b1-9e95a1d077ba",
-    "8-2 打招呼與回應":"ed0398ae-5dd5-42e5-ae02-5dbf54e84ec2"
-  };
+    const chapterMap = {
+        "1-1 內用": "e5b821e5-c45b-4d6f-83a2-d313f841b94e",
+        "1-2 外帶": "23d1eff4-28fb-479d-bf2d-061255b6ceee",
+        "2-1 看診": "d6cabf94-a777-44a9-9d73-576f38673be6",
+        "2-2 拿藥": "8e005d80-63b3-40c2-9b3f-3f791481be4e",
+        "3-1 結帳":"ab72d2ce-8b32-4c4a-b8a4-26ac6c1246c8",
+        "3-2 詢問價格":"67aef952-cfa9-447c-aa26-c1304740ccf2",
+        "4-1 開戶":"e63c2e89-1893-41ad-920d-f619cc1250d6",
+        "5-1 郵寄":"5b0e6016-1a97-4e45-9d95-beeba5a15f98",
+        "5-2 取件":"5fbfa97d-1ebb-4577-a355-ed1b19e285fd",
+        "6-1 問路":"25f242a6-bfbc-45c7-aecf-04bbcdfae570",
+        "6-2 買票":"d84143ef-db7c-492f-a68e-639e23745687",
+        "7-1 打電話求助":"3c468e5c-c5e9-443a-b79d-54d6185a90c8",
+        "8-1 基本禮貌用語":"450f4d9a-6f0b-4c2b-88b1-9e95a1d077ba",
+        "8-2 打招呼與回應":"ed0398ae-5dd5-42e5-ae02-5dbf54e84ec2"
+    };
 
-  const chapterId = chapterMap[scenarioId]; // 哪一章節
-  if (!chapterId) {
-    body.textContent = "❌ 未知的 scenarioId";
-    return;
-  }
+    const chapterId = chapterMap[scenarioId]; //哪一章節
 
-  // localStorage key（以章節為單位儲存）
-  const storageKey = `aiAnalysis_${chapterId}`;
+//   async function getPracticeSession(chapterId, token) {
+//         const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
+//             method: 'POST',
+//             headers: { 'Authorization': `Bearer ${token}`,'Content-Type': 'application/json' },
+//             body: JSON.stringify({ chapter_id: chapterId })
+//         });
+//         if (!res.ok) throw new Error(`取得 practice session 失敗 ${res.status}`);
+//         const data = await res.json();
+//         console.log("data",data)
+//         console.log("practice_session_id",data.practice_session_id)
+//         return data.practice_session_id; // 假設回傳欄位是這個
+//     }
+// const practice_session_id = await getPracticeSession(chapterId, token);
 
-  // 如果沒有 practice_session_id，就試著建立／取得一個（使用你的 API）
-  async function getPracticeSession(chapterId, token) {
-    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chapter_id: chapterId })
-    });
-    if (!res.ok) throw new Error(`取得 practice session 失敗 ${res.status}`);
-    const data = await res.json();
-    // 假設 API 回傳 practice_session_id 欄位
-    return data.practice_session_id || data.id || data.session_id || null;
-  }
+    try {
+            // === 第一步：查詢該章節的所有練習紀錄 ===
+            const sessionsRes = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=10&chapter_id=${chapterId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
 
-  try {
-    // 確保有 practice_session_id；若外部已有定義就會用現有的
-    if (typeof practice_session_id === 'undefined' || !practice_session_id) {
-      try {
-        practice_session_id = await getPracticeSession(chapterId, token);
-        console.log("已建立 practice_session_id:", practice_session_id);
-      } catch (e) {
-        console.warn("無法建立 practice_session_id，將視為僅使用快取資料：", e);
-      }
-    }
+            if (!sessionsRes.ok) {
+                throw new Error(`取得練習紀錄失敗 ${sessionsRes.status}`);
+            }
 
-    let data = null;
-    if (practice_session_id) {
-      const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+            const sessionsData = await sessionsRes.json();
+            console.log("📂 該章節的所有練習紀錄：", sessionsData);
+            
+
+            // === 第二步：抓出最新一筆練習（最後一次） ===
+            if (!sessionsData || !sessionsData.practice_sessions || sessionsData.practice_sessions.length === 0) {
+            body.textContent = "目前沒有可供分析的練習紀錄。";
+            return;
+            }
+
+            // 從物件中取出練習列表
+            const list = sessionsData.practice_sessions;
+            // 過濾出已完成的練習
+            const completedSessions = list.filter(s => s.session_status === "completed");
+
+            if (completedSessions.length === 0) {
+            body.textContent = "目前沒有已完成的練習紀錄。";
+            return;
+            }
+
+            // 依 created_at 由新到舊排序
+            const sortedSessions = completedSessions.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            );
+
+            // 抓出最新一筆
+            const latestSession = sortedSessions[0];
+            const practice_session_id = latestSession.practice_session_id;
+            console.log("🆕 最新練習 session_id:", practice_session_id);
+            let data;
+            const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                data = await res.json();
+            } else {
+                console.warn(`⚠️ API 請求失敗 (狀態碼: ${res.status})，改用假資料`);
+                data = { results: [] };
+            }
+            console.log("📌 AI回饋:", data);
+
+            // === 將回饋顯示到畫面上 ===
+            const feedbackContainer = document.getElementById("feedback-body");
+            feedbackContainer.innerHTML = "";
+
+            if (data.results && data.results.length > 0) {
+                // 反轉順序，讓最早的分析顯示在最前面（建議1）
+                const orderedResults = [...data.results].reverse();
+
+                orderedResults.forEach((r, index) => {
+                    const item = document.createElement("div");
+                    item.className = "feedback-item";
+                    item.innerHTML = `<p><strong>建議 ${index + 1}：</strong> ${r.analysis_result.suggestions}</p>`;
+                    feedbackContainer.appendChild(item);
+                });
+            } else {
+                feedbackContainer.innerHTML = "<p>目前沒有 AI 建議結果</p>";
+            }
+            console.log("📌 AI 回饋已載入", data);
+
+        } catch (error) {
+            console.error("❌ fetch 過程出錯:", error);
+            body.textContent = "❌ AI 分析失敗";
         }
-      });
-
-      if (res.ok) {
-        data = await res.json();
-        // 成功拿到就把結果存到 localStorage（覆蓋）
-        localStorage.setItem(storageKey, JSON.stringify({
-          fetchedAt: Date.now(),
-          practice_session_id,
-          data
-        }));
-      } else {
-        console.warn(`⚠️ API 請求失敗 (狀態碼: ${res.status})，改用快取資料或假資料`);
-      }
-    } else {
-      console.warn("沒有 practice_session_id，改用 localStorage 快取資料（若有）");
-    }
-
-    // 若 data 還是空的，嘗試從 localStorage 讀（作為 fallback）
-    if (!data) {
-      const cached = localStorage.getItem(storageKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        data = parsed.data || { results: [] };
-        console.log("使用快取資料（localStorage）:", parsed);
-      } else {
-        data = { results: [] };
-      }
-    }
-
-    console.log("📌 AI回饋:", data);
-
-    // === 將回饋顯示到畫面上 ===
-    const feedbackContainer = document.getElementById("feedback-body");
-    feedbackContainer.innerHTML = "";
-
-    // 確保 data.results 為陣列
-    const results = Array.isArray(data.results) ? data.results.slice() : [];
-
-    // 重要：調整順序，讓「第一個分析」顯示為 建議 1
-    // 假設 API 回傳為 newest-first（若是 oldest-first，reverse() 將不會破壞順序）
-    // 我們把陣列反轉成「最原始/最早的句子 -> 建議1」
-    results.reverse();
-
-    if (results.length > 0) {
-      results.forEach((r, index) => {
-        const item = document.createElement("div");
-        item.className = "feedback-item";
-        // 假設分析內容在 r.analysis_result.suggestions；為保險也嘗試 r.suggestions 或 r.text
-        const suggestion = (r.analysis_result && r.analysis_result.suggestions) || r.suggestions || r.text || JSON.stringify(r);
-        item.innerHTML = `<p><strong>建議 ${index + 1}：</strong> ${suggestion}</p>`;
-        feedbackContainer.appendChild(item);
-      });
-    } else {
-      feedbackContainer.innerHTML = "<p>目前沒有 AI 建議結果</p>";
-    }
-
-    console.log("📌 AI 回饋已載入", data);
-
-  } catch (error) {
-    console.error("❌ fetch / 處理 過程出錯:", error);
-    body.textContent = "❌ AI 分析失敗，請稍後再試（或確認 token 與網路）";
-
-    // 嘗試顯示快取（若有）
-    const cached = localStorage.getItem(storageKey);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached);
-        const feedbackContainer = document.getElementById("feedback-body");
-        feedbackContainer.innerHTML = "";
-        const results = Array.isArray(parsed.data.results) ? parsed.data.results.slice().reverse() : [];
-        if (results.length > 0) {
-          results.forEach((r, index) => {
-            const item = document.createElement("div");
-            item.className = "feedback-item";
-            const suggestion = (r.analysis_result && r.analysis_result.suggestions) || r.suggestions || r.text || JSON.stringify(r);
-            item.innerHTML = `<p><strong>建議 ${index + 1}：</strong> ${suggestion}</p>`;
-            feedbackContainer.appendChild(item);
-          });
-        } else {
-          feedbackContainer.innerHTML = "<p>目前沒有 AI 建議結果（快取也沒有）</p>";
-        }
-      } catch (e) {
-        console.warn("解析快取失敗：", e);
-      }
-    }
-  }
 }
 function switchMainPage(pageId) {
   const idsToHide = ['practice-content', 'scenario-1-1', 'scenario-1-2', 'practice-video-section'];
