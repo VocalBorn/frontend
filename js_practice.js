@@ -96,15 +96,48 @@ async function showFeedback(scenarioId, page = 1, limit = 10) {
             feedbacks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             const latestFeedback = feedbacks[0];
 
+            // 格式化時間顯示
+            const formatDateTime = (dateString) => {
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            };
+
+            // 更新標題，加入回饋時間
+            const feedbackTime = formatDateTime(latestFeedback.created_at);
+            title.textContent = `單元 ${scenarioId} 的練習回饋 (回饋時間: ${feedbackTime})`;
+
             feedbackContainer.innerHTML = "";
-            const item = document.createElement("div");
-            item.className = "feedback-item";
-            item.innerHTML = `
-                <p><strong>治療師:</strong> ${latestFeedback.therapist_name || "未知"}</p>
-                <p><strong>回饋內容:</strong> ${latestFeedback.content || "尚無內容"}</p>
-                <p><strong>日期:</strong> ${latestFeedback.created_at || "未知"}</p>
+
+            // 建立回饋卡片
+            const feedbackCard = document.createElement("div");
+            feedbackCard.className = "therapist-feedback-card";
+
+            // 治療師資訊區塊
+            const therapistInfo = document.createElement("div");
+            therapistInfo.className = "therapist-info";
+            therapistInfo.innerHTML = `
+                <div class="therapist-header">
+                    <span class="therapist-icon">👨‍⚕️</span>
+                    <div class="therapist-details">
+                        <div class="therapist-name">${latestFeedback.therapist_name || "未知治療師"}</div>
+                        <div class="feedback-date">${feedbackTime}</div>
+                    </div>
+                </div>
             `;
-            feedbackContainer.appendChild(item);
+            feedbackCard.appendChild(therapistInfo);
+
+            // 回饋內容區塊
+            const feedbackContent = document.createElement("div");
+            feedbackContent.className = "therapist-feedback-content";
+            feedbackContent.textContent = latestFeedback.content || "尚無內容";
+            feedbackCard.appendChild(feedbackContent);
+
+            feedbackContainer.appendChild(feedbackCard);
         }
 
     } catch (error) {
@@ -112,7 +145,6 @@ async function showFeedback(scenarioId, page = 1, limit = 10) {
         feedbackContainer.textContent = "載入回饋時發生錯誤";
     }
 
-    title.textContent = `單元 ${scenarioId} 的練習回饋`;
     modal.classList.remove('hidden');
 }
 
@@ -211,6 +243,22 @@ async function showAIAnalysis(scenarioId) {
             const latestSession = sortedSessions[0];
             const practice_session_id = latestSession.practice_session_id;
             console.log("🆕 最新練習 session_id:", practice_session_id);
+
+            // 格式化時間顯示
+            const formatDateTime = (dateString) => {
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            };
+
+            // 更新標題，加入練習時間
+            const practiceTime = formatDateTime(latestSession.begin_time);
+            title.textContent = `AI 分析 - 單元 ${scenarioId} (練習時間: ${practiceTime})`;
+
             let data;
             const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
                 method: "GET",
@@ -232,18 +280,118 @@ async function showAIAnalysis(scenarioId) {
             const feedbackContainer = document.getElementById("feedback-body");
             feedbackContainer.innerHTML = "";
 
+            // 建立練習統計資訊區塊
+            const practiceInfoDiv = document.createElement("div");
+            practiceInfoDiv.className = "practice-session-info";
+
+            const durationMin = Math.floor(latestSession.total_duration / 60);
+            const durationSec = latestSession.total_duration % 60;
+            const durationText = durationMin > 0
+                ? `${durationMin} 分 ${durationSec} 秒`
+                : `${durationSec} 秒`;
+
+            practiceInfoDiv.innerHTML = `
+                <h4>📊 本次練習統計</h4>
+                <div class="practice-stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">開始時間</span>
+                        <span class="stat-value">${formatDateTime(latestSession.begin_time)}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">結束時間</span>
+                        <span class="stat-value">${formatDateTime(latestSession.end_time)}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">練習時長</span>
+                        <span class="stat-value">${durationText}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">完成進度</span>
+                        <span class="stat-value">${latestSession.completed_sentences} / ${latestSession.total_sentences} 句</span>
+                    </div>
+                </div>
+            `;
+            feedbackContainer.appendChild(practiceInfoDiv);
+
+            // 新增分隔線
+            const separator = document.createElement("hr");
+            separator.className = "analysis-separator";
+            feedbackContainer.appendChild(separator);
+
             if (data.results && data.results.length > 0) {
                 // 反轉順序，讓最早的分析顯示在最前面（建議1）
                 const orderedResults = [...data.results].reverse();
 
+                // 新增標題
+                const suggestionsTitle = document.createElement("h4");
+                suggestionsTitle.textContent = "💡 AI 分析建議";
+                suggestionsTitle.style.marginTop = "20px";
+                suggestionsTitle.style.marginBottom = "15px";
+                feedbackContainer.appendChild(suggestionsTitle);
+
                 orderedResults.forEach((r, index) => {
-                    const item = document.createElement("div");
-                    item.className = "feedback-item";
-                    item.innerHTML = `<p><strong>建議 ${index + 1}：</strong> ${r.analysis_result.suggestions}</p>`;
-                    feedbackContainer.appendChild(item);
+                    // 建立主容器
+                    const suggestionCard = document.createElement("div");
+                    suggestionCard.className = "suggestion-card";
+
+                    // 建立標題區塊
+                    const cardHeader = document.createElement("div");
+                    cardHeader.className = "suggestion-card-header";
+                    cardHeader.innerHTML = `
+                        <span class="suggestion-number">建議 ${index + 1}</span>
+                    `;
+                    suggestionCard.appendChild(cardHeader);
+
+                    // 顯示參考句子和使用者說的句子
+                    if (r.analysis_result.similarity) {
+                        const sentenceInfo = document.createElement("div");
+                        sentenceInfo.className = "sentence-comparison";
+
+                        // 計算相似度等級和顏色
+                        const similarity = r.analysis_result.similarity.emb * 100;
+                        let similarityClass = '';
+                        let similarityLabel = '';
+                        if (similarity >= 90) {
+                            similarityClass = 'excellent';
+                            similarityLabel = '優秀';
+                        } else if (similarity >= 70) {
+                            similarityClass = 'good';
+                            similarityLabel = '良好';
+                        } else if (similarity >= 50) {
+                            similarityClass = 'fair';
+                            similarityLabel = '尚可';
+                        } else {
+                            similarityClass = 'poor';
+                            similarityLabel = '需加強';
+                        }
+
+                        sentenceInfo.innerHTML = `
+                            <div class="sentence-row">
+                                <span class="sentence-label">📝 參考句子：</span>
+                                <span class="sentence-text">${r.analysis_result.similarity.txt_ref}</span>
+                            </div>
+                            <div class="sentence-row">
+                                <span class="sentence-label">🎤 您說的是：</span>
+                                <span class="sentence-text">${r.analysis_result.similarity.txt_sam}</span>
+                            </div>
+                            <div class="sentence-row">
+                                <span class="sentence-label">📊 相似度：</span>
+                                <span class="similarity-badge ${similarityClass}">${similarity.toFixed(1)}% - ${similarityLabel}</span>
+                            </div>
+                        `;
+                        suggestionCard.appendChild(sentenceInfo);
+                    }
+
+                    // 建立建議內容
+                    const suggestionContent = document.createElement("div");
+                    suggestionContent.className = "suggestion-content";
+                    suggestionContent.textContent = r.analysis_result.suggestions;
+                    suggestionCard.appendChild(suggestionContent);
+
+                    feedbackContainer.appendChild(suggestionCard);
                 });
             } else {
-                feedbackContainer.innerHTML = "<p>目前沒有 AI 建議結果</p>";
+                feedbackContainer.innerHTML += "<p>目前沒有 AI 建議結果</p>";
             }
             console.log("📌 AI 回饋已載入", data);
 
@@ -645,7 +793,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
             });
 
         const timeLabel = document.createElement('span');
-        timeLabel.innerHTML = `<b>${formatTime(line.start_time)} ~ ${formatTime(line.end_time)}</b> - ${line.content}`;
+        timeLabel.innerHTML = `<b>${formatVideoTime(line.start_time)} ~ ${formatVideoTime(line.end_time)}</b> - ${line.content}`;
 
         // 暫存錄音
         const audioChunksMap = new Map();
@@ -890,7 +1038,8 @@ async function setupScriptButtons(scenarioId,chapterName) {
         window._alreadyFetchingDetail = false;
         window._alreadyFetching = false;
 }
-function formatTime(seconds) {
+// 格式化影片時間（秒數 → MM:SS）
+function formatVideoTime(seconds) {
     const min = Math.floor(seconds / 60).toString().padStart(2, '0');
     const sec = Math.floor(seconds % 60).toString().padStart(2, '0');
     return `${min}:${sec}`;
