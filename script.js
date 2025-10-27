@@ -321,6 +321,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 更新 URL hash
         location.hash = `#${target}`;
 
+        // 當離開情境練習頁面時，重置所有練習狀態
+        if (target !== 'practice') {
+            resetPracticeState();
+        }
+
         // 特定頁面的初始化邏輯
         if (target === 'location-terms') {
             getLocation();
@@ -340,6 +345,56 @@ document.addEventListener('DOMContentLoaded', () => {
             if (current) current.focus();
         }
     };
+
+    // 重置情境練習狀態
+    function resetPracticeState() {
+        // 清空句子卡片容器
+        const videoScriptButtons = document.getElementById('video-script-buttons');
+        if (videoScriptButtons) {
+            videoScriptButtons.innerHTML = '';
+            log('已清空句子卡片');
+        }
+
+        // 隱藏影片播放區域
+        const videoSection = document.getElementById('practice-video-section');
+        if (videoSection) {
+            videoSection.classList.add('practice-hidden');
+            log('已隱藏影片區域');
+        }
+
+        // 隱藏所有單元列表
+        document.querySelectorAll('.scenario-list').forEach(s => s.classList.add('hidden'));
+
+        // 顯示主章節列表
+        const cardContainer = document.getElementById('practice-card-container');
+        if (cardContainer) {
+            cardContainer.classList.remove('hidden');
+            cardContainer.classList.remove('card-grid');
+            cardContainer.classList.add('card-flex');
+        }
+
+        // 顯示英雄區
+        const heroSection = document.querySelector('#practice-content .hero-section');
+        if (heroSection) {
+            heroSection.classList.remove('hidden');
+        }
+
+        // 停止 YouTube 播放
+        if (window.ytPlayer && typeof window.ytPlayer.stopVideo === 'function') {
+            try {
+                window.ytPlayer.stopVideo();
+                log('已停止 YouTube 播放');
+            } catch (e) {
+                log('停止 YouTube 播放時出錯: ' + e, 'warn');
+            }
+        }
+
+        // 重置全域變數，允許下次重新載入
+        window._alreadyFetching = false;
+        window._alreadyFetchingDetail = false;
+
+        log('✅ 情境練習狀態已重置');
+    }
 
     // 將 switchPage 暴露到全局作用域，使 HTML 的 onclick 可以訪問
     window.switchPage = switchPage;
