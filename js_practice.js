@@ -671,12 +671,12 @@ async function setupScriptButtons(scenarioId,chapterName) {
                 // 判斷瀏覽器支援的格式
                 let mimeType = '';
                 let extension = '';
-                if (MediaRecorder.isTypeSupported('audio/webm')) {
+                if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4'; extension = 'm4a'; // 優先使用 m4a
+                } else if (MediaRecorder.isTypeSupported('audio/webm')) {
                     mimeType = 'audio/webm'; extension = 'webm';
                 } else if (MediaRecorder.isTypeSupported('audio/wav')) {
                     mimeType = 'audio/wav'; extension = 'wav';
-                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                    mimeType = 'audio/mp4'; extension = 'm4a'; // Safari 特例
                 } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
                     mimeType = 'audio/ogg'; extension = 'ogg';
                 } else {
