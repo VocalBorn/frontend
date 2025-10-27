@@ -38,6 +38,10 @@
     justify-items: center;
 }
 
+.practice-card-container {
+  margin-top: 10px;
+}
+
 .practice-card {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
