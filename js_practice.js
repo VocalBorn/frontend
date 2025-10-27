@@ -793,7 +793,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
             });
 
         const timeLabel = document.createElement('span');
-        timeLabel.innerHTML = `<b>${formatTime(line.start_time)} ~ ${formatTime(line.end_time)}</b> - ${line.content}`;
+        timeLabel.innerHTML = `<b>${formatVideoTime(line.start_time)} ~ ${formatVideoTime(line.end_time)}</b> - ${line.content}`;
 
         // 暫存錄音
         const audioChunksMap = new Map();
@@ -1038,7 +1038,8 @@ async function setupScriptButtons(scenarioId,chapterName) {
         window._alreadyFetchingDetail = false;
         window._alreadyFetching = false;
 }
-function formatTime(seconds) {
+// 格式化影片時間（秒數 → MM:SS）
+function formatVideoTime(seconds) {
     const min = Math.floor(seconds / 60).toString().padStart(2, '0');
     const sec = Math.floor(seconds % 60).toString().padStart(2, '0');
     return `${min}:${sec}`;
