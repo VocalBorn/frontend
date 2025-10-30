@@ -1310,6 +1310,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         console.log('🔍 已設定聊天頁面監聽器');
+
+        // 檢查頁面載入時是否已經在聊天頁面（例如重新整理頁面時）
+        const isCurrentlyActive = instantMessagingPage.classList.contains('active');
+        if (isCurrentlyActive) {
+            console.log('📱 頁面載入時已在聊天頁面，初始化聊天系統');
+            lastPageState = true;
+            if (!chatManager && !chatSystemInitializing) {
+                initChatSystem();
+            }
+        }
     }
 });
 
