@@ -115,9 +115,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const sessionCard = document.createElement("div");
       sessionCard.className = "patient-card";
       sessionCard.dataset.sessionIndex = index;
+
+      // 嘗試多個可能的時間欄位
+      let timeString = "未知時間";
+      const timeField = session.begin_time || session.created_at || session.start_time;
+      if (timeField) {
+        try {
+          const date = new Date(timeField);
+          if (!isNaN(date.getTime())) {
+            timeString = date.toLocaleString('zh-TW');
+          }
+        } catch (e) {
+          console.error("日期格式錯誤:", e);
+        }
+      }
+
       sessionCard.innerHTML = `
         <div class="patient-name">會話 ${index + 1}: ${session.chapter_name || "未命名章節"}</div>
-        <div class="patient-progress">練習時間: ${new Date(session.created_at).toLocaleString('zh-TW')}</div>
+        <div class="patient-progress">練習時間: ${timeString}</div>
         <div class="patient-status ${session.has_feedback ? 'completed' : 'in-progress'}">
           ${session.has_feedback ? '✅ 已回饋' : '⏳ 待回饋'}
         </div>
@@ -210,15 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <div class="patient-status">
       <label>🤖 AI 回饋</label>
-      <div class="ai-feedback-display" data-sentence-id="${detail.sentence_id}"></div>
+      <div class="ai-feedback-display" data-sentence-id="${detail.sentence_id}" style="cursor: pointer;">點擊查看完整 AI 分析</div>
     </div>
 
     <!-- 彈出視窗 (不用 id，改用 class) -->
     <div class="ai-feedback-modal">
       <div class="modal-content">
         <span class="close-btn">&times;</span>
-        <h3>AI 回饋內容</h3>
-        <div class="ai-feedback-display" data-sentence-id="${detail.sentence_id}"></div>
+        <h3>AI 分析詳情</h3>
+        <div class="ai-feedback-full-content" data-sentence-id="${detail.sentence_id}"></div>
       </div>
     </div>
   `;
@@ -259,11 +274,40 @@ document.addEventListener("click", (e) => {
     });
   });
 
+  // 格式化時間顯示
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
   try {
     if (!patient.practice_session_id) {
       throw new Error("缺少練習會話 ID");
     }
 
+    // 獲取練習會話詳細資訊（包含時間統計）
+    const sessionRes = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=10&practice_session_id=${patient.practice_session_id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    let sessionData = null;
+    if (sessionRes.ok) {
+      const sessions = await sessionRes.json();
+      if (sessions.practice_sessions && sessions.practice_sessions.length > 0) {
+        sessionData = sessions.practice_sessions[0];
+      }
+    }
+
+    // 獲取 AI 分析結果
     const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${patient.practice_session_id}`, {
       method: "GET",
       headers: {
@@ -284,14 +328,118 @@ document.addEventListener("click", (e) => {
       throw new Error("沒有可用的 AI 回饋資料");
     }
 
-    data.results.forEach(result => {
-      const feedbackEls = detailContainer.querySelectorAll(
-        `.ai-feedback-display[data-sentence-id="${result.sentence_id}"]`
+    // 按順序反轉結果（從最早到最晚）
+    const orderedResults = [...data.results].reverse();
+
+    // 為每個句子構建完整的 AI 回饋內容
+    orderedResults.forEach((result, index) => {
+      const fullContentEls = detailContainer.querySelectorAll(
+        `.ai-feedback-full-content[data-sentence-id="${result.sentence_id}"]`
       );
 
-      feedbackEls.forEach((el) => {
-        el.textContent =
-          result.analysis_result?.suggestions || "尚無 AI 回饋";
+      fullContentEls.forEach((el) => {
+        let fullHTML = '';
+
+        // 如果有會話統計資料，顯示練習統計
+        if (sessionData && index === 0) {
+          const durationMin = Math.floor(sessionData.total_duration / 60);
+          const durationSec = sessionData.total_duration % 60;
+          const durationText = durationMin > 0
+            ? `${durationMin} 分 ${durationSec} 秒`
+            : `${durationSec} 秒`;
+
+          fullHTML += `
+            <div class="practice-session-info">
+              <h4>📊 本次練習統計</h4>
+              <div class="practice-stats-grid">
+                <div class="stat-item">
+                  <span class="stat-label">開始時間</span>
+                  <span class="stat-value">${formatDateTime(sessionData.begin_time)}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">結束時間</span>
+                  <span class="stat-value">${formatDateTime(sessionData.end_time)}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">練習時長</span>
+                  <span class="stat-value">${durationText}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">完成進度</span>
+                  <span class="stat-value">${sessionData.completed_sentences} / ${sessionData.total_sentences} 句</span>
+                </div>
+              </div>
+            </div>
+            <hr class="analysis-separator">
+          `;
+        }
+
+        // 構建建議卡片
+        const suggestionCard = document.createElement("div");
+        suggestionCard.className = "suggestion-card";
+
+        // 卡片標題
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "suggestion-card-header";
+        cardHeader.innerHTML = `<span class="suggestion-number">建議 ${index + 1}</span>`;
+        suggestionCard.appendChild(cardHeader);
+
+        // 顯示句子對比和相似度
+        if (result.analysis_result?.similarity) {
+          const sentenceInfo = document.createElement("div");
+          sentenceInfo.className = "sentence-comparison";
+
+          const similarity = result.analysis_result.similarity.emb * 100;
+          let similarityClass = '';
+          let similarityLabel = '';
+          if (similarity >= 90) {
+            similarityClass = 'excellent';
+            similarityLabel = '優秀';
+          } else if (similarity >= 70) {
+            similarityClass = 'good';
+            similarityLabel = '良好';
+          } else if (similarity >= 50) {
+            similarityClass = 'fair';
+            similarityLabel = '尚可';
+          } else {
+            similarityClass = 'poor';
+            similarityLabel = '需加強';
+          }
+
+          sentenceInfo.innerHTML = `
+            <div class="sentence-row">
+              <span class="sentence-label">📝 參考句子：</span>
+              <span class="sentence-text">${result.analysis_result.similarity.txt_ref}</span>
+            </div>
+            <div class="sentence-row">
+              <span class="sentence-label">🎤 患者說的：</span>
+              <span class="sentence-text">${result.analysis_result.similarity.txt_sam}</span>
+            </div>
+            <div class="sentence-row">
+              <span class="sentence-label">📊 相似度：</span>
+              <span class="similarity-badge ${similarityClass}">${similarity.toFixed(1)}% - ${similarityLabel}</span>
+            </div>
+          `;
+          suggestionCard.appendChild(sentenceInfo);
+        }
+
+        // 顯示 AI 建議
+        const suggestionContent = document.createElement("div");
+        suggestionContent.className = "suggestion-content";
+        suggestionContent.textContent = result.analysis_result?.suggestions || "尚無 AI 建議";
+        suggestionCard.appendChild(suggestionContent);
+
+        fullHTML += suggestionCard.outerHTML;
+        el.innerHTML = fullHTML;
+      });
+
+      // 更新簡略顯示框的提示文字
+      const displayEls = detailContainer.querySelectorAll(
+        `.ai-feedback-display[data-sentence-id="${result.sentence_id}"]`
+      );
+      displayEls.forEach((el) => {
+        const shortText = result.analysis_result?.suggestions || "尚無 AI 回饋";
+        el.textContent = shortText.length > 30 ? shortText.substring(0, 30) + '...' : shortText;
       });
     });
   } catch (err) {

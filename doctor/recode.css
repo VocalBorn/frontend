@@ -221,7 +221,7 @@
   background: #f0f0f0;
 }
 
-/* ====== 彈窗背景 (灰色遮罩) ====== */
+/* ====== 彈窗背景 (黑色遮罩) ====== */
 .ai-feedback-modal {
   display: none; /* 預設隱藏 */
   position: fixed;
@@ -230,6 +230,7 @@
   top: 0;
   width: 100%;
   height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* 黑色半透明背景 */
   justify-content: center;
   align-items: center;
 }
@@ -244,7 +245,7 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   animation: fadeIn 0.3s;
   position: relative;
-  text-align: center;
+  text-align: left; /* 改為靠左對齊 */
 }
 
 /* 彈窗內的 AI 回饋文字框 */
@@ -274,6 +275,213 @@
 @keyframes fadeIn {
   from {opacity: 0; transform: translateY(-10px);}
   to {opacity: 1; transform: translateY(0);}
+}
+
+/* ========================================
+   患者端 AI 回饋樣式（與 style_practice.css 一致）
+   ======================================== */
+
+/* 練習統計資訊卡片 */
+.practice-session-info {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #b3d9ff;
+}
+
+.practice-session-info h4 {
+  color: #0056a3;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.practice-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* 分隔線 */
+.analysis-separator {
+  border: none;
+  border-top: 2px solid #e0e0e0;
+  margin: 20px 0;
+}
+
+/* 建議卡片容器 */
+.suggestion-card {
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* 建議卡片標題 */
+.suggestion-card-header {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+  padding: 15px 20px;
+  border-bottom: 2px solid #bbdefb;
+}
+
+.suggestion-number {
+  color: #1976d2;
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestion-number::before {
+  content: "💡";
+  font-size: 1.2rem;
+}
+
+/* 句子對比區塊 */
+.sentence-comparison {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border-left: 5px solid #4a90e2;
+  padding: 20px;
+  margin: 0;
+  border-bottom: 1px solid #e0e8f5;
+}
+
+.sentence-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.sentence-row:last-child {
+  margin-bottom: 0;
+}
+
+.sentence-label {
+  font-weight: 600;
+  color: #0056a3;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.sentence-text {
+  color: #333;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* 相似度徽章 */
+.similarity-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.similarity-badge.excellent {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+}
+
+.similarity-badge.good {
+  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+  color: white;
+}
+
+.similarity-badge.fair {
+  background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+  color: white;
+}
+
+.similarity-badge.poor {
+  background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+  color: white;
+}
+
+/* 建議內容 */
+.suggestion-content {
+  background: #ffffff;
+  padding: 20px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  color: #444;
+  font-size: 0.98rem;
+}
+
+/* 響應式設計 */
+@media screen and (max-width: 768px) {
+  .practice-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+  }
+
+  .sentence-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sentence-label {
+    min-width: auto;
+    margin-bottom: 4px;
+  }
+
+  .suggestion-card-header {
+    padding: 12px 15px;
+  }
+
+  .suggestion-number {
+    font-size: 1.1rem;
+  }
+
+  .suggestion-content {
+    padding: 15px;
+    font-size: 0.95rem;
+  }
+}
+
+/* 更新 modal 寬度以適應更多內容 */
+.ai-feedback-modal .modal-content {
+  width: 800px;
+  max-width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 
