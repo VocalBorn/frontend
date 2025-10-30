@@ -3,6 +3,26 @@
  * 負責 WebSocket 連線、訊息發送/接收、聊天室管理
  */
 
+/**
+ * 時區轉換工具函數
+ * 將 API 回傳的無時區 UTC 時間標記為 UTC,讓瀏覽器自動轉換為本地時區
+ */
+function convertUTCToTaipei(utcTimestamp) {
+  if (!utcTimestamp) return null;
+
+  // 檢查時間字符串是否已包含時區信息
+  const hasTimezone = utcTimestamp.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(utcTimestamp);
+
+  if (hasTimezone) {
+    // 如果已有時區標記,直接返回
+    return utcTimestamp;
+  } else {
+    // 如果沒有時區標記,加上 'Z' 標記為 UTC 時間
+    // 瀏覽器會自動將其轉換為本地時區進行顯示
+    return utcTimestamp + 'Z';
+  }
+}
+
 class ChatManager {
   constructor() {
     this.ws = null;
@@ -78,7 +98,14 @@ class ChatManager {
       }
 
       const data = await response.json();
-      this.rooms = data.rooms || [];
+
+      // 轉換聊天室時間欄位為台北時區
+      this.rooms = (data.rooms || []).map(room => ({
+        ...room,
+        created_at: convertUTCToTaipei(room.created_at),
+        updated_at: convertUTCToTaipei(room.updated_at),
+        last_message_at: convertUTCToTaipei(room.last_message_at)
+      }));
 
       // 觸發聊天室更新事件
       if (this.eventHandlers.onRoomsUpdate) {
@@ -116,12 +143,20 @@ class ChatManager {
 
       const room = await response.json();
 
+      // 轉換聊天室時間欄位為台北時區
+      const convertedRoom = {
+        ...room,
+        created_at: convertUTCToTaipei(room.created_at),
+        updated_at: convertUTCToTaipei(room.updated_at),
+        last_message_at: convertUTCToTaipei(room.last_message_at)
+      };
+
       // 更新聊天室列表
-      const existingIndex = this.rooms.findIndex(r => r.room_id === room.room_id);
+      const existingIndex = this.rooms.findIndex(r => r.room_id === convertedRoom.room_id);
       if (existingIndex >= 0) {
-        this.rooms[existingIndex] = room;
+        this.rooms[existingIndex] = convertedRoom;
       } else {
-        this.rooms.unshift(room);
+        this.rooms.unshift(convertedRoom);
       }
 
       // 觸發聊天室更新事件
@@ -129,7 +164,7 @@ class ChatManager {
         this.eventHandlers.onRoomsUpdate(this.rooms);
       }
 
-      return room;
+      return convertedRoom;
     } catch (error) {
       console.error('建立聊天室失敗:', error);
       throw error;
@@ -160,12 +195,20 @@ class ChatManager {
 
       const room = await response.json();
 
+      // 轉換聊天室時間欄位為台北時區
+      const convertedRoom = {
+        ...room,
+        created_at: convertUTCToTaipei(room.created_at),
+        updated_at: convertUTCToTaipei(room.updated_at),
+        last_message_at: convertUTCToTaipei(room.last_message_at)
+      };
+
       // 更新聊天室列表
-      const existingIndex = this.rooms.findIndex(r => r.room_id === room.room_id);
+      const existingIndex = this.rooms.findIndex(r => r.room_id === convertedRoom.room_id);
       if (existingIndex >= 0) {
-        this.rooms[existingIndex] = room;
+        this.rooms[existingIndex] = convertedRoom;
       } else {
-        this.rooms.unshift(room);
+        this.rooms.unshift(convertedRoom);
       }
 
       // 觸發聊天室更新事件
@@ -173,7 +216,7 @@ class ChatManager {
         this.eventHandlers.onRoomsUpdate(this.rooms);
       }
 
-      return room;
+      return convertedRoom;
     } catch (error) {
       console.error('建立聊天室失敗:', error);
       throw error;
@@ -233,16 +276,25 @@ class ChatManager {
 
       const data = await response.json();
 
+      // 轉換訊息時間欄位為台北時區
+      const convertedMessages = (data.messages || []).map(msg => ({
+        ...msg,
+        created_at: convertUTCToTaipei(msg.created_at),
+        updated_at: convertUTCToTaipei(msg.updated_at),
+        delivered_at: convertUTCToTaipei(msg.delivered_at),
+        read_at: convertUTCToTaipei(msg.read_at)
+      }));
+
       // 如果是初次載入，直接設定訊息
       if (offset === 0) {
-        this.messages = data.messages || [];
+        this.messages = convertedMessages;
       } else {
         // 如果是載入更多，加到前面
-        this.messages = [...(data.messages || []), ...this.messages];
+        this.messages = [...convertedMessages, ...this.messages];
       }
 
       return {
-        messages: data.messages || [],
+        messages: convertedMessages,
         hasMore: data.has_more || false,
         totalCount: data.total_count || 0
       };
@@ -364,21 +416,30 @@ class ChatManager {
       return;
     }
 
+    // 轉換訊息時間欄位為台北時區
+    const convertedMessage = {
+      ...message,
+      created_at: convertUTCToTaipei(message.created_at),
+      updated_at: convertUTCToTaipei(message.updated_at),
+      delivered_at: convertUTCToTaipei(message.delivered_at),
+      read_at: convertUTCToTaipei(message.read_at)
+    };
+
     // 將新訊息加入列表
-    this.messages.push(message);
+    this.messages.push(convertedMessage);
 
     // 觸發新訊息事件
     if (this.eventHandlers.onNewMessage) {
-      this.eventHandlers.onNewMessage(message);
+      this.eventHandlers.onNewMessage(convertedMessage);
     }
 
     // 如果不是自己發送的訊息，自動標記為已讀
-    if (message.sender_id !== this.currentUserId) {
-      this.markAsRead([message.message_id]);
+    if (convertedMessage.sender_id !== this.currentUserId) {
+      this.markAsRead([convertedMessage.message_id]);
     }
 
     // 更新聊天室列表中的最後訊息時間
-    this._updateRoomLastMessage(message);
+    this._updateRoomLastMessage(convertedMessage);
   }
 
   /**
@@ -389,11 +450,12 @@ class ChatManager {
     const message = this.messages.find(m => m.message_id === messageId);
     if (message) {
       message.status = 'delivered';
-      message.delivered_at = deliveredAt;
+      // 轉換時間為台北時區
+      message.delivered_at = convertUTCToTaipei(deliveredAt);
 
       // 觸發訊息狀態更新事件
       if (this.eventHandlers.onMessageStatusUpdate) {
-        this.eventHandlers.onMessageStatusUpdate(messageId, 'delivered', deliveredAt);
+        this.eventHandlers.onMessageStatusUpdate(messageId, 'delivered', message.delivered_at);
       }
     }
   }
@@ -403,15 +465,18 @@ class ChatManager {
    * @private
    */
   _handleMessageRead(messageIds, readAt) {
+    // 轉換時間為台北時區
+    const convertedReadAt = convertUTCToTaipei(readAt);
+
     messageIds.forEach(messageId => {
       const message = this.messages.find(m => m.message_id === messageId);
       if (message) {
         message.status = 'read';
-        message.read_at = readAt;
+        message.read_at = convertedReadAt;
 
         // 觸發訊息狀態更新事件
         if (this.eventHandlers.onMessageStatusUpdate) {
-          this.eventHandlers.onMessageStatusUpdate(messageId, 'read', readAt);
+          this.eventHandlers.onMessageStatusUpdate(messageId, 'read', convertedReadAt);
         }
       }
     });

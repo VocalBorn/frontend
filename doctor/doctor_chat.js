@@ -546,17 +546,17 @@ function formatTime(timestamp) {
 
     // 如果是今天
     if (diff < 86400000 && date.getDate() === now.getDate()) {
-        return date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
 
     // 如果是昨天
     if (diff < 172800000 && date.getDate() === now.getDate() - 1) {
-        return '昨天 ' + date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+        return '昨天 ' + date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
 
     // 其他
     return date.toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }) + ' ' +
-           date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+           date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 // HTML 轉義
