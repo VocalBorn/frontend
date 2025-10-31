@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           const date = new Date(timeField);
           if (!isNaN(date.getTime())) {
-            timeString = date.toLocaleString('zh-TW');
+            timeString = date.toLocaleDateString('zh-TW');
           }
         } catch (e) {
           console.error("日期格式錯誤:", e);
