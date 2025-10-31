@@ -210,6 +210,9 @@ document.addEventListener("DOMContentLoaded", () => {
   detailContainer.innerHTML = "";
   feedbackInput.value = "";
 
+  // 清除之前創建的所有 AI modal（避免累積）
+  document.querySelectorAll(".ai-feedback-modal").forEach(modal => modal.remove());
+
   patient.details.forEach((detail, idx) => {
   const item = document.createElement("div");
   item.className = "patient-card";
@@ -227,31 +230,40 @@ document.addEventListener("DOMContentLoaded", () => {
       <label>🤖 AI 回饋</label>
       <div class="ai-feedback-display" data-sentence-id="${detail.sentence_id}" style="cursor: pointer;">點擊查看完整 AI 分析</div>
     </div>
-
-    <!-- 彈出視窗 (不用 id，改用 class) -->
-    <div class="ai-feedback-modal">
-      <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h3>AI 分析詳情</h3>
-        <div class="ai-feedback-full-content" data-sentence-id="${detail.sentence_id}"></div>
-      </div>
-    </div>
   `;
   detailContainer.appendChild(item);
+
+  // 將 modal 獨立創建並插入到 body（而非 patient-card 內）
+  const modal = document.createElement("div");
+  modal.className = "ai-feedback-modal";
+  modal.setAttribute("data-sentence-id", detail.sentence_id);
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3>AI 分析詳情</h3>
+      <div class="ai-feedback-full-content" data-sentence-id="${detail.sentence_id}"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
 });
 
 // 綁定所有 AI 回饋框和對應的 modal
 document.addEventListener("click", (e) => {
   // 點擊顯示彈窗
   if (e.target.classList.contains("ai-feedback-display")) {
-    const modal = e.target.closest(".patient-card").querySelector(".ai-feedback-modal");
-    modal.style.display = "flex";
+    const sentenceId = e.target.getAttribute("data-sentence-id");
+    const modal = document.querySelector(`.ai-feedback-modal[data-sentence-id="${sentenceId}"]`);
+    if (modal) {
+      modal.style.display = "flex";
+    }
   }
 
   // 點擊關閉按鈕
   if (e.target.classList.contains("close-btn")) {
     const modal = e.target.closest(".ai-feedback-modal");
-    modal.style.display = "none";
+    if (modal) {
+      modal.style.display = "none";
+    }
   }
 
   // 點擊背景關閉
@@ -333,7 +345,7 @@ document.addEventListener("click", (e) => {
 
     // 為每個句子構建完整的 AI 回饋內容
     orderedResults.forEach((result, index) => {
-      const fullContentEls = detailContainer.querySelectorAll(
+      const fullContentEls = document.querySelectorAll(
         `.ai-feedback-full-content[data-sentence-id="${result.sentence_id}"]`
       );
 
