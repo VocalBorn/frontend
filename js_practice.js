@@ -257,7 +257,7 @@ async function showAIAnalysis(scenarioId) {
 
             // 更新標題，加入練習時間
             const practiceTime = formatDateTime(latestSession.begin_time);
-            title.textContent = `AI 分析 - 單元 ${scenarioId} (練習時間: ${practiceTime})`;
+            title.textContent = `AI 分析 - 單元 ${scenarioId}`;
 
             let data;
             const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
@@ -293,14 +293,7 @@ async function showAIAnalysis(scenarioId) {
             practiceInfoDiv.innerHTML = `
                 <h4>📊 本次練習統計</h4>
                 <div class="practice-stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-label">開始時間</span>
-                        <span class="stat-value">${formatDateTime(latestSession.begin_time)}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">結束時間</span>
-                        <span class="stat-value">${formatDateTime(latestSession.end_time)}</span>
-                    </div>
+                    
                     <div class="stat-item">
                         <span class="stat-label">練習時長</span>
                         <span class="stat-value">${durationText}</span>
