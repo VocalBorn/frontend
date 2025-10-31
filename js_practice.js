@@ -202,7 +202,7 @@ async function showAIAnalysis(scenarioId) {
 
     try {
             // === 第一步：查詢該章節的所有練習紀錄 ===
-            const sessionsRes = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=10&chapter_id=${chapterId}`, {
+            const sessionsRes = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=100&chapter_id=${chapterId}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -948,7 +948,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
 
         try {
             const res = await fetch(
-                `https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=10`,
+                `https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=100`,
                 {
                     method: 'GET',
                     headers: {
