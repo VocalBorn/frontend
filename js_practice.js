@@ -655,24 +655,24 @@ async function createPracticeSession(chapterName) {
                 alert("❌ 完成練習失敗：" + err.message);
             }
 
-            //  觸發 AI 分析
-                const triggerRes = await fetch(
-                    `https://vocalborn.r0930514.work/api/ai-analysis/trigger/${practice_session_id}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${token}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({})
-                    }
-                );
+            // //  觸發 AI 分析
+            //     const triggerRes = await fetch(
+            //         `https://vocalborn.r0930514.work/api/ai-analysis/trigger/${practice_session_id}`,
+            //         {
+            //             method: "POST",
+            //             headers: {
+            //                 "Authorization": `Bearer ${token}`,
+            //                 "Content-Type": "application/json"
+            //             },
+            //             body: JSON.stringify({})
+            //         }
+            //     );
 
-                if (!triggerRes.ok) {
-                    const errText = await triggerRes.text();
-                    throw new Error(`觸發 AI 分析失敗 ${triggerRes.status}, 訊息：${errText}`);}
-                const triggerData = await triggerRes.json();
-                console.log("⚡ AI 分析已觸發:", triggerData);
+                // if (!triggerRes.ok) {
+                //     const errText = await triggerRes.text();
+                //     throw new Error(`觸發 AI 分析失敗 ${triggerRes.status}, 訊息：${errText}`);}
+                // const triggerData = await triggerRes.json();
+                // console.log("⚡ AI 分析已觸發:", triggerData);
 
                 // 3️⃣ 等待 AI 分析完成 (先等 3 秒，避免拿不到結果)
                 await new Promise(resolve => setTimeout(resolve, 3000));
