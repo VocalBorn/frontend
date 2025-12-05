@@ -1461,7 +1461,7 @@ async function fetchProgressData() {
         descriptions[1].textContent = `您的平均準確率達到了 ${accuracy}% ，保持這個好成績！`;
 
         // 更新折線圖
-        const totalDays = 15;
+        const totalDays = 7;
         const dailyStats = data.recent_practice.daily_stats || [];
 
         // 建立一個長度 15 的陣列，預設值都為 0
