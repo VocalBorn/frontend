@@ -100,7 +100,7 @@ function getLocation() {
                  // 顯示經緯度在頁面元素中
                 const currentLocation = document.getElementById('currentLocation');
                 if (currentLocation) {
-                    currentLocation.textContent = `目前位置：緯度 ${lat.toFixed(4)}, 經度 ${lon.toFixed(4)}`;
+                    currentLocation.textContent = `緯度 ${lat.toFixed(4)}, 經度 ${lon.toFixed(4)}`;
                 }
                 // 在 recommendedTermsList 上方新增 loadingNearby 提示
                 const recommendedList = document.getElementById('recommendedTermsList');
@@ -162,7 +162,7 @@ function initializeDefaultMap() {
     initializeMap(defaultLat, defaultLon);
     const currentLocation = document.getElementById('currentLocation');
     if (currentLocation) {
-        currentLocation.textContent = '目前位置：無法獲取，顯示預設位置（台北）';
+        currentLocation.textContent = '無法獲取，顯示預設位置（台北）';
     }
 }
 
