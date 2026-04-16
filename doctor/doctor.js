@@ -64,7 +64,7 @@ function switchPage(showSectionId) {
       return;
     }
     try {
-      const res = await fetch("https://vocalborn.r0930514.work/api/pairing/generate-token", {
+      const res = await fetch(CONFIG.getApiUrl("/pairing/generate-token"), {
         method: "POST",
         headers: { 
           "Authorization": "Bearer " + token, 
@@ -131,7 +131,7 @@ function switchPage(showSectionId) {
 
   async function fetchPatientList() {
     try {
-      const response = await fetch("https://vocalborn.r0930514.work/api/therapist/my-clients", {
+      const response = await fetch(CONFIG.getApiUrl("/therapist/my-clients"), {
         method: "GET",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -270,7 +270,7 @@ function switchPage(showSectionId) {
     // }
     let practiceSessionId = null;
     try {
-      const res = await fetch("https://vocalborn.r0930514.work/api/practice/therapist/patients/overview?skip=0&limit=20", {
+      const res = await fetch(CONFIG.getApiUrl("/practice/therapist/patients/overview?skip=0&limit=20"), {
         method: "GET",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -397,7 +397,7 @@ async function fetchPatientPractice(index) {
   try {
     const patientId = patientsProgress[index].id;
     const sessionId = patientsProgress[index].session_progress[0]?.practice_session_id;
-    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/patients/${patientId}/practices?practice_session_id=${sessionId}&pending_feedback_only=false`, {
+    const res = await fetch(CONFIG.getApiUrl(`/practice/therapist/patients/${patientId}/practices?practice_session_id=${sessionId}&pending_feedback_only=false`), {
       method: "GET",
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -470,7 +470,7 @@ async function submitFeedback(index) {
       completed: d.qualified
     })) : [];
 
-    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+    const res = await fetch(CONFIG.getApiUrl(`/practice/therapist/session/${practice_session_id}/feedback`), {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,

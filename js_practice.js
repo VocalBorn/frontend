@@ -6,7 +6,7 @@ async function getPracticeSession(chapterId, token) {
         return practice_session_id; // 直接用現有的，不要重建
     }
 
-    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions`, {
+    const res = await fetch(CONFIG.getApiUrl(`/practice/sessions`), {
         method: 'POST',
         headers: { 
             'Authorization': `Bearer ${token}`,
@@ -65,8 +65,7 @@ async function showFeedback(scenarioId, page = 1, limit = 10) {
 
     try {
         let data;
-        const res = await fetch(
-            `https://vocalborn.r0930514.work/api/practice/patient/feedbacks?page=${page}&limit=${limit}`,
+        const res = await fetch(CONFIG.getApiUrl(`/practice/patient/feedbacks?page=${page}&limit=${limit}`),
             {
                 method: "GET",
                 headers: {
@@ -187,7 +186,7 @@ async function showAIAnalysis(scenarioId) {
     const chapterId = chapterMap[scenarioId]; //哪一章節
 
 //   async function getPracticeSession(chapterId, token) {
-//         const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
+//         const res = await fetch(CONFIG.getApiUrl(`/practice/sessions?chapter_id=${chapterId}`), {
 //             method: 'POST',
 //             headers: { 'Authorization': `Bearer ${token}`,'Content-Type': 'application/json' },
 //             body: JSON.stringify({ chapter_id: chapterId })
@@ -202,7 +201,7 @@ async function showAIAnalysis(scenarioId) {
 
     try {
             // === 第一步：查詢該章節的所有練習紀錄 ===
-            const sessionsRes = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=100&chapter_id=${chapterId}`, {
+            const sessionsRes = await fetch(CONFIG.getApiUrl(`/practice/sessions?skip=0&limit=100&chapter_id=${chapterId}`), {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -260,7 +259,7 @@ async function showAIAnalysis(scenarioId) {
             title.textContent = `AI 分析 - 單元 ${scenarioId}`;
 
             let data;
-            const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${practice_session_id}`, {
+            const res = await fetch(CONFIG.getApiUrl(`/ai-analysis/results/${practice_session_id}`), {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -596,7 +595,7 @@ async function createPracticeSession(chapterName) {
 
     // 沒有舊會話，或使用者選擇建立新會話 → 建立新會話
     try {
-        const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions`, {
+        const res = await fetch(CONFIG.getApiUrl(`/practice/sessions`), {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`,
@@ -638,8 +637,7 @@ async function createPracticeSession(chapterName) {
             }
 
             try {
-                const res = await fetch(
-                    `https://vocalborn.r0930514.work/api/practice/sessions/${practice_session_id}/complete`,
+                const res = await fetch(CONFIG.getApiUrl(`/practice/sessions/${practice_session_id}/complete`),
                     {
                         method: 'PATCH',
                         headers: { 'Authorization': `Bearer ${token}` },
@@ -657,7 +655,7 @@ async function createPracticeSession(chapterName) {
 
             // //  觸發 AI 分析
             //     const triggerRes = await fetch(
-            //         `https://vocalborn.r0930514.work/api/ai-analysis/trigger/${practice_session_id}`,
+            //         CONFIG.getApiUrl(`/ai-analysis/trigger/${practice_session_id}`),
             //         {
             //             method: "POST",
             //             headers: {
@@ -705,7 +703,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
     completePracticeButton();
 
     //取得語句列表
-    const url = `https://vocalborn.r0930514.work/api/situations/chapters/${chapterId}/sentences?skip=0&limit=50`;
+    const url = CONFIG.getApiUrl(`/situations/chapters/${chapterId}/sentences?skip=0&limit=50`);
     let lines = [];
     try {
         const res = await fetch(url, {
@@ -734,7 +732,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
         //取得語句詳情
         for (const line of lines) {
             try {
-                const resDetail = await fetch(`https://vocalborn.r0930514.work/api/situations/sentence/${line.sentence_id}`, {
+                const resDetail = await fetch(CONFIG.getApiUrl(`/situations/sentence/${line.sentence_id}`), {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
@@ -756,7 +754,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
     console.log('開始 fetch detail 迴圈');
 
     // async function getPracticeSession(chapterId, token) {
-    //         const res = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?chapter_id=${chapterId}`, {
+    //         const res = await fetch(CONFIG.getApiUrl(`/practice/sessions?chapter_id=${chapterId}`), {
     //             method: 'POST',
     //             headers: { 'Authorization': `Bearer ${token}`,'Content-Type': 'application/json' },
     //             body: JSON.stringify({ chapter_id: chapterId })
@@ -914,8 +912,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
                 formData.append('audio_file', saved.blob, `recording.${saved.extension}`);
                 formData.append('payload', JSON.stringify(payload));
                 // 4️⃣ 上傳
-                const res = await fetch(
-                    `https://vocalborn.r0930514.work/api/practice/sessions/${practice_session_id}/recordings/${sentence_id}`,
+                const res = await fetch(CONFIG.getApiUrl(`/practice/sessions/${practice_session_id}/recordings/${sentence_id}`),
                     {
                         method: 'PUT',
                         headers: { 'Authorization': `Bearer ${token}` }, // 不要自己設定 Content-Type
@@ -940,8 +937,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
 
 
         try {
-            const res = await fetch(
-                `https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=100`,
+            const res = await fetch(CONFIG.getApiUrl(`/practice/sessions?skip=0&limit=100`),
                 {
                     method: 'GET',
                     headers: {
@@ -963,8 +959,7 @@ async function setupScriptButtons(scenarioId,chapterName) {
         }
 
         try {
-            const res = await fetch(
-                `https://vocalborn.r0930514.work/api/practice/sessions/${practice_session_id}/recordings`,
+            const res = await fetch(CONFIG.getApiUrl(`/practice/sessions/${practice_session_id}/recordings`),
                 {
                     method: 'GET',
                     headers: {

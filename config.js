@@ -3,21 +3,40 @@
  * 集中管理所有 API 端點和 WebSocket URL
  */
 
+const GLOBAL_ENV =
+  (typeof window !== 'undefined' && window.__ENV__) ||
+  (typeof globalThis !== 'undefined' && globalThis.__ENV__) ||
+  {};
+
+const PROCESS_ENV =
+  (typeof process !== 'undefined' && process.env) ? process.env : {};
+
+const INJECTED_ENV = {
+  ENV: GLOBAL_ENV.APP_ENV || PROCESS_ENV.APP_ENV || PROCESS_ENV.NODE_ENV || 'production',
+  API_BASE_URL: GLOBAL_ENV.API_BASE_URL || PROCESS_ENV.API_BASE_URL || PROCESS_ENV.VITE_API_BASE_URL || '',
+  WS_URL: GLOBAL_ENV.WS_URL || PROCESS_ENV.WS_URL || PROCESS_ENV.VITE_WS_URL || ''
+};
+
+const DEFAULT_WS_URL =
+  (typeof window !== 'undefined')
+    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api`
+    : 'ws://localhost:8000/api';
+
 const CONFIG = {
   // 環境配置 (可切換為 'development' 或 'production')
-  ENV: 'production',
+  ENV: INJECTED_ENV.ENV,
 
   // API 配置
   API: {
     // 生產環境
     production: {
-      BASE_URL: 'https://vocalborn.r0930514.work/api',
-      WS_URL: 'wss://vocalborn.r0930514.work/api'
+      BASE_URL: '/api',
+      WS_URL: DEFAULT_WS_URL
     },
     // 開發環境
     development: {
-      BASE_URL: 'http://localhost:8000/api',
-      WS_URL: 'ws://localhost:8000'
+      BASE_URL: '/api',
+      WS_URL: DEFAULT_WS_URL
     }
   },
 
@@ -36,7 +55,10 @@ const CONFIG = {
    * @returns {string} API Base URL
    */
   getApiBaseUrl() {
-    return this.API[this.ENV].BASE_URL;
+    if (INJECTED_ENV.API_BASE_URL) {
+      return INJECTED_ENV.API_BASE_URL;
+    }
+    return (this.API[this.ENV] || this.API.production).BASE_URL;
   },
 
   /**
@@ -44,7 +66,10 @@ const CONFIG = {
    * @returns {string} WebSocket URL
    */
   getWsUrl() {
-    return this.API[this.ENV].WS_URL;
+    if (INJECTED_ENV.WS_URL) {
+      return INJECTED_ENV.WS_URL;
+    }
+    return (this.API[this.ENV] || this.API.production).WS_URL;
   },
 
   /**

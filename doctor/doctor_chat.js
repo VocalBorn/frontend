@@ -90,7 +90,7 @@ async function initChatSystem() {
 async function fetchUserProfile() {
     const token = localStorage.getItem("token");
     try {
-        const response = await fetch('https://vocalborn.r0930514.work/api/user/profile', {
+        const response = await fetch(CONFIG.getApiUrl('/user/profile'), {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -279,7 +279,7 @@ async function fetchPairedPatients() {
     }
 
     try {
-        const response = await fetch("https://vocalborn.r0930514.work/api/therapist/my-clients", {
+        const response = await fetch(CONFIG.getApiUrl("/therapist/my-clients"), {
             method: "GET",
             headers: { "Authorization": `Bearer ${token}` }
         });

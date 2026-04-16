@@ -778,7 +778,7 @@ async function initChatSystem() {
 async function fetchUserProfile() {
     const token = localStorage.getItem("token");
     try {
-        const response = await fetch('https://vocalborn.r0930514.work/api/user/profile', {
+        const response = await fetch(CONFIG.getApiUrl('/user/profile'), {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -972,7 +972,7 @@ async function fetchPairedTherapists() {
     }
 
     try {
-        const response = await fetch("https://vocalborn.r0930514.work/api/pairing/my-therapists", {
+        const response = await fetch(CONFIG.getApiUrl("/pairing/my-therapists"), {
             method: "GET",
             headers: { "Authorization": `Bearer ${token}` }
         });
@@ -1418,7 +1418,7 @@ function drawProgressChart(labels, data) {
 }
 async function fetchProgressData() {
     try {
-        const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/overview?recent_days=15", {
+        const res = await fetch(CONFIG.getApiUrl("/practice/progress/overview?recent_days=15"), {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
