@@ -3,50 +3,18 @@
  * 集中管理所有 API 端點和 WebSocket URL
  */
 
-const GLOBAL_ENV =
-  (typeof window !== 'undefined' && window.__ENV__) ||
-  (typeof globalThis !== 'undefined' && globalThis.__ENV__) ||
-  {};
-
-const PROCESS_ENV =
-  (typeof process !== 'undefined' && process.env) ? process.env : {};
-
-const INJECTED_ENV = {
-  ENV: GLOBAL_ENV.APP_ENV || PROCESS_ENV.APP_ENV || PROCESS_ENV.NODE_ENV || 'production',
-  API_BASE_URL: GLOBAL_ENV.API_BASE_URL || PROCESS_ENV.API_BASE_URL || PROCESS_ENV.VITE_API_BASE_URL || '',
-  WS_URL: GLOBAL_ENV.WS_URL || PROCESS_ENV.WS_URL || PROCESS_ENV.VITE_WS_URL || ''
-};
-
-const DEFAULT_PROD_API_BASE_URL =
-  (typeof window !== 'undefined')
-    ? `${window.location.origin}/api`
-    : 'http://localhost:8000/api';
-
-const DEFAULT_PROD_WS_URL =
-  (typeof window !== 'undefined')
-    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api`
-    : 'ws://localhost:8000/api';
-
-const DEFAULT_DEV_API_BASE_URL = 'http://localhost:8000/api';
-const DEFAULT_DEV_WS_URL = 'ws://localhost:8000/api';
-
 const CONFIG = {
-  // 環境配置 (可切換為 'development' 或 'production')
-  ENV: INJECTED_ENV.ENV,
+  // API 基礎 URL (生產環境)
+  // API_BASE_URL: 'https://vocalborn.r0930514.work/api',
 
-  // API 配置
-  API: {
-    // 生產環境
-    production: {
-      BASE_URL: DEFAULT_PROD_API_BASE_URL,
-      WS_URL: DEFAULT_PROD_WS_URL
-    },
-    // 開發環境
-    development: {
-      BASE_URL: DEFAULT_DEV_API_BASE_URL,
-      WS_URL: DEFAULT_DEV_WS_URL
-    }
-  },
+  // API 基礎 URL (開發環境)
+  API_BASE_URL: '/api',
+  
+  // WebSocket URL (生產環境)
+  // WS_URL: 'wss://vocalborn.r0930514.work/api',
+
+  // WebSocket URL (開發環境)
+  WS_URL: '/api',
 
   // 聊天系統配置
   CHAT: {
@@ -59,25 +27,19 @@ const CONFIG = {
   },
 
   /**
-   * 取得當前環境的 API Base URL
+   * 取得 API Base URL
    * @returns {string} API Base URL
    */
   getApiBaseUrl() {
-    if (INJECTED_ENV.API_BASE_URL) {
-      return INJECTED_ENV.API_BASE_URL;
-    }
-    return (this.API[this.ENV] || this.API.production).BASE_URL;
+    return this.API_BASE_URL;
   },
 
   /**
-   * 取得當前環境的 WebSocket URL
+   * 取得 WebSocket URL
    * @returns {string} WebSocket URL
    */
   getWsUrl() {
-    if (INJECTED_ENV.WS_URL) {
-      return INJECTED_ENV.WS_URL;
-    }
-    return (this.API[this.ENV] || this.API.production).WS_URL;
+    return this.WS_URL;
   },
 
   /**
