@@ -7,7 +7,7 @@ async function signInToday() {
   const status = document.getElementById("sign-in-status");
 
   try {
-    const res = await fetch("https://vocalborn.r0930514.work/api/checkin/daily", {
+    const res = await fetch(CONFIG.getApiUrl("/checkin/daily"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +56,7 @@ async function checkTodaySignIn() {
   const status = document.getElementById("sign-in-status");
 
   try {
-    const res = await fetch("https://vocalborn.r0930514.work/api/checkin/status", {
+    const res = await fetch(CONFIG.getApiUrl("/checkin/status"), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -101,7 +101,7 @@ async function checkTodaySignIn() {
 async function getCheckinHistory(limit = 30, page = 0) {
   try {
     const offset = page * limit;
-    const res = await fetch(`https://vocalborn.r0930514.work/api/checkin/history?limit=${limit}&offset=${offset}`, {
+    const res = await fetch(CONFIG.getApiUrl(`/checkin/history?limit=${limit}&offset=${offset}`), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -126,7 +126,7 @@ async function getCheckinHistory(limit = 30, page = 0) {
 // 查詢簽到統計資料
 async function getCheckinStatistics() {
   try {
-    const res = await fetch("https://vocalborn.r0930514.work/api/checkin/statistics", {
+    const res = await fetch(CONFIG.getApiUrl("/checkin/statistics"), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -244,7 +244,7 @@ function closePopup() {
 // 取得近期練習統計
 async function getRecentPracticeProgress(days = 7) {
   try {
-    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/progress/recent?days=${days}`, {
+    const res = await fetch(CONFIG.getApiUrl(`/practice/progress/recent?days=${days}`), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -266,7 +266,7 @@ async function getRecentPracticeProgress(days = 7) {
 // 取得所有練習會話數量統計
 async function getTotalPracticeSessions() {
   try {
-    const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/total-sessions", {
+    const res = await fetch(CONFIG.getApiUrl("/practice/progress/total-sessions"), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -289,7 +289,7 @@ async function getTotalPracticeSessions() {
 // 取得課程進度統計
 async function getCourseProgress() {
   try {
-    const res = await fetch("https://vocalborn.r0930514.work/api/practice/progress/courses", {
+    const res = await fetch(CONFIG.getApiUrl("/practice/progress/courses"), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -311,7 +311,7 @@ async function getCourseProgress() {
 //查詢使用者進度總覽
 async function getProgressOverview(recentDays = 7) {
   try {
-    const res = await fetch(`https://vocalborn.r0930514.work/api/practice/progress/overview?recent_days=${recentDays}`, {
+    const res = await fetch(CONFIG.getApiUrl(`/practice/progress/overview?recent_days=${recentDays}`), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

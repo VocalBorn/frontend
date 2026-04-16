@@ -4,22 +4,17 @@
  */
 
 const CONFIG = {
-  // 環境配置 (可切換為 'development' 或 'production')
-  ENV: 'production',
+  // API 基礎 URL (生產環境)
+  // API_BASE_URL: 'https://vocalborn.r0930514.work/api',
 
-  // API 配置
-  API: {
-    // 生產環境
-    production: {
-      BASE_URL: 'https://vocalborn.r0930514.work/api',
-      WS_URL: 'wss://vocalborn.r0930514.work/api'
-    },
-    // 開發環境
-    development: {
-      BASE_URL: 'http://localhost:8000/api',
-      WS_URL: 'ws://localhost:8000'
-    }
-  },
+  // API 基礎 URL (開發環境)
+  API_BASE_URL: '/api',
+  
+  // WebSocket URL (生產環境)
+  // WS_URL: 'wss://vocalborn.r0930514.work/api',
+
+  // WebSocket URL (開發環境)
+  WS_URL: '/api',
 
   // 聊天系統配置
   CHAT: {
@@ -32,19 +27,19 @@ const CONFIG = {
   },
 
   /**
-   * 取得當前環境的 API Base URL
+   * 取得 API Base URL
    * @returns {string} API Base URL
    */
   getApiBaseUrl() {
-    return this.API[this.ENV].BASE_URL;
+    return this.API_BASE_URL;
   },
 
   /**
-   * 取得當前環境的 WebSocket URL
+   * 取得 WebSocket URL
    * @returns {string} WebSocket URL
    */
   getWsUrl() {
-    return this.API[this.ENV].WS_URL;
+    return this.WS_URL;
   },
 
   /**

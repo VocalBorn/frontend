@@ -44,6 +44,7 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async function() {
       //重新寄送驗證連結
@@ -80,7 +81,7 @@
       }
 
       try {
-        const response = await fetch(`https://vocalborn.r0930514.work/api/user/verify-email/${token}`, {
+        const response = await fetch(CONFIG.getApiUrl(`/user/verify-email/${token}`), {
           method: "GET"
         });
 

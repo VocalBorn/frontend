@@ -1004,7 +1004,7 @@
             }
 
             // 用 token 呼叫需要授權的 API
-            fetch("https://vocalborn.r0930514.work/api/user/profile", {
+            fetch(CONFIG.getApiUrl("/user/profile"), {
                 method: "PATCH",
                 headers: {
                     "Authorization": "Bearer " + token
@@ -1047,7 +1047,7 @@
 
                 try {
                     console.log("送出的 token：", token);
-                    const response = await fetch('https://vocalborn.r0930514.work/api/user/password', {
+                    const response = await fetch(CONFIG.getApiUrl('/user/password'), {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1081,7 +1081,7 @@
             // 取得情境列表
             async function fetchSituations() {
                 try {
-                    const res = await fetch('https://vocalborn.r0930514.work/api/situations/list?skip=0&limit=10', {
+                    const res = await fetch(CONFIG.getApiUrl('/situations/list?skip=0&limit=10'), {
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
@@ -1183,7 +1183,7 @@
                 const situation_id = situationMap[scenarioId];
 
                 try {
-                    const res = await fetch(`https://vocalborn.r0930514.work/api/situations/${situation_id}/chapter/list`, {
+                    const res = await fetch(CONFIG.getApiUrl(`/situations/${situation_id}/chapter/list`), {
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
@@ -1303,7 +1303,7 @@
 
                 // 🔹 載入使用者個人資料（姓名、性別）
                 try {
-                    const res = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
+                    const res = await fetch(CONFIG.getApiUrl("/user/profile"), {
                         method: "GET",
                         headers: {
                             "Authorization": "Bearer " + token
@@ -1363,7 +1363,7 @@
                 }
 
                 try {
-                    const res = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
+                    const res = await fetch(CONFIG.getApiUrl("/user/profile"), {
                         method: "PATCH",
                         headers: {
                             "Content-Type": "application/json",
@@ -1393,7 +1393,7 @@
                 const newGender = document.getElementById("genderSelect").value;
 
                 try {
-                    const res = await fetch("https://vocalborn.r0930514.work/api/user/profile", {
+                    const res = await fetch(CONFIG.getApiUrl("/user/profile"), {
                         method: "PATCH",
                         headers: {
                             "Content-Type": "application/json",

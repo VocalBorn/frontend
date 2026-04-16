@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchPatientsOverview() {
     try {
-      const res = await fetch("https://vocalborn.r0930514.work/api/practice/therapist/patients/overview", {
+      const res = await fetch(CONFIG.getApiUrl("/practice/therapist/patients/overview"), {
         headers: { "Authorization": `Bearer ${token}` }
       });
 
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("會話 ID 不存在");
       }
 
-      const res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/patients/${patientId}/practices?practice_session_id=${sessionId}&pending_feedback_only=false`, {
+      const res = await fetch(CONFIG.getApiUrl(`/practice/therapist/patients/${patientId}/practices?practice_session_id=${sessionId}&pending_feedback_only=false`), {
         method: "GET",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -303,7 +303,7 @@ document.addEventListener("click", (e) => {
     }
 
     // 獲取練習會話詳細資訊（包含時間統計）
-    const sessionRes = await fetch(`https://vocalborn.r0930514.work/api/practice/sessions?skip=0&limit=10&practice_session_id=${patient.practice_session_id}`, {
+    const sessionRes = await fetch(CONFIG.getApiUrl(`/practice/sessions?skip=0&limit=10&practice_session_id=${patient.practice_session_id}`), {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -320,7 +320,7 @@ document.addEventListener("click", (e) => {
     }
 
     // 獲取 AI 分析結果
-    const res = await fetch(`https://vocalborn.r0930514.work/api/ai-analysis/results/${patient.practice_session_id}`, {
+    const res = await fetch(CONFIG.getApiUrl(`/ai-analysis/results/${patient.practice_session_id}`), {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -530,7 +530,7 @@ document.addEventListener("click", (e) => {
 
     try {
       // ---------------- 取得回饋 GET ----------------
-      let res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+      let res = await fetch(CONFIG.getApiUrl(`/practice/therapist/session/${practice_session_id}/feedback`), {
         method: "GET",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -551,7 +551,7 @@ document.addEventListener("click", (e) => {
           content: patient.content?.trim() || "無回饋"
         };
 
-        res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+        res = await fetch(CONFIG.getApiUrl(`/practice/therapist/session/${practice_session_id}/feedback`), {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -574,7 +574,7 @@ document.addEventListener("click", (e) => {
         //const suggestionInput = card.querySelector(".feedback-input");
         const putPayload = { content: feedbackInput.value.trim() };
 
-        res = await fetch(`https://vocalborn.r0930514.work/api/practice/therapist/session/${practice_session_id}/feedback`, {
+        res = await fetch(CONFIG.getApiUrl(`/practice/therapist/session/${practice_session_id}/feedback`), {
           method: "PUT",
           headers: {
             "Authorization": `Bearer ${token}`,
