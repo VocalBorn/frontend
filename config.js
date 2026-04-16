@@ -17,10 +17,18 @@ const INJECTED_ENV = {
   WS_URL: GLOBAL_ENV.WS_URL || PROCESS_ENV.WS_URL || PROCESS_ENV.VITE_WS_URL || ''
 };
 
-const DEFAULT_WS_URL =
+const DEFAULT_PROD_API_BASE_URL =
+  (typeof window !== 'undefined')
+    ? `${window.location.origin}/api`
+    : 'http://localhost:8000/api';
+
+const DEFAULT_PROD_WS_URL =
   (typeof window !== 'undefined')
     ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api`
     : 'ws://localhost:8000/api';
+
+const DEFAULT_DEV_API_BASE_URL = 'http://localhost:8000/api';
+const DEFAULT_DEV_WS_URL = 'ws://localhost:8000/api';
 
 const CONFIG = {
   // 環境配置 (可切換為 'development' 或 'production')
@@ -30,13 +38,13 @@ const CONFIG = {
   API: {
     // 生產環境
     production: {
-      BASE_URL: '/api',
-      WS_URL: DEFAULT_WS_URL
+      BASE_URL: DEFAULT_PROD_API_BASE_URL,
+      WS_URL: DEFAULT_PROD_WS_URL
     },
     // 開發環境
     development: {
-      BASE_URL: '/api',
-      WS_URL: DEFAULT_WS_URL
+      BASE_URL: DEFAULT_DEV_API_BASE_URL,
+      WS_URL: DEFAULT_DEV_WS_URL
     }
   },
 
